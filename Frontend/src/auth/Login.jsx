@@ -244,7 +244,7 @@ const Login = () => {
       <h1 
         
           className="text-4xl font-serif font-semibold  ">SignUp to <span className="text-primary-700  tracking-wider ">NESTESY</span></h1>
-        <p className="mt-3 text-gray-600 tracking-wide text-lg">Welcome back! Please enter your details</p>
+        <p className="mt-3 text-gray-600 tracking-wide text-lg">Welcome to NESTESY! Please enter your details</p>
          
          <form className="py-4">
             <div>
@@ -358,7 +358,7 @@ const Login = () => {
          </form>
 
          <p className="text-center text-gray-600 text-lg mt-3">
-           Don't have an account?{' '}
+           Already have an Account ?{' '}
            <button 
            type="button"
            onClick={() => setSignUpForm(false)}
