@@ -19,7 +19,7 @@ const menuItems = [
 
   return (
     <>
-    <section className="bg-footer text-white py-8 ">
+    <section className="bg-[#06092e] text-white py-8 ">
 
         <div className="container max-w-7xl mx-auto">
         <motion.div
@@ -79,15 +79,15 @@ const menuItems = [
             <h1 className="text-2xl font-semibold">Contact Us</h1> 
             <ul className="mt-2 space-y-2">
                 <li className="text-gray-400 hover:text-primary-300  transition duration-300 cursor-pointer flex items-center gap-2"><Mail size={15} className="text-primary-400" /> : info@nestesy.com</li>
-                <li className="text-gray-400 hover:text-primary-300  transition duration-300 cursor-pointer flex items-center gap-2"><Phone size={15} className="text-primary-400" /> : +1 (123) 456-7890</li>
-                <li className="text-gray-400 hover:text-primary-300  transition duration-300 cursor-pointer flex items-center gap-2"><MapPin size={15} className="text-primary-400" /> : 123 Main Street, City, Country</li>
+                <li className="text-gray-400 hover:text-primary-300  transition duration-300 cursor-pointer flex items-center gap-2"><Phone size={15} className="text-primary-400" /> : +91 90334 65887</li>
+                <li className="text-gray-400 hover:text-primary-300  transition duration-300 cursor-pointer flex items-center gap-2"><MapPin size={15} className="text-primary-400" /> : Sector 27 Delhi , India</li>
             </ul>
            </div>
 
         </motion.div>
            
-           <div className="w-full h-0.5 bg-primary-300 mt-10 "  />
-        <p className="text-center mt-3">All right reserved &copy; 2026 NESTESY</p>
+           <div className="w-full h-px bg-primary-300 mt-10 "  />
+        <p className="text-center mt-3 text-gray-400">All right reserved &copy; 2026 NESTESY</p>
 
 </div>
     </section>
