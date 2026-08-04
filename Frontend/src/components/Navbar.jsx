@@ -4,7 +4,7 @@
 import React ,{useState,useEffect} from 'react'
 import { IoHomeOutline } from "react-icons/io5";
 import { Search ,Heart,Menu, X } from 'lucide-react';
-import {NavLink,useLocation} from 'react-router-dom'
+import {NavLink,useLocation,useNavigate} from 'react-router-dom'
 import {motion,AnimatePresence} from 'framer-motion'
 
 const Navbar = () => {
@@ -15,6 +15,7 @@ const Navbar = () => {
     const[mobileMenuOpen,setMobileMenuOpen]= useState(false);
 
 const location = useLocation();
+const navigate = useNavigate();
 
 useEffect(() => {
   setActiverLink(location.pathname);
@@ -33,10 +34,10 @@ const menuItems = [
 
   return (
    <>
-    <nav className=" fixed w-full bg-white text-gray-800 py-4  flex justify-between md:justify-around items-center z-50">
+    <nav className=" fixed w-full bg-white text-gray-800 py-5  flex justify-between md:justify-around items-center z-50">
       <div className="flex items-center gap-2 cursor-pointer p-1">
-        <IoHomeOutline size={25} className="font-extrabold text-primary-500" />
-        <h1 className="text-2xl font-bold font-serif mt-1 tracking-wider">NESTESY</h1>
+        <IoHomeOutline size={35} className="font-extrabold text-emerald-500" />
+        <h1 className="text-4xl font-bold font-serif mt-1 tracking-wider">NESTESY</h1>
       </div>
 
         {/* mobile navbar menu */}
@@ -55,10 +56,10 @@ const menuItems = [
 
 {/* desktop menu */}
 <div className="hidden md:flex">
-    <ul className="flex items-center justify-around  gap-5 font-semibold ">
+    <ul className="flex items-center justify-around  gap-10 font-semibold ">
         {menuItems.map((item) => (
           <li key={item.link}>
-            <NavLink to={item.link} className={`flex flex-col items-center hover:text-primary-600 text-[16px] transition duration-300 ${activeLink === item.link ? 'text-primary-500 font-bold' : ''}`}>
+            <NavLink to={item.link} className={`flex flex-col items-center  hover:text-primary-500 text-[16px] transition duration-300 ${activeLink === item.link ? 'text-primary-500 font-bold' : ''}`}>
               {item.name}
               {activeLink === item.link && (
                 <motion.span 
@@ -80,7 +81,9 @@ const menuItems = [
 <div className=" hidden md:flex gap-4 ">
     <button><Heart size={18} className="text-primary-500"/></button>
     {/* <button className="bg-primary-500 text-white font-semibold px-3 py-2 rounded-2xl flex items-center gap-1"><Search size={18} className="text-white"/>Search</button> */}
-<button className="bg-primary-500 text-white font-semibold px-3 py-2 rounded-2xl">Login / Sign Up</button>
+<button 
+onClick={()=>navigate("/login")}
+className="bg-primary-500 text-white font-semibold px-3 py-2 rounded-2xl transition-all duration-300 hover:bg-primary-600 hover:scale-102 ">Login / Sign Up</button>
 </div>
       
 
@@ -118,7 +121,7 @@ const menuItems = [
                 to={item.link}
                 onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `text-lg font-semibold transition ${
+                  `text-lg font-semibold transition  ${
                     isActive
                       ? "text-primary-500"
                       : "text-gray-700 hover:text-primary-500"
@@ -136,7 +139,10 @@ const menuItems = [
             Search
           </button>
 
-          <button className="border border-primary-500 text-primary-500 rounded-xl py-3">
+          <button
+          onClick=
+          {()=>navigate("/login")}
+          className="border border-primary-500 text-primary-500 rounded-xl py-3">
             Login / Sign Up
           </button>
         </div>
