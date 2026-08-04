@@ -15,7 +15,7 @@ import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,
        {
         title: "Secure & Reliable",
         icons:ShieldCheck,
-        description: "List your property in minutes with our simple and intuitive process."
+        description: "List your property in minutes with our simple ,easy and intuitive process."
     },
     
     {

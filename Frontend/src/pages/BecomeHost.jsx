@@ -52,6 +52,29 @@ const scrollToRegister = () => {
     },
   };
 
+
+  const CardContainer = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const card = {
+  hidden: { opacity: 0, y: 70, scale: 0.95 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.7,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
   const stats = [
     { icon: Home, value: "15K+", label: "Properties" },
     { icon: Users, value: "50K+", label: "Verified Tenants" },
@@ -205,49 +228,45 @@ const scrollToRegister = () => {
           </motion.div>
 
           {/* Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 mt-16">
+       <motion.div
+  variants={CardContainer}
+  initial="hidden"
+  whileInView="show"
+  viewport={{ once: true, amount: 0.2 }}
+  className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 mt-14"
+>
+ {Benifits.map(({ title, description, icons: Icon }, index) => (
+    <motion.div
+      key={title}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: index * 0.15 }}
+      whileHover={{ y: -12, scale: 1.03 }}
+      className="group relative overflow-hidden rounded-3xl border border-primary-200/60 bg-white p-7 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-500"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
 
-            {Benifits.map((item, index) => {
-              const Icon = item.icons;
-              return (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 60 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.6,
-                    delay: index * 0.18,
-                  }}
-                  viewport={{ once: true }}
-                  whileHover={{
-                    y: -10,
-                    scale: 1.03,
-                  }}
-                  className="group relative rounded-3xl border border-primary-200 bg-primary-50 p-8 shadow-sm transition-all duration-300 hover:bg-primary-500 hover:shadow-2xl "
-                >
+      <div className="relative z-10 flex flex-col items-center text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-100 text-primary-600 shadow-md transition-all duration-500 group-hover:bg-white group-hover:rotate-6 group-hover:scale-110">
+          <Icon size={30} strokeWidth={2.2} />
+        </div>
 
-                  {/* Top Circle */}
-                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary-400 text-white transition-all duration-300 group-hover:bg-white group-hover:text-primary-600">
+        <h3 className="mt-6 text-xl font-semibold text-primary-900 transition-colors duration-300 group-hover:text-white">
+          {title}
+        </h3>
 
-                    <Icon size={30} />
+        <p className="mt-3 text-sm leading-7 text-gray-500 transition-colors duration-300 group-hover:text-primary-100">
+          {description}
+        </p>
 
-                  </div>
+        <div className="mt-6 h-1 w-10 rounded-full bg-primary-500 transition-all duration-500 group-hover:w-20 group-hover:bg-white"></div>
+      </div>
 
-                  <h2 className="text-xl font-semibold text-primary-800 text-center  group-hover:text-white">
-                    {item.title}
-                  </h2>
-
-                  <p className="mt-4 text-center text-gray-500 leading-7 text-sm group-hover:text-white">
-                    {item.description}
-                  </p>
-
-                </motion.div>
-              )
-            }
-            )}
-
-          </div>
-
+      <div className="absolute -top-14 -right-14 h-36 w-36 rounded-full bg-primary-100 blur-3xl opacity-60 group-hover:bg-white/20"></div>
+    </motion.div>
+  ))}
+</motion.div>
         </div>
 
         {/* steps */}
@@ -416,14 +435,15 @@ const scrollToRegister = () => {
         {/* Host register form */}
 
         <div className="w-full p-8" id="Host-Login">
-          <div className=" h-auto grid  grid-cosl-1 md:grid-cols-5 bg-primary-50 rounded-3xl">
+          <div className=" h-auto grid  grid-cosl-1 md:grid-cols-5  rounded-3xl">
             <div className="hidden md:block col-span-2 p-5">
-              <div className="h-full relative   bg-cover rounded-2xl p-2 "
+              <div className="h-full relative   bg-cover rounded-2xl p-2 shadow-2xl "
                 style={{
                   backgroundImage: `url(${formImage})`,
                 }}
               >
-               <div className="bg-white flex gap-5 w-75  p-5 absolute rounded-2xl bottom-10 right-5">
+                 <div className="absolute inset-0 bg-primary-500/20 rounded-2xl"></div>
+               <div className="bg-white flex gap-5 w-75  p-5 absolute rounded-2xl bottom-5 right-5 z-20">
                 <div className=" h-15 w-17 p-3 rounded-full bg-primary-100 flex items-center justify-center text-primary-500"><ShieldCheck  size={35}/></div>
                 <div>
                   <h1 className='font-semibold leading-tight text-xl mb-5'>Join 5000+ <br/>
@@ -435,7 +455,7 @@ const scrollToRegister = () => {
             </div>
 
             
-            <div className="h-full col-span-3  p-8">
+            <div className="h-full col-span-3 bg-gray-50 p-8 rounded-3xl">
               <h3 className="text-primary-600 font-semibold tracking-wider">HOST REGISTRATOIN</h3>
               <h2 className="text-3xl font-semibold" >Start your hosting journey</h2>
               <p className="text-gray-600">Create your host account in few minutes</p>
