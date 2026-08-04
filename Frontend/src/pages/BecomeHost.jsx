@@ -440,8 +440,7 @@ const card = {
               <div className="h-full relative   bg-cover rounded-2xl p-2 shadow-2xl "
                 style={{
                   backgroundImage: `url(${formImage})`,
-                }}
-              >
+                }} >
                  <div className="absolute inset-0 bg-primary-500/20 rounded-2xl"></div>
                <div className="bg-white flex gap-5 w-75  p-5 absolute rounded-2xl bottom-5 right-5 z-20">
                 <div className=" h-15 w-17 p-3 rounded-full bg-primary-100 flex items-center justify-center text-primary-500"><ShieldCheck  size={35}/></div>
