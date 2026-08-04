@@ -5,7 +5,7 @@ import Home from './pages/Home'
 import Footer from './components/Footer'
 import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
-import SignUp from './auth/SignUp'
+import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
 
   const hideRoutes =[
     "/login",
-    "/signup"
+    
   ]
 
   const HideNavbarFooter = hideRoutes.includes(location.pathname);
@@ -32,7 +32,8 @@ function App() {
         <Route path="/" element={<Home/>} />
        
        <Route path="/login" element={<Login/>} />
-        <Route path="/signup" element={<SignUp/>} />
+       <Route path="/become-a-host" element={<BecomeHost/>} />
+       
 
       </Routes>
 

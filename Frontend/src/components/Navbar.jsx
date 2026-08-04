@@ -25,7 +25,7 @@ const menuItems = [
   { name: 'Home', link: '/' },
   { name: 'About', link: '/about' },
   { name: 'Explore', link: '/explore' },
-  {name:'Become Host' , link:"/become-host"},
+  {name:'Become Host' , link:"/become-a-host"},
 
   { name: 'Contact', link: '/contact' },
 ];
@@ -34,10 +34,10 @@ const menuItems = [
 
   return (
    <>
-    <nav className=" fixed w-full bg-white text-gray-800 py-5  flex justify-between md:justify-around items-center z-50">
+    <nav className=" fixed w-full bg-white text-gray-800 py-3  flex justify-between md:justify-around items-center z-50">
       <div className="flex items-center gap-2 cursor-pointer p-1">
-        <IoHomeOutline size={35} className="font-extrabold text-emerald-500" />
-        <h1 className="text-4xl font-bold font-serif mt-1 tracking-wider">NESTESY</h1>
+        <IoHomeOutline size={35} className="font-extrabold text-primary-500" />
+        <h1 className="text-3xl font-bold font-serif mt-1 tracking-wider">NESTESY</h1>
       </div>
 
         {/* mobile navbar menu */}
