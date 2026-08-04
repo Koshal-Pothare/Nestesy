@@ -20,6 +20,7 @@ const BecomeHost = () => {
   };
 }, [openHostLogin]);
 
+
 const scrollToRegister = () => {
   document.getElementById("Host-Login")?.scrollIntoView({
     behavior: "smooth",
