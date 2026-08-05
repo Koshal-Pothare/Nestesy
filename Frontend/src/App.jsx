@@ -7,39 +7,37 @@ import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
 import SignUp from './auth/SignUp'
 import Login from './auth/Login'
+import Contact from "./pages/Contact";
+
 
 function App() {
   const location = useLocation();
-  const pathname = Location.pathname;
+  const pathname = location.pathname;
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  const hideRoutes =[
+  const hideRoutes = [
     "/login",
     "/signup"
-  ]
+  ];
 
   const HideNavbarFooter = hideRoutes.includes(location.pathname);
 
-
   return (
     <>
-  
-      {!HideNavbarFooter &&<Navbar/> }
-      <Routes>
-        <Route path="/" element={<Home/>} />
-       
-       <Route path="/login" element={<Login/>} />
-        <Route path="/signup" element={<SignUp/>} />
+      {!HideNavbarFooter && <Navbar />}
 
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
 
-
-      {!HideNavbarFooter &&<Footer/> }
+      {!HideNavbarFooter && <Footer />}
     </>
-  )
+  );
 }
-
 export default App
