@@ -7,6 +7,9 @@ import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
 import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
+import Explore from './pages/Explore'
+
+
 
 function App() {
   const location = useLocation();
@@ -33,6 +36,7 @@ function App() {
        
        <Route path="/login" element={<Login/>} />
        <Route path="/become-a-host" element={<BecomeHost/>} />
+         <Route path="/explore" element={<Explore/>} />
        
 
       </Routes>

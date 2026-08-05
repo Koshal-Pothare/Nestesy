@@ -292,8 +292,8 @@ const card = {
                 <motion.div
                   initial={{ width: 0 }}
                   whileInView={{ width: "100%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 2 }}
+                  viewport={{ once: true ,amount:0.5}}
+                  transition={{ duration: 3 }}
                   className="h-full bg-primary-500"
                 />
               </div>
@@ -327,9 +327,9 @@ const card = {
                         x: 0,
                         y: 0,
                       }}
-                      viewport={{ once: true }}
+                      viewport={{ once: true,amount:0.9 }}
                       transition={{
-                        delay: index * 0.45,
+                        delay: index * 0.50,
                         duration: 0.7,
                         ease: "easeOut",
                       }}
