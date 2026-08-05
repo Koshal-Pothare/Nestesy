@@ -162,7 +162,7 @@ const card = {
             </div>
 
             {/* Glassmorphism Stats */}
-            <motion.div variants={item} className="mt-10 max-w-2xl">
+            <motion.div variants={item} className="mt-10 max-w-2xl hidden md:flex">
               <div className="flex rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl overflow-hidden">
                 {stats.map(({ icon: Icon, value, label }, i) => (
                   <div

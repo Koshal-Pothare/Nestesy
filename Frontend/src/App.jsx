@@ -13,10 +13,11 @@ import Explore from './pages/Explore'
 
 function App() {
   const location = useLocation();
-  const pathname = Location.pathname;
+  const pathname = location.pathname;
 
   useLayoutEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0, 
+     );
   }, [pathname]);
 
   const hideRoutes =[
@@ -25,6 +26,7 @@ function App() {
   ]
 
   const HideNavbarFooter = hideRoutes.includes(location.pathname);
+
 
 
   return (

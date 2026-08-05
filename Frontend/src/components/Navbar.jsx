@@ -21,6 +21,8 @@ useEffect(() => {
   setActiverLink(location.pathname);
 }, [location]);
 
+
+
 const menuItems = [
   { name: 'Home', link: '/' },
   { name: 'About', link: '/about' },

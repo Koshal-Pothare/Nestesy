@@ -4,22 +4,16 @@ import { AnimatePresence, motion } from 'framer-motion'
 import ExploreSkeleton from '../components/ExploreSkeleton'
 import {
     ShieldCheck, User, Headset, IndianRupee, MapPin, Building2, Wallet2, Wallet, Search, ChevronUp,
-    BedDouble, Bath, Ruler, Heart, ListFilterPlus
+    BedDouble, Bath, Ruler, Heart, ListFilterPlus,Home
 } from 'lucide-react'
 import { Properties } from '../Data/Data'
+import ExploreSidebar from '../components/ExploreSidebar'
+import CTA from '../assets/Explore/CTA.png'
 
 const Explore = () => {
 
     const [propertyLoading, StylePropertyLoading] = useState(false);
-    const [openFilters, setOpenFilters] = useState({
-        location: true,
-        propertyType: true,
-        priceRange: true,
-        bedroom: true,
-        furnishing: true,
-        amenities: true,
-        availability: true,
-    });
+  
     const [currentPage, setCurrentPage] = useState(1);
 
     const propertiesPerPage = 9;
@@ -94,139 +88,6 @@ const Explore = () => {
         { icon: Headset, label: "24/7 Support" },
     ];
 
-
-
-
-
-
-    const toggleFilter = (filter) => {
-        setOpenFilters((prev) => ({
-            ...prev,
-            [filter]: !prev[filter],
-        }));
-    };
-
-
-    const filters = [
-        {
-            id: "location",
-            title: "Location",
-            content: (
-                <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-4 py-3">
-                    <Search size={18} className="text-primary-600" />
-                    <input
-                        type="text"
-                        placeholder="Search Location"
-                        className="w-full outline-none"
-                    />
-                </div>
-            ),
-        },
-
-        {
-            id: "property",
-            title: "Property Type",
-            content: (
-                <div className="space-y-3">
-                    {["Apartment", "Villa", "Independent House", "PG"].map((item) => (
-                        <label key={item} className="flex items-center gap-3 cursor-pointer">
-                            <input type="checkbox" className="accent-primary-600" />
-                            <span>{item}</span>
-                        </label>
-                    ))}
-                </div>
-            ),
-        },
-
-        {
-            id: "price",
-            title: "Price Range",
-            content: (
-                <div>
-                    <input type="range" className="w-full accent-primary-600" />
-                    <div className="flex justify-between text-sm mt-2">
-                        <span>₹5k</span>
-                        <span>₹50k+</span>
-                    </div>
-                </div>
-            ),
-        },
-
-        {
-            id: "bedroom",
-            title: "Bedroom",
-            content: (
-                <div className="flex flex-wrap gap-2">
-                    {[1, 2, 3, "4+"].map((item) => (
-                        <button
-                            key={item}
-                            className="px-4 py-2 rounded-xl border hover:bg-primary-600 hover:text-white transition"
-                        >
-                            {item}
-                        </button>
-                    ))}
-                </div>
-            ),
-        },
-
-        {
-            id: "furnishing",
-            title: "Furnishing",
-            content: (
-                <div className="space-y-3">
-                    {["Fully Furnished", "Semi Furnished", "Unfurnished"].map((item) => (
-                        <label key={item} className="flex items-center gap-3 cursor-pointer">
-                            <input type="checkbox" className="accent-primary-600" />
-                            <span>{item}</span>
-                        </label>
-                    ))}
-                </div>
-            ),
-        },
-
-        {
-            id: "amenities",
-            title: "Amenities",
-            content: (
-                <div className="grid grid-cols-2 gap-3">
-                    {[
-                        "Parking",
-                        "Gym",
-                        "Lift",
-                        "WiFi",
-                        "AC",
-                        "Security",
-                        "Pool",
-                        "Power Backup",
-                    ].map((item) => (
-                        <label key={item} className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" className="accent-primary-600" />
-                            <span className="text-sm">{item}</span>
-                        </label>
-                    ))}
-                </div>
-            ),
-        },
-
-        {
-            id: "availability",
-            title: "Availability",
-            content: (
-                <div className="space-y-3">
-                    {["Immediate", "Within 15 Days", "Next Month"].map((item) => (
-                        <label key={item} className="flex items-center gap-3 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="availability"
-                                className="accent-primary-600"
-                            />
-                            <span>{item}</span>
-                        </label>
-                    ))}
-                </div>
-            ),
-        },
-    ];
 
     return (
         <section>
@@ -381,65 +242,11 @@ const Explore = () => {
 
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
 
                         {/* Sidebar */}
 
-                        <div className="hidden col-span-1 lg:block rounded-3xl border border-gray-200 bg-white  shadow-sm">
-
-                            <div className="w-full flex items-center justify-between px-6 py-3">
-                                <h3 className='text-[23px]  font-semibold'>Filters</h3>
-                                <button className='text-sm font-bold text-primary-700 mt-3'>Reset All</button>
-                            </div>
-
-                            <div className="w-full h-px mb-3 bg-gray-300" />
-
-                            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
-
-                                {filters.map((filter) => (
-                                    <div key={filter.id}>
-
-                                        <button
-                                            onClick={() => toggleFilter(filter.id)}
-                                            className="w-full px-6 py-5 flex items-center justify-between hover:bg-primary-50 transition"
-                                        >
-                                            <h3 className="text-lg font-semibold">
-                                                {filter.title}
-                                            </h3>
-
-                                            <ChevronUp
-                                                className={`transition-transform duration-300 ${openFilters[filter.id] ? "rotate-180" : ""
-                                                    }`}
-                                            />
-                                        </button>
-
-                                        <AnimatePresence initial={true}>
-                                            {openFilters[filter.id] && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: "auto", opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.3 }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <div className="px-6 pb-5">
-                                                        {filter.content}
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-
-                                        <div className="mx-6 h-px bg-gray-200" />
-
-                                    </div>
-                                ))}
-
-                            </div>
-                            <div className="w-full px-4 py-5">
-                                <button className='bg-primary-600 text-md font-semibold py-3 w-full text-white rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary-500 hover:scale-105'> <ListFilterPlus />Apply Filters</button>
-                            </div>
-                        </div>
-
+                     <ExploreSidebar/>
 
 
                         {/* Property Grid */}
@@ -447,12 +254,15 @@ const Explore = () => {
                         <div className="lg:col-span-3">
 
                             <div className="w-full flex justify-end">
-                                <div className='shadow-2xl bg-gray-200 p-3 rounded-2xl mb-5 flex items-center gap-2'>
+                                <div className=' shadow-2xl shadow-gray-500/20 bg-primary-600 text-white p-3 rounded-2xl mb-5 flex items-center gap-2 '>
                                     <p className='font-semibold text-md'>Sorted by</p>
-                                <select className="outline-none text-center">
-                                <option>Newest</option>
+                                <select className="outline-none text-center ">
+                                <option className=''>Newest</option>
+                                <option>High-Low</option>
+                                <option>Low-High</option>
                                 <option>Student</option>
                                 <option>Working Professional</option>
+                                
                                 </select>
                                 </div>
                             </div>
@@ -466,11 +276,6 @@ const Explore = () => {
                                 {currentProperties.map((property, index) => (
                                     <motion.div
                                         key={property.id}
-                                        // initial={{ opacity: 0, y: 40 }}
-                                        // whileInView={{ opacity: 1, y: 0 }}
-                                        // transition={{ duration: .5, delay: index * .08 }}
-                                        // viewport={{ once: true }}
-                                        // whileHover={{ y: -8 }}
                                         className="group overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300"
                                     >
 
@@ -541,16 +346,11 @@ const Explore = () => {
                                     </motion.div>
                                 ))}
 
-
-
-
-
                             </motion.div>
 
                             {/* Pagination */}
 
                             <div className="flex justify-center items-center gap-3 mt-12">
-
                                 <button
                                     disabled={currentPage === 1}
                                   onClick={() => setCurrentPage(prev => prev - 1)}
@@ -582,23 +382,83 @@ const Explore = () => {
 
                             </div>
 
-
                         </div>
 
-
-
-
                     </div>
-
                 </>
 
                 )}
 
+                
+
             </div>
 
+            {/* CTA */}
 
+             <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+          className="w-full px-6 py-20"
 
+          
+        >
+          <div
+           style={{
+                        backgroundImage: `url(${CTA})`,
+                    }}
+          className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
 
+           
+            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+
+              {/* Left Content */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+
+                <motion.div
+                  whileHover={{
+                    rotate: 8,
+                    scale: 1.08,
+                  }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-500 shadow-lg"
+                >
+                  <Home size={42} className="text-white" />
+                </motion.div>
+
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-serif font-semibold text-white">
+                    You've Saved the Best. Now Choose One.
+                  </h2>
+
+                  <p className="mt-3 text-primary-100 text-base md:text-lg max-w-xl leading-7">
+                 Explore your wishlist and schedule a visit for the properties that caught your eye.
+                  </p>
+                </div>
+
+              </div>
+
+              {/* CTA Button */}
+              <motion.button
+                whileHover={{
+                  scale: 1.05,
+                  y: -2,
+                }}
+                whileTap={{
+                  scale: 0.96,
+                }}
+               
+                className="bg-white/30 backdrop-blur-sm text-primary-600 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50"
+              >
+              Explore Favorites
+              </motion.button>
+
+            </div>
+
+          </div>
+        </motion.div>
+               
         </section>
     )
 }
