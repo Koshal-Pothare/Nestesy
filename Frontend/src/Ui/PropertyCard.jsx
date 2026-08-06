@@ -49,7 +49,7 @@ const PropertyCard = ({ property, index }) => {
                     <button
                         onClick={handleFavorite}
                         className={`absolute top-3 right-3 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 ${favorite
-                                ? "bg-red-500 text-white"
+                                ? "bg-white text-red-500"
                                 : "bg-white text-gray-600 hover:bg-primary-600 hover:text-white"
                             }`}
                     >

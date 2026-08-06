@@ -9,6 +9,7 @@ import {Heart ,BedDouble,Bath,Ruler} from 'lucide-react'
 import { getFavorites } from "../utils/favorite";
 import PropertyCard from '../Ui/PropertyCard'
 import Pagination from '../components/Pagination'
+import CTA from '../assets/Explore/CTA.png'
 
 
 
@@ -92,7 +93,13 @@ const[isSavedDataLoading , setIsSaveDataLoading]= useState(false);
 
                         {/* Sidebar */}
 
-                     <ExploreSidebar/>
+                       <div className="hidden col-span-1 lg:block rounded-3xl border border-primary-300 bg-white shadow-2xl p-5 h-auto"
+                       style={{backgroundImage:`url(${CTA})`}}
+                       >
+                        <h1 className='text-white text-2xl font-semibold leading-8'>Let's find your <br/>perfect place</h1>
+                         <p>Our verified host are here to help you fina a home  you'll love .</p>
+                         <button className='bg-primary-600 text-white py-3 px-4 '>Explore Properties </button>
+                       </div>
 
 
                         {/* Property Grid */}
@@ -120,74 +127,7 @@ const[isSavedDataLoading , setIsSaveDataLoading]= useState(false);
                                 className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
                             >
                                 {currentProperties.map((property, index) => (
-                                    <motion.div
-                                        key={property.id}
-                                        className="group overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300"
-                                    >
-
-                                        {/* Image */}
-
-                                        <div className="relative overflow-hidden h-56">
-                                            <img
-                                                src={property.image}
-                                                alt={property.title}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            />
-
-                                            <span className="absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-md bg-primary-600 text-white">
-                                                Featured
-                                            </span>
-
-                                          
-                                        </div>
-
-                                        {/* Content */}
-
-                                        <div className="p-5">
-
-                                            <h2 className="text-xl font-semibold text-gray-900 line-clamp-1">
-                                                {property.title}
-                                            </h2>
-
-                                            <p className="text-sm text-gray-500 mt-1">
-                                                {property.location}
-                                            </p>
-
-                                            {/* Details */}
-
-                                            <div className="flex items-center gap-4 text-gray-500 text-sm mt-4">
-
-                                                <div className="flex items-center gap-1">
-                                                    <BedDouble size={16} />
-                                                    <span>{property.bedrooms} Beds</span>
-                                                </div>
-
-                                                <div className="flex items-center gap-1">
-                                                    <Bath size={16} />
-                                                    <span>{property.bedrooms} Baths</span>
-                                                </div>
-
-                                                <div className="flex items-center gap-1">
-                                                    <Ruler size={16} />
-                                                    <span>{property.area} sq.ft</span>
-                                                </div>
-
-                                            </div>
-
-                                            {/* Price */}
-
-                                            <div className="mt-5 flex items-end gap-1">
-                                                <span className="text-3xl font-bold text-primary-700">
-                                                    ₹{property.price.toLocaleString()}
-                                                </span>
-                                                <span className="text-gray-500 text-sm mb-1">
-                                                    /month
-                                                </span>
-                                            </div>
-
-                                        </div>
-
-                                    </motion.div>
+                                     <PropertyCard property={property} index={index} key={property.id} />
                                 ))}
 
                             </motion.div>
