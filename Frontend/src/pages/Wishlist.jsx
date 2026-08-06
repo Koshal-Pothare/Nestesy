@@ -6,32 +6,46 @@ import ExploreSkeleton from '../components/ExploreSkeleton'
 import ExploreSidebar from '../components/ExploreSidebar';
 import{motion,AnimatePresence} from 'framer-motion'
 import {Heart ,BedDouble,Bath,Ruler} from 'lucide-react'
+import { getFavorites } from "../utils/favorite";
+import PropertyCard from '../Ui/PropertyCard'
+import Pagination from '../components/Pagination'
+
+
 
 
 const Wishlist = () => {
+
+const [favorites, setFavorites] = useState([]);
+
+useEffect(() => {
+  const loadFavorites = () => {
+    setFavorites(getFavorites());
+  };
+
+  loadFavorites();
+
+  window.addEventListener("storage", loadFavorites);
+
+  return () => window.removeEventListener("storage", loadFavorites);
+}, []);
 
 
 const[isSavedDataLoading , setIsSaveDataLoading]= useState(false);
  const [currentPage, setCurrentPage] = useState(1);
 
-    const propertiesPerPage = 9;
+    const propertiesPerPage = 6;
 
-    const totalPages = Math.ceil(Properties.length / propertiesPerPage);
+    const totalPages = Math.ceil(favorites.length / propertiesPerPage);
 
     const indexOfLastProperty = currentPage * propertiesPerPage;
     const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
 
-    const currentProperties = Properties.slice(
+    const currentProperties = favorites.slice(
         indexOfFirstProperty,
         indexOfLastProperty
     );
 
-  useEffect(() => {
-  window.scrollTo({
-    top: 700, 
-    behavior: "smooth",
-  });
-}, [currentPage]);
+
 
 
   return (
@@ -72,12 +86,7 @@ const[isSavedDataLoading , setIsSaveDataLoading]= useState(false);
  <div className="py-20 w-full  p-10">
 
                 {isSavedDataLoading ? (<ExploreSkeleton />) : (<>
-                    <div className=" p-5">
-                        <h2 className="font-semibold text-4xl">Explore Homes</h2>
-                        <p className="mt-2 font-semibold text-gray-700">Find your perfect place from thousands of verified properties</p>
-
-
-                    </div>
+                   
 
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
 
@@ -129,9 +138,7 @@ const[isSavedDataLoading , setIsSaveDataLoading]= useState(false);
                                                 Featured
                                             </span>
 
-                                            <button className="absolute top-3 right-3 h-9 w-9 rounded-full bg-white shadow flex items-center justify-center hover:bg-primary-600 hover:text-white transition">
-                                                <Heart size={18} />
-                                            </button>
+                                          
                                         </div>
 
                                         {/* Content */}
@@ -188,34 +195,13 @@ const[isSavedDataLoading , setIsSaveDataLoading]= useState(false);
                             {/* Pagination */}
 
                             <div className="flex justify-center items-center gap-3 mt-12">
-                                <button
-                                    disabled={currentPage === 1}
-                                  onClick={() => setCurrentPage(prev => prev - 1)}
-                                    className="px-4 py-2 rounded-xl border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-50"
-                                >
-                                    Previous
-                                </button>
-
-                                {Array.from({ length: totalPages }, (_, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setCurrentPage(i + 1)}
-                                        className={`h-11 w-11 rounded-xl font-semibold transition ${currentPage === i + 1
-                                                ? "bg-primary-600 text-white"
-                                                : "border hover:bg-primary-50"
-                                            }`}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
-
-                                <button
-                                    disabled={currentPage === totalPages}
-                                 onClick={() => setCurrentPage(prev => prev + 1)}
-                                    className="px-4 py-2 rounded-xl border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-50"
-                                >
-                                    Next
-                                </button>
+                               <Pagination
+                                    currentPage={currentPage}
+                                    setCurrentPage={setCurrentPage}
+                                    totalItems={favorites.length}
+                                    itemsPerPage={propertiesPerPage}
+                                    scrollTo={700}
+                                />
 
                             </div>
 

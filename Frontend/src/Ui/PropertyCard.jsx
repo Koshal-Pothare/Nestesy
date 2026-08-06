@@ -1,8 +1,30 @@
-import React from 'react'
-import{motion,AnimatePresence} from 'framer-motion'
-import {Heart ,BedDouble,Bath,Ruler} from 'lucide-react'
+import React,{useState} from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Heart, BedDouble, Bath, Ruler } from 'lucide-react'
+import { toggleFavorite, isFavorite } from "../utils/favorite";
+import { ToastContainer, toast, Slide } from "react-toastify";
 
-const PropertyCard = ({property,index}) => {
+
+
+const PropertyCard = ({ property, index }) => {
+
+     const [favorite, setFavorite] = useState(
+    isFavorite(property.id)
+  );
+
+  const handleFavorite = () => {
+    const added = toggleFavorite(property);
+
+    setFavorite(added);
+
+    if (added) {
+      toast.success("Property added to Wishlist ❤️");
+    } else {
+      toast.info("Property removed from Wishlist");
+    }
+  };
+
+
     return (
         <>
 
@@ -24,8 +46,17 @@ const PropertyCard = ({property,index}) => {
                         Featured
                     </span>
 
-                    <button className="absolute top-3 right-3 h-9 w-9 rounded-full bg-white shadow flex items-center justify-center hover:bg-primary-600 hover:text-white transition">
-                        <Heart size={18} />
+                    <button
+                        onClick={handleFavorite}
+                        className={`absolute top-3 right-3 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 ${favorite
+                                ? "bg-red-500 text-white"
+                                : "bg-white text-gray-600 hover:bg-primary-600 hover:text-white"
+                            }`}
+                    >
+                        <Heart
+                            size={18}
+                            fill={favorite ? "currentColor" : "none"}
+                        />
                     </button>
                 </div>
 

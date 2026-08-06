@@ -4,17 +4,19 @@ import { AnimatePresence, motion } from 'framer-motion'
 import ExploreSkeleton from '../components/ExploreSkeleton'
 import {
     ShieldCheck, User, Headset, IndianRupee, MapPin, Building2, Wallet2, Wallet, Search, ChevronUp,
-    BedDouble, Bath, Ruler, Heart, ListFilterPlus,Home
+    BedDouble, Bath, Ruler, Heart, ListFilterPlus, Home
 } from 'lucide-react'
 import { Properties } from '../Data/Data'
 import ExploreSidebar from '../components/ExploreSidebar'
 import CTA from '../assets/Explore/CTA.png'
 import PropertyCard from '../Ui/PropertyCard'
+import { useNavigate } from "react-router-dom"
+import Pagination from '../components/Pagination'
 
 const Explore = () => {
 
     const [propertyLoading, StylePropertyLoading] = useState(false);
-  
+
     const [currentPage, setCurrentPage] = useState(1);
 
     const propertiesPerPage = 9;
@@ -29,12 +31,9 @@ const Explore = () => {
         indexOfLastProperty
     );
 
-  useEffect(() => {
-  window.scrollTo({
-    top: 700, 
-    behavior: "smooth",
-  });
-}, [currentPage]);
+   
+
+    const navigate = useNavigate();
 
     const container = {
         hidden: {},
@@ -90,9 +89,7 @@ const Explore = () => {
     ];
 
 
-    // const AddtoFav=()=>{
-    //     const fav = JSON.
-    // }
+
 
     return (
         <section>
@@ -251,7 +248,7 @@ const Explore = () => {
 
                         {/* Sidebar */}
 
-                     <ExploreSidebar/>
+                        <ExploreSidebar />
 
 
                         {/* Property Grid */}
@@ -261,14 +258,14 @@ const Explore = () => {
                             <div className="w-full flex justify-end">
                                 <div className=' shadow-2xl shadow-gray-500/20 bg-primary-600 text-white p-3 rounded-2xl mb-5 flex items-center gap-2 '>
                                     <p className='font-semibold text-md'>Sorted by</p>
-                                <select className="outline-none text-center ">
-                                <option className=''>Newest</option>
-                                <option>High-Low</option>
-                                <option>Low-High</option>
-                                <option>Student</option>
-                                <option>Working Professional</option>
-                                
-                                </select>
+                                    <select className="outline-none text-center ">
+                                        <option className=''>Newest</option>
+                                        <option>High-Low</option>
+                                        <option>Low-High</option>
+                                        <option>Student</option>
+                                        <option>Working Professional</option>
+
+                                    </select>
                                 </div>
                             </div>
 
@@ -279,43 +276,21 @@ const Explore = () => {
                                 className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
                             >
                                 {currentProperties.map((property, index) => (
-                                   <PropertyCard property={property} index={index} key={property.id}/>
+                                    <PropertyCard property={property} index={index} key={property.id} />
                                 ))}
 
                             </motion.div>
 
                             {/* Pagination */}
 
-                            <div className="flex justify-center items-center gap-3 mt-12">
-                                <button
-                                    disabled={currentPage === 1}
-                                  onClick={() => setCurrentPage(prev => prev - 1)}
-                                    className="px-4 py-2 rounded-xl border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-50"
-                                >
-                                    Previous
-                                </button>
-
-                                {Array.from({ length: totalPages }, (_, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setCurrentPage(i + 1)}
-                                        className={`h-11 w-11 rounded-xl font-semibold transition ${currentPage === i + 1
-                                                ? "bg-primary-600 text-white"
-                                                : "border hover:bg-primary-50"
-                                            }`}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
-
-                                <button
-                                    disabled={currentPage === totalPages}
-                                 onClick={() => setCurrentPage(prev => prev + 1)}
-                                    className="px-4 py-2 rounded-xl border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-50"
-                                >
-                                    Next
-                                </button>
-
+                            <div className="flex justify-end items-center gap-3 mt-12">
+                                <Pagination
+                                    currentPage={currentPage}
+                                    setCurrentPage={setCurrentPage}
+                                    totalItems={Properties.length}
+                                    itemsPerPage={propertiesPerPage}
+                                    scrollTo={700}
+                                />
                             </div>
 
                         </div>
@@ -325,76 +300,76 @@ const Explore = () => {
 
                 )}
 
-                
+
 
             </div>
 
             {/* CTA */}
 
-             <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true }}
-          className="w-full px-6 py-20"
+            <motion.div
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7 }}
+                viewport={{ once: true }}
+                className="w-full px-6 py-20"
 
-          
-        >
-          <div
-           style={{
+
+            >
+                <div
+                    style={{
                         backgroundImage: `url(${CTA})`,
                     }}
-          className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
+                    className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
 
-           
-            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
 
-              {/* Left Content */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
 
-                <motion.div
-                  whileHover={{
-                    rotate: 8,
-                    scale: 1.08,
-                  }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-500 shadow-lg"
-                >
-                  <Home size={42} className="text-white" />
-                </motion.div>
+                        {/* Left Content */}
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
 
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-serif font-semibold text-white">
-                    You've Saved the Best. Now Choose One.
-                  </h2>
+                            <motion.div
+                                whileHover={{
+                                    rotate: 8,
+                                    scale: 1.08,
+                                }}
+                                transition={{ type: "spring", stiffness: 300 }}
+                                className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-500 shadow-lg"
+                            >
+                                <Home size={42} className="text-white" />
+                            </motion.div>
 
-                  <p className="mt-3 text-primary-100 text-base md:text-lg max-w-xl leading-7">
-                 Explore your wishlist and schedule a visit for the properties that caught your eye.
-                  </p>
+                            <div>
+                                <h2 className="text-3xl md:text-4xl font-serif font-semibold text-white">
+                                    You've Saved the Best. Now Choose One.
+                                </h2>
+
+                                <p className="mt-3 text-primary-100 text-base md:text-lg max-w-xl leading-7">
+                                    Explore your wishlist and schedule a visit for the properties that caught your eye.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        {/* CTA Button */}
+                        <motion.button
+                            whileHover={{
+                                scale: 1.05,
+                                y: -2,
+                            }}
+                            whileTap={{
+                                scale: 0.96,
+                            }}
+                            onClick={() => navigate("/wishlist")}
+                            className="bg-transparent backdrop-blur-xl  text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
+                        >
+                            Explore Whishlist
+                        </motion.button>
+
+                    </div>
+
                 </div>
+            </motion.div>
 
-              </div>
-
-              {/* CTA Button */}
-              <motion.button
-                whileHover={{
-                  scale: 1.05,
-                  y: -2,
-                }}
-                whileTap={{
-                  scale: 0.96,
-                }}
-               
-                className="bg-transparent backdrop-blur-xl  text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
-              >
-              Explore Whishlist
-              </motion.button>
-
-            </div>
-
-          </div>
-        </motion.div>
-               
         </section>
     )
 }
