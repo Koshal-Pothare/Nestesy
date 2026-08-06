@@ -7,7 +7,11 @@ import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
 import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
+
+import Contact from "./pages/Contact";
+
 import Explore from './pages/Explore'
+
 
 
 
@@ -20,8 +24,18 @@ function App() {
      );
   }, [pathname]);
 
-  const hideRoutes =[
+  const hideRoutes = [
     "/login",
+
+    "/signup"
+  ];
+
+  const HideNavbarFooter = hideRoutes.includes(location.pathname);
+
+  return (
+    <>
+      {!HideNavbarFooter && <Navbar />}
+
     
   ]
 
@@ -41,12 +55,16 @@ function App() {
          <Route path="/explore" element={<Explore/>} />
        
 
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
 
-
-      {!HideNavbarFooter &&<Footer/> }
+      {!HideNavbarFooter && <Footer />}
     </>
-  )
+  );
 }
-
 export default App
