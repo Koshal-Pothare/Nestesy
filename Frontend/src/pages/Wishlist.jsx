@@ -9,7 +9,8 @@ import {Heart ,BedDouble,Bath,Ruler} from 'lucide-react'
 import { getFavorites } from "../utils/favorite";
 import PropertyCard from '../Ui/PropertyCard'
 import Pagination from '../components/Pagination'
-import CTA from '../assets/Explore/CTA.png'
+
+import WishlistSidebar from '../components/WishlistSidebar';
 
 
 
@@ -93,14 +94,15 @@ const[isSavedDataLoading , setIsSaveDataLoading]= useState(false);
 
                         {/* Sidebar */}
 
-                       <div className="hidden col-span-1 lg:block rounded-3xl border border-primary-300 bg-white shadow-2xl p-5 h-auto"
+                       {/* <div className="hidden col-span-1 lg:block rounded-3xl border border-primary-300 bg-white shadow-2xl py-10 px-5 h-[600px] mt-17"
                        style={{backgroundImage:`url(${CTA})`}}
                        >
                         <h1 className='text-white text-2xl font-semibold leading-8'>Let's find your <br/>perfect place</h1>
                          <p>Our verified host are here to help you fina a home  you'll love .</p>
                          <button className='bg-primary-600 text-white py-3 px-4 '>Explore Properties </button>
-                       </div>
-
+                       </div> */}
+                       
+                       <WishlistSidebar />
 
                         {/* Property Grid */}
 
