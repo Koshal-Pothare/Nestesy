@@ -1,5 +1,8 @@
 import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react'
 
+
+
+// Become Host Benifits
  export const Benifits=[
  
     {
@@ -28,7 +31,7 @@ import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,
 
 
 
-
+//Become host steps 
 export const HostSteps =[
     {id:1 , title:"Register" , icon: UserRoundPlus ,desc:"Sign up as a host and complete your profile verification"},
      {id:2 , title:"Add Property" , icon: House ,desc:"Add property details, photos, amenities and pricing"},
@@ -41,6 +44,7 @@ export const HostSteps =[
 
 
 
+// Explore page properties
 
 export const Properties = [
 {

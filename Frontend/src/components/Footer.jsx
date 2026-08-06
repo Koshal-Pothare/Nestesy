@@ -12,7 +12,7 @@ const menuItems = [
   { name: 'Home', link: '/' },
   { name: 'About', link: '/about' },
   { name: 'Explore', link: '/explore' },
-  {name:'Become Host' , link:"/become-host"},
+  {name:'Become Host' , link:"/become-a-host"},
 
  
 ];

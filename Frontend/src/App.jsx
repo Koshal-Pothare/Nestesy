@@ -26,45 +26,30 @@ function App() {
 
   const hideRoutes = [
     "/login",
-
-    "/signup"
+   
   ];
 
   const HideNavbarFooter = hideRoutes.includes(location.pathname);
 
-  return (
-    <>
-      {!HideNavbarFooter && <Navbar />}
-
-    
-  ]
-
-  const HideNavbarFooter = hideRoutes.includes(location.pathname);
 
 
 
   return (
+
     <>
   
       {!HideNavbarFooter &&<Navbar/> }
       <Routes>
-        <Route path="/" element={<Home/>} />
-       
-       <Route path="/login" element={<Login/>} />
-       <Route path="/become-a-host" element={<BecomeHost/>} />
-         <Route path="/explore" element={<Explore/>} />
-       
-
-
-      <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
+             <Route path="/become-a-host" element={<BecomeHost/>} />
+         <Route path="/explore" element={<Explore/>} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
 
       {!HideNavbarFooter && <Footer />}
+
     </>
   );
 }
-export default App
+export default App;
