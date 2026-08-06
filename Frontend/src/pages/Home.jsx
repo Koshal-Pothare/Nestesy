@@ -12,7 +12,11 @@ import {
   Bath,
   Square,
   Heart,
-  ArrowRight,
+  ArrowRight, 
+  ShieldCheck,
+  UserCheck,
+  Tag,
+  Headset,
 } from "lucide-react";
 import { 
   Homeproperties, 
@@ -92,13 +96,11 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
  const containerRef = useRef(null);
  const [duplicatedCities, setDuplicatedCities] = useState([]);
 
- // Duplicate cities for infinite scroll effect
- useEffect(() => {
-   // Duplicate the cities array twice for seamless looping
+ //  infinite scroll effect
+ useEffect(() => { 
    setDuplicatedCities([...cities, ...cities, ...cities]);
  }, []);
-
- // Continuous scroll animation
+ 
  useEffect(() => {
    if (isPaused || duplicatedCities.length === 0) return;
 
@@ -170,6 +172,35 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
  };
 
  const cityRows = getCityRows(duplicatedCities);
+ 
+  const features = [
+    {
+      id: 1,
+      icon: ShieldCheck,
+      title: "Verified Properties",
+      description:
+        "All listings are verified for your safety and peace of mind.",
+    },
+    {
+      id: 2,
+      icon: UserCheck,
+      title: "Trusted Hosts",
+      description:
+        "Connect with genuine hosts and enjoy a hassle-free experience.",
+    },
+    {
+      id: 3,
+      icon: Tag,
+      title: "Best Prices",
+      description: "Find the best deals that fit your budget and need.",
+    },
+    {
+      id: 4,
+      icon: Headset,
+      title: "24/7 Support",
+      description: "We're here to help you anytime, anywhere you need.",
+    },
+  ];
 
   return (
     <>
@@ -556,11 +587,11 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
         </div>
       </section>
 
-      {/* Property Section - Static Grid */}
-      <section className="relative z-10 bg-white pb-16">
+      {/* Featured Properties - Heading Only */}
+      <section className="relative z-10 bg-white py-16">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
-            className="text-center mb-14"
+            className="text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -576,77 +607,66 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
               trusted owners.
             </p>
           </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Homeproperties.map((property, index) => (
-              <motion.div
-                key={property.id}
-                className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 group border border-gray-100"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.1 + 0.3,
-                  ease: "easeOut",
-                }}
-              >
-                <div className="relative overflow-hidden">
-                  <img
-                    src={property.image}
-                    alt={property.title}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition duration-500"
-                  />
-
-                  <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md hover:shadow-lg transition">
-                    <Heart
-                      size={18}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                    />
-                  </button>
-
-                  <div className="absolute bottom-4 left-4 bg-green-600 text-white px-4 py-2 rounded-full font-semibold">
-                    {property.price}/month
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    {property.title}
-                  </h3>
-
-                  <div className="flex items-center gap-2 text-gray-500 mt-2">
-                    <MapPin size={16} />
-                    {property.location}
-                  </div>
-
-                  <div className="flex justify-between mt-6 border-t border-gray-100 pt-5 text-gray-700">
-                    <div className="flex items-center gap-2">
-                      <Bed size={18} className="text-green-600" />
-                      {property.beds}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Bath size={18} className="text-green-600" />
-                      {property.baths}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Square size={18} className="text-green-600" />
-                      {property.area}
-                    </div>
-                  </div>
-
-                  <button className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 shadow-lg shadow-green-600/20 hover:shadow-green-600/30">
-                    View Details
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
+
+      {/* Why Choose Us Section with CTA */}
+      <section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7]">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-14">
+            <span className="text-primary-400 font-semibold text-sm uppercase tracking-wider">
+              Why Choose Us
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0a1e2f] mt-2 mb-4 tracking-tight">
+              We Make It <span className="text-primary-500">Easy</span> for You
+            </h2>
+            <p className="text-lg text-[#3f4e62] max-w-2xl mx-auto">
+              Discover why thousands of users trust us for their property needs
+            </p>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {features.map((feature) => (
+              <FeatureCard key={feature.id} feature={feature} />
+            ))}
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center mt-14">
+            <button className="px-10 py-4 bg-primary-600 text-white rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform">
+              Get Started Now
+              <i className="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+            <p className="text-sm text-[#3f4e62] mt-3">
+              Join thousands of happy users. No credit card required.
+            </p>
+          </div>
+        </div>
+      </section> 
     </>
   );  
 };
 
+const FeatureCard = ({ feature }) => {
+  const Icon = feature.icon;
+
+  return (
+    <div className="bg-white rounded-[28px] px-6 py-8 text-center border border-white/50 shadow-[0_20px_35px_-10px_rgba(0,20,50,0.08),0_8px_18px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_50px_-12px_rgba(0,40,100,0.15)] hover:-translate-y-2 hover:border-green-200/30 transition-all duration-300 flex flex-col items-center backdrop-blur-sm group">
+
+      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#eef5ff] to-[#e1ebff] flex items-center justify-center mb-5 group-hover:from-[#dce8ff] group-hover:to-[#c5d9ff] transition-all duration-200">
+        <Icon size={42} className="text-green-600" />
+      </div>
+
+      <h3 className="text-xl md:text-2xl font-semibold text-primary-700 mb-2 tracking-tight font-[playfairDisplay]">
+        {feature.title}
+      </h3>
+
+      <p className="text-[#3f4e62] text-base leading-relaxed max-w-[22ch] mx-auto">
+        {feature.description}
+      </p>
+    </div>
+  );
+};
 export default Home;
