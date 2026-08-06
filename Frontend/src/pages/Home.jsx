@@ -2,6 +2,8 @@ import React, { useRef } from "react";
 import { useState, useEffect } from "react";
 import Hero from "../assets/Home/Hero.png";
 import CardLogo from "../assets/Home/CardLogo.png";
+import CTA from "../assets/Home/CTA.png";
+import PropertyCard from "../Ui/PropertyCard";
 import {
   Search,
   MapPin,
@@ -17,9 +19,11 @@ import {
   UserCheck,
   Tag,
   Headset,
+  Shield,
+  CreditCard,
 } from "lucide-react";
-import { 
-  Homeproperties, 
+import {
+  Properties,
   cities,  
   propertyTypes, 
   budgets 
@@ -212,11 +216,11 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
         ></div>
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/70 to-black/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/20 to-black/50"></div>
 
         {/* Decorative Elements */}
         <div className="absolute -top-40 -right-32 h-96 w-96 rounded-full bg-green-500/20 blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-green-500/10 blur-3xl"></div>
+        {/* <div className="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-green-500/10 blur-3xl"></div> */}
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="max-w-3xl">
@@ -259,7 +263,7 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
               </motion.span>
 
               <motion.span
-                className="block text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-300 mt-2 relative"
+                className="block text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-green-300 mt-2 relative"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{
@@ -272,7 +276,7 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
               >
                 Home
                 <svg
-                  className="w-10 h-10 mb-2 ml-2 sm:w-12 sm:h-12 md:w-14 md:h-14 text-green-400 inline-block"
+                  className="w-10 h-10 mb-2 ml-2 sm:w-12 sm:h-12 md:w-14 md:h-14 text-green-600 inline-block"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -481,7 +485,7 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
               </div>
 
               {/* Search Button */}
-              <button className="lg:col-span-1 w-full bg-green-600 hover:bg-green-700 transition-all duration-300 rounded-xl text-white font-semibold py-3.5 flex justify-center items-center gap-2 shadow-lg shadow-green-600/30 hover:shadow-green-600/40 hover:-translate-y-0.5">
+              <button className="lg:col-span-1 w-full bg-primary-500 hover:bg-green-700 transition-all duration-300 rounded-xl text-white font-semibold py-3.5 flex justify-center items-center gap-2 shadow-lg shadow-green-600/30 hover:shadow-green-600/40 hover:-translate-y-0.5">
                 <Search size={20} />
                 Search
               </button>
@@ -521,21 +525,21 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
           </motion.div>
 
           {/* Continuous Scrolling Container */}
-          <div 
+          <div
             ref={containerRef}
             className="relative overflow-hidden"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            <div 
+            <div
               className="flex transition-none"
               style={{
                 transform: `translateX(-${scrollPosition}px)`,
               }}
             >
               {cityRows.map((row, rowIndex) => (
-                <div 
-                  key={rowIndex} 
+                <div
+                  key={rowIndex}
                   className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 min-w-full"
                   style={{
                     width: `${100 / cityRows.length}%`,
@@ -583,37 +587,55 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
             {/* Gradient overlays for smooth edges */}
             <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10"></div>
             <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-10"></div>
-          </div> 
+          </div>
         </div>
       </section>
 
-      {/* Featured Properties - Heading Only */}
+      {/* Featured Properties */}
       <section className="relative z-10 bg-white py-16">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
             <p className="text-green-600 font-semibold uppercase tracking-wider">
               Featured Properties
             </p>
+
             <h2 className="text-4xl font-bold text-gray-900 mt-2">
               Discover Your Next Home
             </h2>
+
             <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
               Browse our handpicked premium homes with verified listings and
               trusted owners.
             </p>
           </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+            {Properties.slice(0, 6).map((property, index) => (
+              <PropertyCard
+                key={property.id}
+                property={property}
+                index={index}
+              />
+            ))}
+          </div>
+          <div className="flex justify-center mt-10">
+            <button className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold text-lg hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center">
+              View All Properties
+              <i className="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* Why Choose Us Section with CTA */}
+      {/* Why Choose Us  */}
       <section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7]">
         <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
           <div className="text-center mb-14">
             <span className="text-primary-400 font-semibold text-sm uppercase tracking-wider">
               Why Choose Us
@@ -633,7 +655,6 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
             ))}
           </div>
 
-          {/* Call to Action */}
           <div className="text-center mt-14">
             <button className="px-10 py-4 bg-primary-600 text-white rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform">
               Get Started Now
@@ -644,7 +665,88 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
             </p>
           </div>
         </div>
-      </section> 
+      </section>
+
+        {/* CTA Section */}
+<section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+  <div className="relative overflow-hidden rounded-3xl shadow-2xl"> 
+    <div 
+      className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${CTA})` }}
+    />
+    
+    {/* Overlay */}
+    <div className="absolute inset-0 bg-gradient-to-br from-primary-900/85 via-primary-800/80 to-primary-900/90"></div>
+    
+    <div className="relative px-6 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10">
+        {/* Left content */}
+        <div className="flex-1 space-y-4">
+          <span className="inline-block text-primary-300 text-sm font-semibold tracking-wider uppercase bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/10">
+            Become a Host
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+            Earn More by <br className="hidden sm:block" />
+            <span className="relative inline-block">
+              Hosting Your Property
+              <svg className="absolute -bottom-1 left-0 w-full h-2 text-secondary-300/70" viewBox="0 0 200 8" fill="currentColor">
+                <path d="M0 4 Q 25 0, 50 4 T 100 4 T 150 4 T 200 4" stroke="currentColor" strokeWidth="3" fill="none" />
+              </svg>
+            </span>
+          </h2>
+          <p className="text-white/80 text-base sm:text-lg max-w-xl">
+            List your property, connect with genuine tenants and earn more with zero hassle.
+          </p>
+          
+          {/* CTA Button */}
+          <div className="pt-2">
+            <button className="group inline-flex items-center gap-2 bg-white text-primary-700 hover:bg-primary-50 font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-95">
+              List Your Property →
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
+          </div>
+        </div>
+
+        {/* Right features grid */}
+        <div className="flex-1 grid grid-cols-2 gap-4 sm:gap-5">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-500/30 rounded-xl">
+                <HomeIcon className="w-5 h-5 text-secondary-300" />
+              </div>
+              <span className="text-white font-medium text-sm sm:text-base">Easy Listing</span>
+            </div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-500/30 rounded-xl">
+                <UserCheck className="w-5 h-5 text-secondary-300" />
+              </div>
+              <span className="text-white font-medium text-sm sm:text-base">Verified Tenants</span>
+            </div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-500/30 rounded-xl">
+                <Shield className="w-5 h-5 text-secondary-300" />
+              </div>
+              <span className="text-white font-medium text-sm sm:text-base">Secure Payments</span>
+            </div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-500/30 rounded-xl">
+                <CreditCard className="w-5 h-5 text-secondary-300" />
+              </div>
+              <span className="text-white font-medium text-sm sm:text-base">Zero Brokerage</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
     </>
   );  
 };
@@ -669,4 +771,6 @@ const FeatureCard = ({ feature }) => {
     </div>
   );
 };
+
+
 export default Home;

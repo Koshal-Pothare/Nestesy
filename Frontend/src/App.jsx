@@ -7,10 +7,14 @@ import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
 import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
+import About from './pages/AboutUs'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Contact from "./pages/Contact";
 
 import Explore from './pages/Explore'
+import Whishlist from './pages/Wishlist'
 
 
 
@@ -40,14 +44,28 @@ function App() {
   
       {!HideNavbarFooter &&<Navbar/> }
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+
+        <Route path="/" element={<Home/>} />
+        <Route path="/about" element={<About/>} />
+       <Route path="/login" element={<Login/>} />
+   
+
+
+
              <Route path="/become-a-host" element={<BecomeHost/>} />
          <Route path="/explore" element={<Explore/>} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/wishlist" element={<Whishlist/>} />
+
       </Routes>
 
       {!HideNavbarFooter && <Footer />}
+
+       <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        theme="light"
+      />
 
     </>
   );

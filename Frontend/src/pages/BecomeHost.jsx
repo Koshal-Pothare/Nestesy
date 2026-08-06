@@ -2,10 +2,10 @@ import React, { useState ,useEffect} from 'react'
 import { Home, Users, IndianRupee, Mail, Eye, EyeOff, Lock,User,Phone ,ShieldCheck} from 'lucide-react'
 import { Benifits, HostSteps } from '../Data/Data.js'
 import { motion,AnimatePresence } from "framer-motion";
-import BecomeHostHeroImage from '../assets/BecomeHost/BecomeHost.png'
+import BecomeHostHeroImage from '../assets/BecomeHost/BecomeHost2.png'
 import Host from '../assets/BecomeHost/Host.png'
 import formImage from '../assets/BecomeHost/formImage.png'
-import HostLogin from '../components/HostLogin.jsx'
+import HostLogin from '../auth/HostLogin.jsx'
 
 const BecomeHost = () => {
 
@@ -92,7 +92,7 @@ const card = {
             backgroundImage: `url(${BecomeHostHeroImage})`,
           }}
         >
-          <div className="absolute inset-0 bg-linear-to-r from-white via-white/30 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-primary-900 via-primary-900/50 to-black/40"></div>
 
           <motion.div
             variants={container}
@@ -105,7 +105,7 @@ const card = {
             {/* Heading */}
             <motion.h1
               variants={item}
-              className="text-4xl md:text-6xl font-serif font-bold text-gray-900 leading-tight mt-10"
+              className="text-4xl md:text-6xl font-serif font-bold text-gray-100 leading-tight mt-10"
             >
               Become a Host.
             </motion.h1>
@@ -114,14 +114,14 @@ const card = {
               variants={item}
               className="text-4xl md:text-6xl font-serif font-bold  mt-2"
             >
-              <span className="text-primary-600">Earn More.</span>
-              <span className="text-gray-900">Worry Less.</span>
+              <span className="text-green-600">Earn More.</span>
+              <span className="text-gray-100">Worry Less.</span>
             </motion.h1>
 
             {/* Description */}
             <motion.p
               variants={item}
-              className="max-w-xl mt-8 text-gray-700 leading-8 text-base md:text-lg font-semibold"
+              className="max-w-xl mt-8 text-gray-200 leading-tight text-base md:text-lg font-semibold"
             >
               Join thousands of property owners earning a steady income by listing
               their homes on NESTESY. We connect you with verified tenants while
@@ -140,7 +140,7 @@ const card = {
               }}
            
                 onClick={scrollToRegister}
-              className="mt-10 px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-semibold text-lg shadow-xl"
+              className="mt-10 px-10 py-4 bg-tranparent backdrop-blur-sm border border-white  text-white rounded-2xl font-semibold text-lg shadow-xl transition-all duration-300 hover:bg-white hover:text-primary-800"
             >
               Register as Host
             </motion.button>
@@ -154,7 +154,7 @@ const card = {
               whileTap={{
                 scale: 0.96,
               }}
-              className="mt-10 px-10 py-4 bg-white border border-primary-600 text-primary-600 rounded-2xl font-semibold text-lg shadow-xl"
+              className="mt-10 px-10 py-4  bg-primary-600 hover:bg-primary-700 border border-primary-600 text-white rounded-2xl font-semibold text-lg shadow-xl"
             >
               Add Property 
             </motion.button>
@@ -162,23 +162,23 @@ const card = {
             </div>
 
             {/* Glassmorphism Stats */}
-            <motion.div variants={item} className="mt-10 max-w-2xl hidden md:flex">
-              <div className="flex rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl overflow-hidden">
+            <motion.div variants={item} className="mt-10 max-w-4xl hidden md:flex">
+              <div className=" w-full flex rounded-xl bg-transparent backdrop-blur-sm border border-white/30 shadow-xl overflow-hidden">
                 {stats.map(({ icon: Icon, value, label }, i) => (
                   <div
                     key={label}
                     className={`flex-1 flex items-center gap-3 px-5 py-4 ${i !== stats.length - 1 ? "border-r border-white/20" : ""
                       }`}
                   >
-                    <div className="h-12 w-12 rounded-full bg-white/30 flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-full bg-white/60 flex items-center justify-center">
                       <Icon className="text-primary-600" size={20} />
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-bold text-gray-900 leading-none">
+                      <h2 className="text-lg font-bold text-gray-100 leading-none">
                         {value}
                       </h2>
-                      <p className="text-xs text-gray-700 mt-1">
+                      <p className="text-xs text-gray-300 mt-1">
                         {label}
                       </p>
                     </div>

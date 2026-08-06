@@ -81,7 +81,9 @@ const menuItems = [
 </div>
 
 <div className=" hidden md:flex gap-4 ">
-    <button><Heart size={18} className="text-primary-500"/></button>
+    <button onClick={()=>navigate("/wishlist")} 
+      className="cursor-pointer"
+      ><Heart size={18} className="text-primary-500"/></button>
     {/* <button className="bg-primary-500 text-white font-semibold px-3 py-2 rounded-2xl flex items-center gap-1"><Search size={18} className="text-white"/>Search</button> */}
 <button 
 onClick={()=>navigate("/login")}
