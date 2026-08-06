@@ -1,0 +1,156 @@
+// Home Page Data
+
+export const Homeproperties = [
+  {
+    id: 1,
+    title: "Modern Family Apartment",
+    location: "Mumbai, Maharashtra",
+    price: "₹28,000",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800",
+    beds: 3,
+    baths: 2,
+    area: "1450 sqft",
+    description: "A beautiful modern apartment in the heart of Mumbai with all amenities.",
+    type: "Apartment",
+    availableFrom: "2026-09-01",
+  },
+  {
+    id: 2,
+    title: "Luxury Villa",
+    location: "Pune, Maharashtra",
+    price: "₹65,000",
+    image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800",
+    beds: 4,
+    baths: 3,
+    area: "2400 sqft",
+    description: "Spacious luxury villa with garden and pool in prime location.",
+    type: "Villa",
+    availableFrom: "2026-08-15",
+  },
+  {
+    id: 3,
+    title: "Premium Studio",
+    location: "Bangalore, Karnataka",
+    price: "₹18,000",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=800",
+    beds: 1,
+    baths: 1,
+    area: "650 sqft",
+    description: "Modern studio apartment perfect for professionals and couples.",
+    type: "Studio",
+    availableFrom: "2026-09-10",
+  },
+];
+
+export const cities = [
+  {
+    id: 1,
+    name: "Mumbai",
+    state: "Maharashtra",
+    properties: "2.5K+",
+    image: "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800",
+  },
+  {
+    id: 2,
+    name: "Pune",
+    state: "Maharashtra",
+    properties: "1.8K+",
+    image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800",
+  },
+  {
+    id: 3,
+    name: "Bangalore",
+    state: "Karnataka",
+    properties: "3.2K+",
+    image: "https://images.unsplash.com/photo-1533994201280-56ebd4a62693?w=800",
+  },
+  {
+    id: 4,
+    name: "Delhi",
+    state: "Delhi",
+    properties: "1.9K+",
+    image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800",
+  },
+  {
+    id: 5,
+    name: "Hyderabad",
+    state: "Telangana",
+    properties: "1.5K+",
+    image: "https://images.unsplash.com/photo-1566070723696-a39017e90a78?w=800",
+  },
+  {
+    id: 6,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+  {
+     id: 7,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 8,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 9,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 10,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 11,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 12,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 13,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+];
+
+
+export const propertyTypes = [
+  { value: "", label: "All Type" },
+  { value: "apartment", label: "Apartment" },
+  { value: "villa", label: "Villa" },
+  { value: "house", label: "House" },
+  { value: "room", label: "Room" },
+  { value: "studio", label: "Studio" },
+];
+
+export const budgets = [
+  { value: "", label: "Any Budget" },
+  { value: "10k-25k", label: "₹10K - ₹25K" },
+  { value: "25k-50k", label: "₹25K - ₹50K" },
+  { value: "50k-1l", label: "₹50K - ₹1L" },
+  { value: "1l-2l", label: "₹1L - ₹2L" },
+  { value: "2l+", label: "₹2L+" },
+];
