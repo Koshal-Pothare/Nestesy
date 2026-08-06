@@ -7,6 +7,7 @@ import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
 import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
+import About from './components/AboutUs'
 
 import Contact from "./pages/Contact";
 
@@ -40,11 +41,18 @@ function App() {
   
       {!HideNavbarFooter &&<Navbar/> }
       <Routes>
+
+        <Route path="/" element={<Home/>} />
+        <Route path="/about" element={<About/>} />
+       <Route path="/login" element={<Login/>} />
+        <Route path="/signup" element={<SignUp/>} />
+
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
              <Route path="/become-a-host" element={<BecomeHost/>} />
          <Route path="/explore" element={<Explore/>} />
         <Route path="/contact" element={<Contact />} />
+
       </Routes>
 
       {!HideNavbarFooter && <Footer />}
