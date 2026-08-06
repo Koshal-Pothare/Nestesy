@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import DesktopHero from '../assets/Explore/DesktopHero.png'
+import DesktopHero from '../assets/Explore/DesktopHero2.png'
 import { AnimatePresence, motion } from 'framer-motion'
 import ExploreSkeleton from '../components/ExploreSkeleton'
 import {
@@ -9,6 +9,7 @@ import {
 import { Properties } from '../Data/Data'
 import ExploreSidebar from '../components/ExploreSidebar'
 import CTA from '../assets/Explore/CTA.png'
+import PropertyCard from '../Ui/PropertyCard'
 
 const Explore = () => {
 
@@ -89,6 +90,10 @@ const Explore = () => {
     ];
 
 
+    // const AddtoFav=()=>{
+    //     const fav = JSON.
+    // }
+
     return (
         <section>
 
@@ -100,7 +105,7 @@ const Explore = () => {
                         backgroundImage: `url(${DesktopHero})`,
                     }}
                 >
-                    <div className="absolute inset-0 bg-linear-to-r from-amber-100/90 via-white/30 to-transparent"></div>
+                    <div className="absolute inset-0 bg-linear-to-r from-primary-900 via-primary-900/50 to-black/20"></div>
 
                     <motion.div
                         variants={container}
@@ -113,24 +118,24 @@ const Explore = () => {
                         {/* Heading */}
                         <motion.h1
                             variants={item}
-                            className="text-4xl md:text-6xl font-serif font-bold text-gray-900 leading-tight mt-10"
+                            className="text-4xl md:text-6xl font-serif font-bold text-white leading-tight mt-5"
                         >
                             Find a place
                         </motion.h1>
 
                         <motion.h1
                             variants={item}
-                            className="text-4xl md:text-6xl font-serif font-bold  mt-2"
+                            className="text-4xl md:text-6xl font-serif font-bold  mt-4"
                         >
-                            <span className="text-gray-900">you'll</span>
-                            <span className="text-primary-600"> love</span>
-                            <span className="text-gray-900"> to live.</span>
+                            <span className="text-white">you'll</span>
+                            <span className="text-white"> love</span>
+                            <span className=" text-green-400"> to live.</span>
                         </motion.h1>
 
                         {/* Description */}
                         <motion.p
                             variants={item}
-                            className="max-w-xl mt-8 text-gray-700 leading-8 text-base md:text-xl font-semibold"
+                            className="max-w-xl mt-12 text-gray-200 leading-6 text-base md:text-xl font-semibold"
                         >
                             Explore thousands of verifired flats and houses.<br />
                             Trusted Host. Secure Stay. Better Living
@@ -145,13 +150,13 @@ const Explore = () => {
                                         className={`flex-1 flex items-center gap-3 px-5 py-4 ${i !== stats.length - 1 ? "" : ""
                                             }`}
                                     >
-                                        <div className=" rounded-full bg-white/30 flex items-center justify-center">
-                                            <Icon className="text-primary-600" size={40} />
+                                        <div className=" p-3 rounded-full bg-white/20 backdrop-blur-2xl  flex items-center justify-center">
+                                            <Icon className="text-white" size={30} />
                                         </div>
 
                                         <div>
 
-                                            <p className="text-lg font-semibold text-gray-900 mt-1">
+                                            <p className="text-lg font-semibold text-white mt-1 leading-tight">
                                                 {label}
                                             </p>
                                         </div>
@@ -274,76 +279,7 @@ const Explore = () => {
                                 className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
                             >
                                 {currentProperties.map((property, index) => (
-                                    <motion.div
-                                        key={property.id}
-                                        className="group overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300"
-                                    >
-
-                                        {/* Image */}
-
-                                        <div className="relative overflow-hidden h-56">
-                                            <img
-                                                src={property.image}
-                                                alt={property.title}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            />
-
-                                            <span className="absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-md bg-primary-600 text-white">
-                                                Featured
-                                            </span>
-
-                                            <button className="absolute top-3 right-3 h-9 w-9 rounded-full bg-white shadow flex items-center justify-center hover:bg-primary-600 hover:text-white transition">
-                                                <Heart size={18} />
-                                            </button>
-                                        </div>
-
-                                        {/* Content */}
-
-                                        <div className="p-5">
-
-                                            <h2 className="text-xl font-semibold text-gray-900 line-clamp-1">
-                                                {property.title}
-                                            </h2>
-
-                                            <p className="text-sm text-gray-500 mt-1">
-                                                {property.location}
-                                            </p>
-
-                                            {/* Details */}
-
-                                            <div className="flex items-center gap-4 text-gray-500 text-sm mt-4">
-
-                                                <div className="flex items-center gap-1">
-                                                    <BedDouble size={16} />
-                                                    <span>{property.bedrooms} Beds</span>
-                                                </div>
-
-                                                <div className="flex items-center gap-1">
-                                                    <Bath size={16} />
-                                                    <span>{property.bedrooms} Baths</span>
-                                                </div>
-
-                                                <div className="flex items-center gap-1">
-                                                    <Ruler size={16} />
-                                                    <span>{property.area} sq.ft</span>
-                                                </div>
-
-                                            </div>
-
-                                            {/* Price */}
-
-                                            <div className="mt-5 flex items-end gap-1">
-                                                <span className="text-3xl font-bold text-primary-700">
-                                                    ₹{property.price.toLocaleString()}
-                                                </span>
-                                                <span className="text-gray-500 text-sm mb-1">
-                                                    /month
-                                                </span>
-                                            </div>
-
-                                        </div>
-
-                                    </motion.div>
+                                   <PropertyCard property={property} index={index} key={property.id}/>
                                 ))}
 
                             </motion.div>
@@ -449,9 +385,9 @@ const Explore = () => {
                   scale: 0.96,
                 }}
                
-                className="bg-white/30 backdrop-blur-sm text-primary-600 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50"
+                className="bg-transparent backdrop-blur-xl  text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
               >
-              Explore Favorites
+              Explore Whishlist
               </motion.button>
 
             </div>

@@ -222,26 +222,8 @@ export const ctaData = {
   ],
 };
 
-// ---------- Footer (kept for reference — Footer.jsx already renders global footer) ----------
-export const footerData = {
-  logo: "Nestesy",
 
-  description: "Find homes that fit your life. Trusted stays. Better living.",
 
-  company: ["About Us", "Careers", "Blog", "Press"],
-
-  support: ["Help Center", "Terms of Service", "Privacy Policy", "Contact Us"],
-
-  hosts: ["Become a Host", "Host Resources", "Community"],
-
-  newsletter: {
-    title: "Subscribe to our newsletter",
-    subtitle: "Get the latest updates and offers.",
-    placeholder: "Enter your email",
-  },
-
-  copyright: "© 2025 Nestesy. All rights reserved.",
-};
 
 import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react'
 
