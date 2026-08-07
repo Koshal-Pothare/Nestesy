@@ -12,34 +12,35 @@ import CTA from '../assets/Explore/CTA.png'
 import PropertyCard from '../Ui/PropertyCard'
 import { useNavigate } from "react-router-dom"
 import Pagination from '../components/Pagination'
+import SortBy from '../Ui/SortBy'
 
 const Explore = () => {
 
     const [filter, setFilter] = useState({
         location: "",
-        propertyTypes: "Any",
-        budget:"Any",
+        propertyType: "Any",
+        budget: "Any",
         priceRange: 15000,
-         bedroom: "",
+        bedroom: "",
         furnishing: "",
         amenities: [],
-           availability: "",
+        availability: "",
+        idealFor: "",
     })
 
-    
-     const [rotate, setRotate] = useState(0);
+
+    const [rotate, setRotate] = useState(0);
+    const [sortBy, setSortBy] = useState("newest")
     const [filteredProperties, setFilteredProperties] = useState(Properties);
-
     const [propertyLoading, StylePropertyLoading] = useState(false);
-
     const [currentPage, setCurrentPage] = useState(1);
 
     const scrollToProperty = () => {
-  document.getElementById("properties")?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-};
+        document.getElementById("properties")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    };
 
     const handleChange = (e) => {
         setFilter((prev) => ({
@@ -72,49 +73,81 @@ const Explore = () => {
             );
         }
 
+        if (filter.idealFor) {
+            result = result.filter((property) =>
+                property.idealFor.includes(filter.idealFor)
+            );
+        }
+
         setFilteredProperties(result);
         setCurrentPage(1);
-         
-      scrollToProperty();
+
+        scrollToProperty();
         console.log("Search clicked")
     };
 
     const handleAmenity = (amenity) => {
-    setFilter((prev)=>{
+        setFilter((prev) => {
 
-        const exists = prev.amenities.includes(amenity);
+            const exists = prev.amenities.includes(amenity);
 
-        return{
-            ...prev,
-            amenities: exists
-            ? prev.amenities.filter((a)=>a!==amenity)
-            : [...prev.amenities, amenity]
+            return {
+                ...prev,
+                amenities: exists
+                    ? prev.amenities.filter((a) => a !== amenity)
+                    : [...prev.amenities, amenity]
+            }
+
+        });
+    };
+
+    // sorting logic
+
+
+    const sortedProperties = [...filteredProperties].sort((a, b) => {
+        switch (sortBy) {
+            case "priceLow":
+                return a.price - b.price;
+
+            case "priceHigh":
+                return b.price - a.price;
+
+            case "newest":
+                return b.id - a.id;
+
+            default:
+                return 0;
         }
-
     });
-};
 
-const resetFilters = () => {
-    setFilter({
-        location: "",
-        propertyType: "",
-        priceRange: 50000,
-        bedroom: "",
-        furnishing: "",
-        amenities: [],
-        availability: "",
-    });
-    setRotate((prev) => prev + 360);
-};
+    // reseting filter 
+    const resetFilters = () => {
+        setFilter({
+            location: "",
+            propertyType: "Any",
+            budget: "Any",
+            priceRange: 15000,
+            bedroom: "",
+            furnishing: "",
+            amenities: [],
+            availability: "",
+        });
 
+        setSortBy("newest");
+        setRotate((prev) => prev + 360);
+        setFilteredProperties(Properties);
+        setCurrentPage(1);
+    };
+
+    // pagination
     const propertiesPerPage = 9;
 
-    const totalPages = Math.ceil(Properties.length / propertiesPerPage);
+    const totalPages = Math.ceil(sortedProperties.length / propertiesPerPage);
 
     const indexOfLastProperty = currentPage * propertiesPerPage;
     const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
 
-    const currentProperties = filteredProperties.slice(
+    const currentProperties = sortedProperties.slice(
         indexOfFirstProperty,
         indexOfLastProperty
     );
@@ -299,7 +332,7 @@ const resetFilters = () => {
                                     >
                                         <option value="Any">Any</option>
                                         <option value="Apartment">Apartment</option>
-                                        <option value="Villa">Villa</option>
+                                        <option value="Flat">Flat</option>
                                         <option value="PG">PG</option>
                                         <option value="Independent House">Independent House</option>
                                     </select>
@@ -328,8 +361,8 @@ const resetFilters = () => {
                             </div>
 
                             <button
-                            onClick={handleSearch}
-                            className="rounded-2xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition">
+                                onClick={handleSearch}
+                                className="rounded-2xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition">
                                 Search
                             </button>
 
@@ -353,28 +386,18 @@ const resetFilters = () => {
 
                         {/* Sidebar */}
 
-                        <ExploreSidebar filter={filter} setFilter={setFilter} handleChange={handleChange} 
-                         reset={resetFilters} search={handleSearch} handleAmenity={handleAmenity} 
-                         rotate={rotate} setRotate={setRotate}
-                         />
+                        <ExploreSidebar filter={filter} setFilter={setFilter} handleChange={handleChange}
+                            reset={resetFilters} search={handleSearch} handleAmenity={handleAmenity}
+                            rotate={rotate} setRotate={setRotate}
+                        />
 
 
                         {/* Property Grid */}
 
                         <div className="lg:col-span-3">
 
-                            <div className="w-full flex justify-end">
-                                <div className=' shadow-2xl shadow-gray-500/20 bg-primary-600 text-white p-3 rounded-2xl mb-5 flex items-center gap-2 '>
-                                    <p className='font-semibold text-md'>Sorted by</p>
-                                    <select className="outline-none text-center ">
-                                        <option className=''>Newest</option>
-                                        <option>High-Low</option>
-                                        <option>Low-High</option>
-                                        <option>Student</option>
-                                        <option>Working Professional</option>
-
-                                    </select>
-                                </div>
+                            <div className="w-full flex justify-end mb-5">
+                                <SortBy sortBy={sortBy} setSortBy={setSortBy} />
                             </div>
 
                             <motion.div
@@ -420,20 +443,16 @@ const resetFilters = () => {
                 transition={{ duration: 0.7 }}
                 viewport={{ once: true }}
                 className="w-full px-6 py-20"
-
-
             >
                 <div
                     style={{
                         backgroundImage: `url(${CTA})`,
                     }}
-                    className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto h-[200px] rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
-
-
-                    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+                    className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto h-[400px] rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
+                    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-start gap-10">
 
                         {/* Left Content */}
-                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left py-10">
 
                             <motion.div
                                 whileHover={{
@@ -454,24 +473,30 @@ const resetFilters = () => {
                                 <p className="mt-3 text-primary-100 text-base md:text-lg max-w-xl leading-7">
                                     Explore your wishlist and schedule a visit for the properties that caught your eye.
                                 </p>
+                                {/* CTA Button */}
+                                <motion.button
+                                    whileHover={{
+                                        scale: 1.05,
+                                        y: -2,
+                                    }}
+                                    whileTap={{
+                                        scale: 0.96,
+                                    }}
+                                    onClick={() => navigate("/wishlist")}
+                                    className="bg-transparent backdrop-blur-xl mt-10 text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
+                                >
+                                    Explore Whishlist
+                                </motion.button>
+
+
                             </div>
 
+ 
                         </div>
 
-                        {/* CTA Button */}
-                        <motion.button
-                            whileHover={{
-                                scale: 1.05,
-                                y: -2,
-                            }}
-                            whileTap={{
-                                scale: 0.96,
-                            }}
-                            onClick={() => navigate("/wishlist")}
-                            className="bg-transparent backdrop-blur-xl  text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
-                        >
-                            Explore Whishlist
-                        </motion.button>
+                     
+  
+
 
                     </div>
 

@@ -11,8 +11,9 @@ const ExploreSidebar = ({ filter, setFilter, handleChange, reset, search, handle
         priceRange: true,
         bedroom: true,
         furnishing: true,
-        amenities: true,
-        availability: true,
+        amenities: false,
+        availability: false,
+        idealFor:true
     });
 
 
@@ -50,7 +51,7 @@ const ExploreSidebar = ({ filter, setFilter, handleChange, reset, search, handle
             title: "Property Type",
             content: (
                 <div className="space-y-3">
-                    {["Apartment", "Villa", "Independent House", "PG"].map((item) => (
+                    {["Apartment",  "Independent House", "PG","Flat","Single Room","Sharing"].map((item) => (
                         <label key={item} className="flex items-center gap-3 cursor-pointer">
                             <input type="radio"
                                 name="propertyType"
@@ -63,6 +64,31 @@ const ExploreSidebar = ({ filter, setFilter, handleChange, reset, search, handle
                 </div>
             ),
         },
+        {
+  id: "idealFor",
+  title: "Ideal For",
+  content: (
+    <div className="space-y-3">
+      {[
+        "Students",
+        "Working Professionals",
+        "Couples",
+      ].map((item) => (
+        <label key={item} className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="radio"
+            name="idealFor"
+            value={item}
+            checked={filter.idealFor === item}
+            onChange={handleChange}
+            className="accent-primary-600"
+          />
+          <span>{item}</span>
+        </label>
+      ))}
+    </div>
+  ),
+},
 
         {
             id: "priceRange",

@@ -146,6 +146,11 @@ useEffect(() => {
                   <p className="mt-3 leading-7 text-gray-600">{property.description}</p>
                 </div>
 
+                   <div className="mt-8">
+                  <h3 className="text-xl font-semibold">Best For</h3>
+                  <p className="mt-3 leading-7 text-gray-800">{property.idealFor.join(",  ")}</p>
+                </div>
+
                 <div className="mt-8">
                   <h3 className="mb-4 text-xl font-semibold">Amenities</h3>
                   <div className="flex flex-wrap gap-3">
@@ -189,7 +194,10 @@ useEffect(() => {
                 </div>
 
                 <div className="mt-10 flex gap-4">
-                 
+                  <button className="flex-1 rounded-2xl bg-white py-4 font-semibold text-primary-600 border border-primary-600 transition hover:bg-primary-700 hover:text-white">
+                    Add review
+                  </button>
+
                   <button className="flex-1 rounded-2xl bg-primary-600 py-4 font-semibold text-white transition hover:bg-primary-700">
                     Book Visit
                   </button>
