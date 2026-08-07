@@ -20,7 +20,9 @@ import Whishlist from './pages/Wishlist'
 import AdminLayout from '../src/Admin/AdminLout'
 import AdminDashboard from '../src/Admin/AdminDashboard'
 
-
+// Host 
+import HostDashboard from './Host/HostDashboard'
+import HostLayout from './Host/HostLayout'
 
 
 function App() {
@@ -35,6 +37,7 @@ function App() {
   const hideRoutes = [
     "/login",
     "/admin",
+    "/host"
    
   ];
 
@@ -57,14 +60,19 @@ function App() {
 
 
 
-             <Route path="/become-a-host" element={<BecomeHost/>} />
+             
          <Route path="/explore" element={<Explore/>} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/wishlist" element={<Whishlist/>} />
 
-         {/* Admin Routes - Nested */}
+         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
+        </Route>
+
+        {/* // Host Routes */}
+        <Route path="/host" element={<HostLayout />}>
+          <Route index element={<HostDashboard />} />
         </Route>
 
       </Routes>
