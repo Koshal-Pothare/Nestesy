@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Search, ChevronUp, ListFilterPlus } from 'lucide-react'
+import { Search, ChevronUp, ListFilterPlus,  } from 'lucide-react'
+import { FaArrowRotateRight } from "react-icons/fa6";
 
-
-const ExploreSidebar = ({ filter, setFilter, handleChange,reset ,search}) => {
+const ExploreSidebar = ({ filter, setFilter, handleChange, reset, search, handleAmenity , rotate, setRotate }) => {
 
     const [openFilters, setOpenFilters] = useState({
         location: true,
@@ -77,7 +77,7 @@ const ExploreSidebar = ({ filter, setFilter, handleChange,reset ,search}) => {
                         name="priceRange"
                         value={filter.priceRange}
                         onChange={handleChange}
-                     
+
                         className="w-full accent-primary-600 cursor-pointer"
                     />
 
@@ -194,8 +194,13 @@ const ExploreSidebar = ({ filter, setFilter, handleChange,reset ,search}) => {
                 <div className="w-full flex items-center justify-between px-6 py-3 bg-primary-600  text-white rounded-t-2xl">
                     <h3 className='text-[23px]  font-semibold'>Filters</h3>
                     <button
-                    onClick={reset}
-                    className='text-sm font-bold  mt-3 transition-all duration-150 hover:scale-105'>Reset </button>
+                        onClick={reset}
+                        className='text-sm font-bold  mt-3 transition-all duration-150 hover:scale-105'><motion.div
+                            animate={{ rotate }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                        >
+                            <FaArrowRotateRight size={20} />
+                        </motion.div></button>
                 </div>
 
                 <div className="w-full h-px mb-3 bg-gray-300" />
@@ -242,9 +247,9 @@ const ExploreSidebar = ({ filter, setFilter, handleChange,reset ,search}) => {
 
                 </div>
                 <div className="w-full px-4 py-5">
-                    <button 
-                    onClick={search}
-                    className='bg-primary-600 text-md font-semibold py-3 w-full text-white rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary-500 hover:scale-105'> <ListFilterPlus />Apply Filters</button>
+                    <button
+                        onClick={search}
+                        className='bg-primary-600 text-md font-semibold py-3 w-full text-white rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary-500 hover:scale-105'> <ListFilterPlus />Apply Filters</button>
                 </div>
             </div>
 

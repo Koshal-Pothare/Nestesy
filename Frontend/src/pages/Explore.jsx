@@ -19,25 +19,15 @@ const Explore = () => {
         location: "",
         propertyTypes: "Any",
         budget:"Any",
-        priceRange: 50000,
+        priceRange: 15000,
          bedroom: "",
         furnishing: "",
         amenities: [],
            availability: "",
     })
 
-    const resetFilters = () => {
-    setFilter({
-        location: "",
-        propertyType: "",
-        priceRange: 50000,
-        bedroom: "",
-        furnishing: "",
-        amenities: [],
-        availability: "",
-    });
-};
-
+    
+     const [rotate, setRotate] = useState(0);
     const [filteredProperties, setFilteredProperties] = useState(Properties);
 
     const [propertyLoading, StylePropertyLoading] = useState(false);
@@ -88,6 +78,34 @@ const Explore = () => {
       scrollToProperty();
         console.log("Search clicked")
     };
+
+    const handleAmenity = (amenity) => {
+    setFilter((prev)=>{
+
+        const exists = prev.amenities.includes(amenity);
+
+        return{
+            ...prev,
+            amenities: exists
+            ? prev.amenities.filter((a)=>a!==amenity)
+            : [...prev.amenities, amenity]
+        }
+
+    });
+};
+
+const resetFilters = () => {
+    setFilter({
+        location: "",
+        propertyType: "",
+        priceRange: 50000,
+        bedroom: "",
+        furnishing: "",
+        amenities: [],
+        availability: "",
+    });
+    setRotate((prev) => prev + 360);
+};
 
     const propertiesPerPage = 9;
 
@@ -335,7 +353,10 @@ const Explore = () => {
 
                         {/* Sidebar */}
 
-                        <ExploreSidebar filter={filter} setFilter={setFilter} handleChange={handleChange}  reset={resetFilters} search={handleSearch}/>
+                        <ExploreSidebar filter={filter} setFilter={setFilter} handleChange={handleChange} 
+                         reset={resetFilters} search={handleSearch} handleAmenity={handleAmenity} 
+                         rotate={rotate} setRotate={setRotate}
+                         />
 
 
                         {/* Property Grid */}
