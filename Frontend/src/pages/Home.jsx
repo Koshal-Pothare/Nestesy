@@ -500,7 +500,7 @@ const Home = () => {
       </section>
 
       {/* Search Form Card */}
-      <div className="relative z-20 -mt-24 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 -mt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <motion.div
             className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-100"
