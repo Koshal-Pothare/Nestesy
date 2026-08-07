@@ -1,4 +1,5 @@
 
+
 // ==========================================================
 // Nestesy — About Us Page Data
 // (FAQ data intentionally excluded — not part of this page)
@@ -225,8 +226,122 @@ export const ctaData = {
 
 
 
-import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react'
+import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react' 
+ 
+// Home Page Data
 
+export const cities = [
+  {
+    id: 1,
+    name: "Mumbai",
+    state: "Maharashtra",
+    properties: "2.5K+",
+    image: "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800",
+  },
+  {
+    id: 2,
+    name: "Pune",
+    state: "Maharashtra",
+    properties: "1.8K+",
+    image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800",
+  },
+  {
+    id: 3,
+    name: "Bangalore",
+    state: "Karnataka",
+    properties: "3.2K+",
+    image: "https://images.unsplash.com/photo-1533994201280-56ebd4a62693?w=800",
+  },
+  {
+    id: 4,
+    name: "Delhi",
+    state: "Delhi",
+    properties: "1.9K+",
+    image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800",
+  },
+  {
+    id: 5,
+    name: "Hyderabad",
+    state: "Telangana",
+    properties: "1.5K+",
+    image: "https://images.unsplash.com/photo-1566070723696-a39017e90a78?w=800",
+  },
+  {
+    id: 6,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+  {
+     id: 7,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 8,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 9,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 10,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 11,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 12,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+   {
+     id: 13,
+    name: "Chennai",
+    state: "Tamil Nadu",
+    properties: "1.2K+",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+  },
+];
+
+
+export const propertyTypes = [
+  { value: "", label: "All Type" },
+  { value: "apartment", label: "Apartment" },
+  { value: "villa", label: "Villa" },
+  { value: "house", label: "House" },
+  { value: "room", label: "Room" },
+  { value: "studio", label: "Studio" },
+];
+
+export const budgets = [
+  { value: "", label: "Any Budget" },
+  { value: "10k-25k", label: "₹10K - ₹25K" },
+  { value: "25k-50k", label: "₹25K - ₹50K" },
+  { value: "50k-1l", label: "₹50K - ₹1L" },
+  { value: "1l-2l", label: "₹1L - ₹2L" },
+  { value: "2l+", label: "₹2L+" }, 
+]
 
 
 // Become Host Benifits
@@ -513,6 +628,7 @@ furnishing:"Unfurnished",
 availability:"Immediate",
 amenities:["Parking"],
 image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+
 }
 ];
 
@@ -612,3 +728,8 @@ export const propertyTypes = [
   { value: "villa", label: "Villa" },
   { value: "pg", label: "PG" }, 
 ];
+
+ 
+} 
+];  
+
