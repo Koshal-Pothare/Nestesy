@@ -25,11 +25,11 @@ import {
   Properties,
   cities,
   propertyTypes,
-  budgets,
+  budgets
 } from "../Data/Data";
 import { motion, useInView } from 'framer-motion';
 
-// Memoized TypingText component
+// TypingText component
 const TypingText = React.memo(({ text, className, delay = 0.2 }) => {
   const [displayText, setDisplayText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -82,62 +82,51 @@ const TypingText = React.memo(({ text, className, delay = 0.2 }) => {
   );
 });
 
-// Optimized Counter Hook
-  const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
+// Counter Hook
+const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
   const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const elementRef = useRef(null);
-  const isInView = useInView(elementRef, { once: true, amount: 0.3 });
-  const animationRef = useRef(null);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
-    if (isInView && !isVisible) {
-      setIsVisible(true);
-      const startTime = Date.now() + startDelay;
-      const target = parseFloat(targetValue.replace(/[^0-9.]/g, ''));
-      const suffix = targetValue.replace(/[0-9.]/g, '');
+    if (!isInView) return;
 
-      const animate = () => {
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
+    const numeric = parseFloat(targetValue.match(/[\d.]+/)?.[0] || 0);
+    const suffix = targetValue.replace(/[\d.]/g, "");
 
-        if (elapsed < 0) {
-          animationRef.current = requestAnimationFrame(animate);
-          return;
-        }
+    let start;
 
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const currentValue = eased * target;
+    const animate = (timestamp) => {
+      if (!start) start = timestamp + startDelay;
 
-        if (progress < 1) {
-          setCount(currentValue);
-          animationRef.current = requestAnimationFrame(animate);
-        } else {
-          setCount(target);
-        }
-      };
+      const progress = Math.min((timestamp - start) / duration, 1);
 
-      animationRef.current = requestAnimationFrame(animate);
-    }
+      if (progress < 0) {
+        requestAnimationFrame(animate);
+        return;
+      }
 
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      const value = numeric * progress;
+      setCount(value);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
       }
     };
-  }, [isInView, isVisible, targetValue, duration, startDelay]);
 
-  const displayValue = targetValue.includes('.')
-    ? count.toFixed(1)
-    : Math.round(count);
+    requestAnimationFrame(animate);
+  }, [isInView, targetValue, duration, startDelay]);
 
-  const suffix = targetValue.replace(/[0-9.]/g, '');
-
-  return { count: displayValue, suffix, ref: elementRef };
+  return {
+    count: targetValue.includes(".")
+      ? count.toFixed(1)
+      : Math.round(count),
+    suffix: targetValue.replace(/[\d.]/g, ""),
+    ref,
+  };
 };
 
-// FeatureCard
+//  FeatureCard
 const FeatureCard = React.memo(({ feature }) => {
   const Icon = feature.icon;
 
@@ -164,6 +153,7 @@ const Home = () => {
   const letters = text.split("");
   const words = "Spaces that feel like".split(" ");
 
+  // Counter values  
   const counter1 = useCounter("12K+", 2000, 900);
   const counter2 = useCounter("8K+", 2000, 1000);
   const counter3 = useCounter("150+", 2000, 700);
@@ -197,7 +187,7 @@ const Home = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [getCitiesPerRow]);
 
-  //  city rows
+  // city rows
   const cityRows = useMemo(() => {
     if (!duplicatedCities.length) return [];
     const rows = [];
@@ -207,16 +197,13 @@ const Home = () => {
     return rows;
   }, [duplicatedCities, citiesPerRow]);
  
-  // initialize duplicated 
   useEffect(() => {
     setDuplicatedCities([...cities, ...cities]);
-  }, []);
-
-  // Optimized infinite scroll with ref for position
+  }, []); 
   useEffect(() => {
     if (isPaused || duplicatedCities.length === 0) return;
 
-    const scrollSpeed = 20.5;
+    const scrollSpeed = 1.5;
     let animationId;
 
     const animateScroll = () => {
@@ -269,7 +256,7 @@ const Home = () => {
     },
   ], []);
 
-  // Memoize property types and budgets options
+  // property types and budgets options
   const propertyTypeOptions = useMemo(() => 
     propertyTypes.map((type) => (
       <option key={type.value} value={type.value}>
@@ -285,8 +272,7 @@ const Home = () => {
       </option>
     )), []
   );
-
-  // Memoize city cards to prevent unnecessary re-renders
+ 
   const cityCards = useMemo(() => 
     cityRows.map((row, rowIndex) => (
       <div
@@ -326,14 +312,14 @@ const Home = () => {
     )), [cityRows]
   );
 
-  // Memoize feature cards
+  // feature cards
   const featureCards = useMemo(() => 
     features.map((feature) => (
       <FeatureCard key={feature.id} feature={feature} />
     )), [features]
   );
 
-  // Memoize property cards
+  // property cards
   const propertyCards = useMemo(() => 
     Properties.slice(0, 6).map((property, index) => (
       <PropertyCard key={property.id} property={property} index={index} />
@@ -414,7 +400,7 @@ const Home = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 0 0 001 1h3m10-11l2 2m-2-2v10a1 0 0 01-1 1h-3m-6 0a1 0 0 001-1v-4a1 0 0 011-1h2a1 0 0 011 1v4a1 0 0 001 1m-6 0h6"
                   />
                 </svg>
                 <div ref={curveRef} className="absolute -bottom-5 right-4 w-full">
@@ -461,6 +447,7 @@ const Home = () => {
               <span className="block sm:inline"> Trusted hosts. Secure stays. Better living.</span>
             </motion.p>
 
+            {/* FIXED: Stats display with proper counter values */}
             <motion.div
               className="mt-8 flex flex-wrap gap-6 sm:gap-10"
               initial={{ opacity: 0, y: 20 }}
@@ -604,7 +591,7 @@ const Home = () => {
             onMouseLeave={() => setIsPaused(false)}
           >
             <div
-              className="flex gap-4 transition-none"
+              className="flex transition-none"
               style={{ transform: `translateX(-${scrollPosition}px)` }}
             >
               {cityCards}
@@ -678,214 +665,35 @@ const Home = () => {
       </section>
 
       {/* Why Choose Us */}
-<section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7] overflow-hidden">
-  <div className="max-w-7xl mx-auto"> 
- <motion.div
-            className="text-center mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <motion.p
-              initial={{ opacity: 0, y: -20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-primary-500 font-bold font-[Roboto] uppercase tracking-wider"
-            >
+      <section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-primary-400 font-semibold text-sm uppercase tracking-wider">
               Why Choose Us
-            </motion.p>
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0a1e2f] mt-2 mb-4 tracking-tight">
+              We Make It <span className="text-primary-500">Easy</span> for You
+            </h2>
+            <p className="text-lg text-[#3f4e62] max-w-2xl mx-auto">
+              Discover why thousands of users trust us for their property needs
+            </p>
+          </div>
 
-            <div className="relative inline-block mt-2">
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-                className="text-4xl font-bold text-heading relative font-[PlayfairDisplay]"
-              >
-                  We Make It <span className="text-primary-500">Easy</span> for You
-                <motion.span
-                  className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-400 rounded-full shadow-lg shadow-primary-500/30"
-                  initial={{ width: "0%" }}
-                  whileInView={{ width: "100%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, ease: "easeInOut", delay: 0.4 }}
-                />
-              </motion.h2>
-            </div>
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-              className="text-muted mt-4 max-w-2xl mx-auto"
-            >
-                   Discover why thousands of users trust us for their property needs
-            </motion.p>
-          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {featureCards}
+          </div>
 
-    {/* Feature Cards Grid */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-      {features.map((feature, index) => {
-        const Icon = feature.icon;
-        return (
-          <motion.div
-            key={feature.id}
-            custom={index}
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{
-              duration: 0.7,
-              delay: index * 0.15,
-              ease: [0.25, 0.46, 0.45, 0.94],
-            }}
-            whileHover={{
-              y: -12,
-              scale: 1.03,
-              transition: { duration: 0.25, ease: "easeOut" },
-            }}
-            className="group relative bg-white/80 backdrop-blur-sm rounded-[28px] px-6 py-8 text-center border border-white/50 shadow-[0_20px_35px_-10px_rgba(0,20,50,0.08),0_8px_18px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_50px_-12px_rgba(0,40,100,0.15)] hover:border-primary-200/50 transition-all duration-300 flex flex-col items-center overflow-hidden"
-          >
-            {/* Animated Background Gradient */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-secondary-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            />
-            
-            {/* Floating Decorative Elements */}
-            <motion.div
-              className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-primary-500/5"
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                delay: index * 0.5,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-secondary-400/5"
-              animate={{
-                scale: [1, 1.4, 1],
-                opacity: [0.2, 0.5, 0.2],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                delay: index * 0.7 + 1,
-                ease: "easeInOut",
-              }}
-            />
-
-            {/* Icon Container with Pulsing Ring */}
-            <motion.div
-              className="relative mb-5"
-              whileHover={{
-                scale: 1.1,
-                rotate: [0, -8, 8, -5, 5, 0],
-              }}
-              transition={{ duration: 0.6 }}
-            >
-              <motion.div
-                className="absolute inset-0 rounded-full bg-primary-500/10"
-                animate={{
-                  scale: [1, 1.4, 1],
-                  opacity: [0.4, 0, 0.4],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  delay: index * 0.3,
-                  ease: "easeInOut",
-                }}
-              />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#eef5ff] to-[#e1ebff] flex items-center justify-center group-hover:from-[#dce8ff] group-hover:to-[#c5d9ff] transition-all duration-300">
-                <Icon size={42} className="text-green-600" />
-              </div>
-            </motion.div>
-
-            {/* Title */}
-            <motion.h3
-              className="text-xl md:text-2xl font-semibold text-primary-700 mb-2 tracking-tight font-['PlayfairDisplay']"
-              whileHover={{
-                scale: 1.05,
-                color: "#059669",
-              }}
-              transition={{ duration: 0.2 }}
-            >
-              {feature.title}
-            </motion.h3>
-
-            {/* Description */}
-            <motion.p
-              className="text-[#3f4e62] text-base leading-relaxed max-w-[22ch] mx-auto"
-              initial={{ opacity: 0.8 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              {feature.description}
-            </motion.p>
-
-            {/* Animated Indicator Line */}
-            <motion.div
-              className="w-12 h-0.5 bg-primary-500/30 mt-4 rounded-full"
-              whileHover={{
-                width: "60%",
-                backgroundColor: "#059669",
-                transition: { duration: 0.3 },
-              }}
-            />
-          </motion.div>
-        );
-      })}
-    </div>
-
-    {/* CTA Button with Enhanced Animations */}
-    <div className="text-center mt-14">
-      <motion.button
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{
-          duration: 0.6,
-          delay: 0.8,
-          ease: [0.25, 0.46, 0.45, 0.94],
-        }}
-        whileHover={{
-          scale: 1.05,
-          y: -3,
-          boxShadow: "0 20px 40px -10px rgba(37, 99, 235, 0.4)",
-        }}
-        whileTap={{ scale: 0.95 }}
-        className="px-10 py-4 bg-primary-600 text-white rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 inline-flex items-center gap-3"
-      >
-        Get Started Now
-        <motion.i
-          className="fa-solid fa-arrow-right"
-          whileHover={{
-            x: 8,
-            transition: { duration: 0.2 },
-          }}
-        />
-      </motion.button>
-      
-      <motion.p
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 1 }}
-        className="text-sm text-[#3f4e62] mt-3"
-      >
-        Join thousands of happy users. No credit card required.
-      </motion.p>
-    </div>
-  </div>
-</section>
+          <div className="text-center mt-14">
+            <button className="px-10 py-4 bg-primary-600 text-white rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform">
+              Get Started Now
+              <i className="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+            <p className="text-sm text-[#3f4e62] mt-3">
+              Join thousands of happy users. No credit card required.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
