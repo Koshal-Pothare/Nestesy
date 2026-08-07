@@ -1,5 +1,9 @@
+
+import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
+
 import React, { useRef } from "react";
 import { useState, useEffect } from "react";
+
 import Hero from "../assets/Home/Hero.png";
 import CardLogo from "../assets/Home/CardLogo.png";
 import CTA from "../assets/Home/CTA.png";
@@ -14,7 +18,11 @@ import {
   Bath,
   Square,
   Heart,
+
+  ArrowRight,
+
   ArrowRight, 
+
   ShieldCheck,
   UserCheck,
   Tag,
@@ -24,6 +32,228 @@ import {
 } from "lucide-react";
 import {
   Properties,
+
+  cities,
+  propertyTypes,
+  budgets,
+} from "../Data/Data";
+import { motion, useInView } from 'framer-motion';
+
+// Memoized TypingText component
+const TypingText = React.memo(({ text, className, delay = 0.2 }) => {
+  const [displayText, setDisplayText] = useState("");
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
+
+  useEffect(() => {
+    let timeout;
+    let currentIndex = 0;
+
+    const typeCharacter = () => {
+      if (currentIndex < text.length) {
+        setDisplayText(prev => prev + text[currentIndex]);
+        currentIndex++;
+        timeout = setTimeout(typeCharacter, 30);
+      } else {
+        setIsTypingComplete(true);
+      }
+    };
+
+    const startTimeout = setTimeout(() => {
+      typeCharacter();
+    }, delay * 1000);
+
+    return () => {
+      clearTimeout(startTimeout);
+      clearTimeout(timeout);
+    };
+  }, [text, delay]);
+
+  return (
+    <motion.p
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.3 }}
+      className={className}
+    >
+      {displayText}
+      {!isTypingComplete && (
+        <motion.span
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{
+            duration: 0.6,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="inline-block w-0.5 h-5 bg-primary-500 ml-0.5 align-middle"
+        />
+      )}
+    </motion.p>
+  );
+});
+
+// Optimized Counter Hook
+  const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
+  const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef(null);
+  const isInView = useInView(elementRef, { once: true, amount: 0.3 });
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    if (isInView && !isVisible) {
+      setIsVisible(true);
+      const startTime = Date.now() + startDelay;
+      const target = parseFloat(targetValue.replace(/[^0-9.]/g, ''));
+      const suffix = targetValue.replace(/[0-9.]/g, '');
+
+      const animate = () => {
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
+
+        if (elapsed < 0) {
+          animationRef.current = requestAnimationFrame(animate);
+          return;
+        }
+
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const currentValue = eased * target;
+
+        if (progress < 1) {
+          setCount(currentValue);
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          setCount(target);
+        }
+      };
+
+      animationRef.current = requestAnimationFrame(animate);
+    }
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isInView, isVisible, targetValue, duration, startDelay]);
+
+  const displayValue = targetValue.includes('.')
+    ? count.toFixed(1)
+    : Math.round(count);
+
+  const suffix = targetValue.replace(/[0-9.]/g, '');
+
+  return { count: displayValue, suffix, ref: elementRef };
+};
+
+// FeatureCard
+const FeatureCard = React.memo(({ feature }) => {
+  const Icon = feature.icon;
+
+  return (
+    <div className="bg-white rounded-[28px] px-6 py-8 text-center border border-white/50 shadow-[0_20px_35px_-10px_rgba(0,20,50,0.08),0_8px_18px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_50px_-12px_rgba(0,40,100,0.15)] hover:-translate-y-2 hover:border-green-200/30 transition-all duration-300 flex flex-col items-center backdrop-blur-sm group">
+      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#eef5ff] to-[#e1ebff] flex items-center justify-center mb-5 group-hover:from-[#dce8ff] group-hover:to-[#c5d9ff] transition-all duration-200">
+        <Icon size={42} className="text-green-600" />
+      </div>
+      <h3 className="text-xl md:text-2xl font-semibold text-primary-700 mb-2 tracking-tight font-[playfairDisplay]">
+        {feature.title}
+      </h3>
+      <p className="text-[#3f4e62] text-base leading-relaxed max-w-[22ch] mx-auto">
+        {feature.description}
+      </p>
+    </div>
+  );
+});
+
+const Home = () => {
+  const curveRef = useRef(null);
+  const isCurveVisible = useInView(curveRef, { once: true });
+
+  const text = "Find Your Perfect Home";
+  const letters = text.split("");
+  const words = "Spaces that feel like".split(" ");
+
+  const counter1 = useCounter("12K+", 2000, 900);
+  const counter2 = useCounter("8K+", 2000, 1000);
+  const counter3 = useCounter("150+", 2000, 700);
+  const counter4 = useCounter("4.9★", 2000, 800);
+
+  // State for continuous scrolling
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const containerRef = useRef(null);
+  const scrollPositionRef = useRef(0);
+  const [duplicatedCities, setDuplicatedCities] = useState([]);
+
+  // Get cities per row based on screen size
+  const getCitiesPerRow = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) return 2;
+      if (window.innerWidth < 1024) return 4;
+      return 6;
+    }
+    return 6;
+  }, []);
+
+  const [citiesPerRow, setCitiesPerRow] = useState(getCitiesPerRow);
+
+  // Update cities per row on resize
+  useEffect(() => {
+    const handleResize = () => {
+      setCitiesPerRow(getCitiesPerRow);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [getCitiesPerRow]);
+
+  //  city rows
+  const cityRows = useMemo(() => {
+    if (!duplicatedCities.length) return [];
+    const rows = [];
+    for (let i = 0; i < duplicatedCities.length; i += citiesPerRow) {
+      rows.push(duplicatedCities.slice(i, i + citiesPerRow));
+    }
+    return rows;
+  }, [duplicatedCities, citiesPerRow]);
+ 
+  // initialize duplicated 
+  useEffect(() => {
+    setDuplicatedCities([...cities, ...cities]);
+  }, []);
+
+  // Optimized infinite scroll with ref for position
+  useEffect(() => {
+    if (isPaused || duplicatedCities.length === 0) return;
+
+    const scrollSpeed = 20.5;
+    let animationId;
+
+    const animateScroll = () => {
+      scrollPositionRef.current += scrollSpeed / 16;
+
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.scrollWidth / 2;
+        if (scrollPositionRef.current >= containerWidth) {
+          scrollPositionRef.current -= containerWidth;
+        }
+      }
+
+      setScrollPosition(scrollPositionRef.current);
+      animationId = requestAnimationFrame(animateScroll);
+    };
+
+    animationId = requestAnimationFrame(animateScroll);
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [isPaused, duplicatedCities]);
+
+  const features = useMemo(() => [
+
   cities,  
   propertyTypes, 
   budgets 
@@ -178,19 +408,28 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
  const cityRows = getCityRows(duplicatedCities);
  
   const features = [
+
     {
       id: 1,
       icon: ShieldCheck,
       title: "Verified Properties",
+
+      description: "All listings are verified for your safety and peace of mind.",
+
       description:
         "All listings are verified for your safety and peace of mind.",
+
     },
     {
       id: 2,
       icon: UserCheck,
       title: "Trusted Hosts",
+
+      description: "Connect with genuine hosts and enjoy a hassle-free experience.",
+
       description:
         "Connect with genuine hosts and enjoy a hassle-free experience.",
+
     },
     {
       id: 3,
@@ -204,7 +443,82 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
       title: "24/7 Support",
       description: "We're here to help you anytime, anywhere you need.",
     },
+
+  ], []);
+
+  // Memoize property types and budgets options
+  const propertyTypeOptions = useMemo(() => 
+    propertyTypes.map((type) => (
+      <option key={type.value} value={type.value}>
+        {type.label}
+      </option>
+    )), []
+  );
+
+  const budgetOptions = useMemo(() => 
+    budgets.map((budget) => (
+      <option key={budget.value} value={budget.value}>
+        {budget.label}
+      </option>
+    )), []
+  );
+
+  // Memoize city cards to prevent unnecessary re-renders
+  const cityCards = useMemo(() => 
+    cityRows.map((row, rowIndex) => (
+      <div
+        key={rowIndex}
+        className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 min-w-full"
+        style={{ width: `${100 / cityRows.length}%` }}
+      >
+        {row.map((city, index) => (
+          <motion.div
+            key={`${city.id}-${rowIndex}-${index}`}
+            className="bg-card border border-border rounded-2xl p-5 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group overflow-hidden relative min-h-[250px]"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              duration: 0.5,
+              delay: index * 0.05,
+              ease: "easeOut",
+            }}
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
+              style={{ backgroundImage: `url(${city.image})` }}
+            />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
+            <div className="absolute top-3 right-3 w-12 h-12 rounded-full bg-white/50 border backdrop-blur-md border-white/30 z-10 flex items-center justify-center">
+              <img src={CardLogo} alt="Card Logo" />
+            </div>
+            <div className="relative z-10 flex flex-col h-full text-left">
+              <h3 className="font-bold text-white text-lg mt-auto">{city.name}</h3>
+              <p className="text-sm text-white/90 font-semibold">
+                {city.properties} properties
+              </p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    )), [cityRows]
+  );
+
+  // Memoize feature cards
+  const featureCards = useMemo(() => 
+    features.map((feature) => (
+      <FeatureCard key={feature.id} feature={feature} />
+    )), [features]
+  );
+
+  // Memoize property cards
+  const propertyCards = useMemo(() => 
+    Properties.slice(0, 6).map((property, index) => (
+      <PropertyCard key={property.id} property={property} index={index} />
+    )), []
+  );
+
   ];
+
 
   return (
     <>
@@ -418,7 +732,6 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
                 </label>
               </div>
 
-              {/* Move In Date */}
               <div className="relative lg:col-span-1">
                 <Calendar
                   size={18}
@@ -433,7 +746,6 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
                 </label>
               </div>
 
-              {/* Move Out Date */}
               <div className="relative lg:col-span-1">
                 <Calendar
                   size={18}
@@ -448,7 +760,6 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
                 </label>
               </div>
 
-              {/* Property Type */}
               <div className="relative lg:col-span-1">
                 <HomeIcon
                   size={18}
@@ -466,7 +777,6 @@ const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
                 </label>
               </div>
 
-              {/* Budget */}
               <div className="relative lg:col-span-1">
                 <IndianRupee
                   size={18}

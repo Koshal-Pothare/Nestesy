@@ -628,6 +628,108 @@ furnishing:"Unfurnished",
 availability:"Immediate",
 amenities:["Parking"],
 image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+
+}
+];
+
+// Home data
+
+export const cities = [
+  {
+    id: 1,
+    name: "Mumbai",
+    image: "https://images.unsplash.com/photo-1526481280695-3c4691f11d52?w=800&auto=format&fit=crop&q=80",
+    properties: 1250,
+  },
+  {
+    id: 2,
+    name: "Delhi",
+    image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&auto=format&fit=crop&q=80",
+    properties: 980,
+  },
+  {
+    id: 3,
+    name: "Bangalore",
+    image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=800&auto=format&fit=crop&q=80",
+    properties: 1100,
+  },
+  {
+    id: 4,
+    name: "Chennai",
+    image: "https://images.unsplash.com/photo-1609920658906-8223bd289001?w=800&auto=format&fit=crop&q=80",
+    properties: 750,
+  },
+  {
+    id: 5,
+    name: "Hyderabad",
+    image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&auto=format&fit=crop&q=80",
+    properties: 820,
+  },
+  {
+    id: 6,
+    name: "Pune",
+    image: "https://images.unsplash.com/photo-1625731207891-5c96d7c7f39e?w=800&auto=format&fit=crop&q=80",
+    properties: 650,
+  },
+  {
+    id: 7,
+    name: "Kolkata",
+    image: "https://images.unsplash.com/photo-1558431382-27e303142255?w=800&auto=format&fit=crop&q=80",
+    properties: 580,
+  },
+  {
+    id: 8,
+    name: "Ahmedabad",
+    image: "https://images.unsplash.com/photo-1619026390971-65b9c9fbb8d0?w=800&auto=format&fit=crop&q=80",
+    properties: 490,
+  },
+  {
+    id: 9,
+    name: "Jaipur",
+    image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=800&auto=format&fit=crop&q=80",
+    properties: 430,
+  },
+  {
+    id: 10,
+    name: "Lucknow",
+    image: "https://images.unsplash.com/photo-1599661046827-dacff0c0f09d?w=800&auto=format&fit=crop&q=80",
+    properties: 380,
+  },
+  {
+    id: 11,
+    name: "Nagpur",
+    image: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&auto=format&fit=crop&q=80",
+    properties: 320,
+  },
+  {
+    id: 12,
+    name: "Indore",
+    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80",
+    properties: 290,
+  },
+];
+
+export const budgets = [
+  { value: "all", label: "All Budgets" },
+  { value: "0-5000", label: "₹0 - ₹5,000" },
+  { value: "5000-10000", label: "₹5,000 - ₹10,000" },
+  { value: "10000-15000", label: "₹10,000 - ₹15,000" },
+  { value: "15000-20000", label: "₹15,000 - ₹20,000" },
+  { value: "20000-30000", label: "₹20,000 - ₹30,000" },
+  { value: "30000-50000", label: "₹30,000 - ₹50,000" },
+  { value: "50000-100000", label: "₹50,000 - ₹1,00,000" },
+  { value: "100000+", label: "₹1,00,000+" }
+];
+
+export const propertyTypes = [
+  { value: "all", label: "All Types" },
+  { value: "flat", label: "Flat" },
+  { value: "house", label: "House" },
+  { value: "villa", label: "Villa" },
+  { value: "pg", label: "PG" }, 
+];
+
  
 } 
 ];  
+
