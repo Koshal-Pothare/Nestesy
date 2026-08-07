@@ -6,7 +6,7 @@ import {
     ShieldCheck, User, Headset, IndianRupee, MapPin, Building2, Wallet2, Wallet, Search, ChevronUp,
     BedDouble, Bath, Ruler, Heart, ListFilterPlus, Home
 } from 'lucide-react'
-import { Properties } from '../Data/Data'
+import { budgets, Properties, propertyTypes } from '../Data/Data'
 import ExploreSidebar from '../components/ExploreSidebar'
 import CTA from '../assets/Explore/CTA.png'
 import PropertyCard from '../Ui/PropertyCard'
@@ -15,9 +15,79 @@ import Pagination from '../components/Pagination'
 
 const Explore = () => {
 
+    const [filter, setFilter] = useState({
+        location: "",
+        propertyTypes: "Any",
+        budget:"Any",
+        priceRange: 50000,
+         bedroom: "",
+        furnishing: "",
+        amenities: [],
+           availability: "",
+    })
+
+    const resetFilters = () => {
+    setFilter({
+        location: "",
+        propertyType: "",
+        priceRange: 50000,
+        bedroom: "",
+        furnishing: "",
+        amenities: [],
+        availability: "",
+    });
+};
+
+    const [filteredProperties, setFilteredProperties] = useState(Properties);
+
     const [propertyLoading, StylePropertyLoading] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
+
+    const scrollToProperty = () => {
+  document.getElementById("properties")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+};
+
+    const handleChange = (e) => {
+        setFilter((prev) => ({
+            ...prev, [e.target.name]: e.target.value
+        }))
+    }
+
+    const handleSearch = () => {
+        let result = [...Properties];
+
+        if (filter.location.trim()) {
+            result = result.filter((property) =>
+                property.location
+                    .toLowerCase()
+                    .includes(filter.location.toLowerCase())
+            );
+        }
+
+        if (filter.propertyType !== "Any") {
+            result = result.filter(
+                (property) => property.propertyType === filter.propertyType
+            );
+        }
+
+        if (filter.budget !== "Any") {
+            const [min, max] = filter.budget.split("-").map(Number);
+
+            result = result.filter(
+                (property) => property.price >= min && property.price <= max
+            );
+        }
+
+        setFilteredProperties(result);
+        setCurrentPage(1);
+         
+      scrollToProperty();
+        console.log("Search clicked")
+    };
 
     const propertiesPerPage = 9;
 
@@ -26,12 +96,11 @@ const Explore = () => {
     const indexOfLastProperty = currentPage * propertiesPerPage;
     const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
 
-    const currentProperties = Properties.slice(
+    const currentProperties = filteredProperties.slice(
         indexOfFirstProperty,
         indexOfLastProperty
     );
 
-   
 
     const navigate = useNavigate();
 
@@ -190,6 +259,10 @@ const Explore = () => {
                                     <input
                                         placeholder="Search city or locality"
                                         className=" w-full outline-none text-lg"
+                                        type="text"
+                                        name='location'
+                                        value={filter.location}
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
@@ -201,10 +274,16 @@ const Explore = () => {
                                         Property
                                     </label>
 
-                                    <select className=" w-full outline-none bg-transparent">
-                                        <option>Apartment</option>
-                                        <option>Villa</option>
-                                        <option>PG</option>
+                                    <select className=" w-full outline-none bg-transparent"
+                                        name="propertyType"
+                                        value={filter.propertyType}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="Any">Any</option>
+                                        <option value="Apartment">Apartment</option>
+                                        <option value="Villa">Villa</option>
+                                        <option value="PG">PG</option>
+                                        <option value="Independent House">Independent House</option>
                                     </select>
                                 </div>
                             </div>
@@ -216,15 +295,23 @@ const Explore = () => {
                                         Budget
                                     </label>
 
-                                    <select className=" w-full outline-none bg-transparent">
-                                        <option>Any</option>
-                                        <option>₹10k-20k</option>
-                                        <option>₹20k-50k</option>
+                                    <select
+                                        name="budget"
+                                        value={filter.budget}
+                                        onChange={handleChange}
+                                        className=" w-full outline-none bg-transparent">
+                                        <option value="Any">Any</option>
+                                        <option value="0-10000">Below ₹10k</option>
+                                        <option value="10000-20000">₹10k - ₹20k</option>
+                                        <option value="20000-50000">₹20k - ₹50k</option>
+                                        <option value="50000-1000000">Above ₹50k</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <button className="rounded-2xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition">
+                            <button
+                            onClick={handleSearch}
+                            className="rounded-2xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition">
                                 Search
                             </button>
 
@@ -244,11 +331,11 @@ const Explore = () => {
 
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start" id="properties">
 
                         {/* Sidebar */}
 
-                        <ExploreSidebar />
+                        <ExploreSidebar filter={filter} setFilter={setFilter} handleChange={handleChange}  reset={resetFilters} search={handleSearch}/>
 
 
                         {/* Property Grid */}

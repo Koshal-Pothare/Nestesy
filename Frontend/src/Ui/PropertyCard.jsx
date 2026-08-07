@@ -1,28 +1,28 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, BedDouble, Bath, Ruler } from 'lucide-react'
 import { toggleFavorite, isFavorite } from "../utils/favorite";
 import { ToastContainer, toast, Slide } from "react-toastify";
+import PropertyModal from '../components/PropertyModal'
 
 
 
 const PropertyCard = ({ property, index }) => {
 
-     const [favorite, setFavorite] = useState(
-    isFavorite(property.id)
-  );
+    const [favorite, setFavorite] = useState(isFavorite(property.id));
+    const [openPropertyModal, setOpenPropertyModal] = useState(false);
 
-  const handleFavorite = () => {
-    const added = toggleFavorite(property);
+    const handleFavorite = () => {
+        const added = toggleFavorite(property);
 
-    setFavorite(added);
+        setFavorite(added);
 
-    if (added) {
-      toast.success("Property added to Wishlist ❤️");
-    } else {
-      toast.info("Property removed from Wishlist");
-    }
-  };
+        if (added) {
+            toast.success("Property added to Wishlist ❤️");
+        } else {
+            toast.info("Property removed from Wishlist");
+        }
+    };
 
 
     return (
@@ -30,6 +30,7 @@ const PropertyCard = ({ property, index }) => {
 
             <motion.div
                 key={property.id}
+                onClick={() => setOpenPropertyModal(true)}
                 className="group overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300"
             >
 
@@ -37,7 +38,7 @@ const PropertyCard = ({ property, index }) => {
 
                 <div className="relative overflow-hidden h-56">
                     <img
-                        src={property.image}
+                        src={property.images[0]}
                         alt={property.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -47,10 +48,13 @@ const PropertyCard = ({ property, index }) => {
                     </span>
 
                     <button
-                        onClick={handleFavorite}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleFavorite();
+                        }}
                         className={`absolute top-3 right-3 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 ${favorite
-                                ? "bg-white text-red-500"
-                                : "bg-white text-gray-600 hover:bg-primary-600 hover:text-white"
+                            ? "bg-white text-red-500"
+                            : "bg-white text-gray-600 hover:bg-primary-600 hover:text-white"
                             }`}
                     >
                         <Heart
@@ -107,6 +111,12 @@ const PropertyCard = ({ property, index }) => {
                 </div>
 
             </motion.div>
+
+            <PropertyModal
+                property={property}
+                open={openPropertyModal}
+                onClose={() => setOpenPropertyModal(false)}
+            />
 
         </>
     )
