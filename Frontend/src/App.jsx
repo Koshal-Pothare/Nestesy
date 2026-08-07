@@ -16,6 +16,10 @@ import Contact from "./pages/Contact";
 import Explore from './pages/Explore'
 import Whishlist from './pages/Wishlist'
 
+//Admin
+import AdminLayout from '../src/Admin/AdminLout'
+import AdminDashboard from '../src/Admin/AdminDashboard'
+
 
 
 
@@ -30,6 +34,7 @@ function App() {
 
   const hideRoutes = [
     "/login",
+    "/admin",
    
   ];
 
@@ -57,7 +62,14 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/wishlist" element={<Whishlist/>} />
 
+         {/* Admin Routes - Nested */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} /> 
+        </Route>
+
       </Routes>
+
+       
 
       {!HideNavbarFooter && <Footer />}
 
