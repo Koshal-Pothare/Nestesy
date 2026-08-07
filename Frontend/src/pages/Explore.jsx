@@ -97,7 +97,7 @@ const Explore = () => {
             {/*hero section */}
             <div className="relative">
                 <div
-                    className="relative h-[650px] w-full bg-cover bg-center bg-no-repeat flex items-center text-center md:text-left p-10"
+                    className="relative h-[600px] w-full bg-cover bg-center bg-no-repeat flex items-center text-center md:text-left p-10"
                     style={{
                         backgroundImage: `url(${DesktopHero})`,
                     }}
@@ -174,9 +174,9 @@ const Explore = () => {
                     initial={{ opacity: 0, y: 60 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: .4 }}
-                    className="absolute hidden md:flex left-1/2 -bottom-14 -translate-x-1/2 z-30 w-[95%] max-w-6xl"
+                    className="absolute hidden md:flex left-1/2 -bottom-10 -translate-x-1/2 z-30 w-[95%] max-w-6xl border border-primary-500 rounded-3xl"
                 >
-                    <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-6">
+                    <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-6 w-full">
 
                         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 
@@ -319,7 +319,7 @@ const Explore = () => {
                     style={{
                         backgroundImage: `url(${CTA})`,
                     }}
-                    className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
+                    className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto h-[200px] rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
 
 
                     <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">

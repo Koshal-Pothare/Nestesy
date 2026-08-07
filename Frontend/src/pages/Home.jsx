@@ -417,23 +417,14 @@ const Home = () => {
                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                   />
                 </svg>
-                <div
-                  ref={curveRef}
-                  className="absolute -bottom-5 right-4 w-full"
-                >
+                <div ref={curveRef} className="absolute -bottom-5 right-4 w-full">
                   <svg
                     viewBox="0 0 500 120"
                     className="w-48 sm:w-56 md:w-64 lg:w-72"
                     style={{ transform: "translateY(10px)" }}
                   >
                     <defs>
-                      <linearGradient
-                        id="greenCurve"
-                        x1="0%"
-                        y1="0%"
-                        x2="100%"
-                        y2="0%"
-                      >
+                      <linearGradient id="greenCurve" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" style={{ stopColor: "#4ade80" }} />
                         <stop offset="100%" style={{ stopColor: "#86efac" }} />
                       </linearGradient>
@@ -467,10 +458,7 @@ const Home = () => {
               transition={{ duration: 0.6, delay: 1 }}
             >
               Discover verified flats and houses for rent.
-              <span className="block sm:inline">
-                {" "}
-                Trusted hosts. Secure stays. Better living.
-              </span>
+              <span className="block sm:inline"> Trusted hosts. Secure stays. Better living.</span>
             </motion.p>
 
             <motion.div
@@ -481,32 +469,28 @@ const Home = () => {
             >
               <div ref={counter1.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter1.count}
-                  {counter1.suffix}
+                  {counter1.count}{counter1.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Properties</span>
               </div>
 
               <div ref={counter2.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter2.count}
-                  {counter2.suffix}
+                  {counter2.count}{counter2.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Happy Clients</span>
               </div>
 
               <div ref={counter3.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter3.count}
-                  {counter3.suffix}
+                  {counter3.count}{counter3.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Cities</span>
               </div>
 
               <div ref={counter4.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter4.count}
-                  {counter4.suffix}
+                  {counter4.count}{counter4.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Rating</span>
               </div>
@@ -526,72 +510,47 @@ const Home = () => {
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
               <div className="relative lg:col-span-1">
-                <MapPin
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
-                />
+                <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
                 <input
                   type="text"
                   placeholder="Search city or locality"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                 />
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
-                  Where
-                </label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Where</label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <Calendar
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
-                />
+                <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
                 <input
                   type="date"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                 />
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
-                  Move In
-                </label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Move In</label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <Calendar
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
-                />
+                <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
                 <input
                   type="date"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                 />
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
-                  Move Out
-                </label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Move Out</label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <HomeIcon
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
-                />
+                <HomeIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
                 <select className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 appearance-none cursor-pointer">
                   {propertyTypeOptions}
                 </select>
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
-                  Property Type
-                </label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Property Type</label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <IndianRupee
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
-                />
+                <IndianRupee size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
                 <select className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 appearance-none cursor-pointer">
                   {budgetOptions}
                 </select>
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
-                  Budget
-                </label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Budget</label>
               </div>
 
               <button className="lg:col-span-1 w-full bg-primary-500 hover:bg-green-700 transition-all duration-300 rounded-xl text-white font-semibold py-3.5 flex justify-center items-center gap-2 shadow-lg shadow-green-600/30 hover:shadow-green-600/40 hover:-translate-y-0.5">
@@ -629,16 +588,12 @@ const Home = () => {
                 transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
                 className="text-4xl font-bold text-heading mb-2"
               >
-                Explore <span className="text-primary-500">Homes</span> in Top
-                Locations
+                Explore <span className="text-primary-500">Homes</span> in Top Locations
               </motion.h2>
             </div>
             <button className="flex items-center gap-2 text-primary-500 font-semibold hover:text-green-700 transition-colors group whitespace-nowrap font-[Roboto]">
               View all cities
-              <ArrowRight
-                size={18}
-                className="group-hover:translate-x-1 transition-transform"
-              />
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </motion.div>
 
@@ -689,8 +644,7 @@ const Home = () => {
                 transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
                 className="text-4xl font-bold text-heading relative font-[PlayfairDisplay]"
               >
-                Discover Your Next{" "}
-                <span className="text-primary-500">Home</span>
+                Discover Your Next <span className="text-primary-500">Home</span>
                 <motion.span
                   className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-400 rounded-full shadow-lg shadow-primary-500/30"
                   initial={{ width: "0%" }}
@@ -707,8 +661,7 @@ const Home = () => {
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="text-muted mt-4 max-w-2xl mx-auto"
             >
-              Browse our handpicked premium homes with verified listings and
-              trusted owners.
+              Browse our handpicked premium homes with verified listings and trusted owners.
             </motion.p>
           </motion.div>
 
@@ -725,9 +678,9 @@ const Home = () => {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7] overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
+<section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7] overflow-hidden">
+  <div className="max-w-7xl mx-auto"> 
+ <motion.div
             className="text-center mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -752,8 +705,7 @@ const Home = () => {
                 transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
                 className="text-4xl font-bold text-heading relative font-[PlayfairDisplay]"
               >
-                We Make It <span className="text-primary-500">Easy</span> for
-                You
+                  We Make It <span className="text-primary-500">Easy</span> for You
                 <motion.span
                   className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-400 rounded-full shadow-lg shadow-primary-500/30"
                   initial={{ width: "0%" }}
@@ -770,168 +722,170 @@ const Home = () => {
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="text-muted mt-4 max-w-2xl mx-auto"
             >
-              Discover why thousands of users trust us for their property needs
+                   Discover why thousands of users trust us for their property needs
             </motion.p>
           </motion.div>
 
-          {/* Feature Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={feature.id}
-                  custom={index}
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{
-                    duration: 0.7,
-                    delay: index * 0.15,
-                    ease: [0.25, 0.46, 0.45, 0.94],
-                  }}
-                  whileHover={{
-                    y: -12,
-                    scale: 1.03,
-                    transition: { duration: 0.25, ease: "easeOut" },
-                  }}
-                  className="group relative bg-white/80 backdrop-blur-sm rounded-[28px] px-6 py-8 text-center border border-white/50 shadow-[0_20px_35px_-10px_rgba(0,20,50,0.08),0_8px_18px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_50px_-12px_rgba(0,40,100,0.15)] hover:border-primary-200/50 transition-all duration-300 flex flex-col items-center overflow-hidden"
-                >
-                  {/* Animated Background Gradient */}
-                  <motion.div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-secondary-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                  {/* Floating Decorative Elements */}
-                  <motion.div
-                    className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-primary-500/5"
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      opacity: [0.3, 0.6, 0.3],
-                    }}
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      delay: index * 0.5,
-                      ease: "easeInOut",
-                    }}
-                  />
-                  <motion.div
-                    className="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-secondary-400/5"
-                    animate={{
-                      scale: [1, 1.4, 1],
-                      opacity: [0.2, 0.5, 0.2],
-                    }}
-                    transition={{
-                      duration: 6,
-                      repeat: Infinity,
-                      delay: index * 0.7 + 1,
-                      ease: "easeInOut",
-                    }}
-                  />
-
-                  {/* Icon Container with Pulsing Ring */}
-                  <motion.div
-                    className="relative mb-5"
-                    whileHover={{
-                      scale: 1.1,
-                      rotate: [0, -8, 8, -5, 5, 0],
-                    }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    <motion.div
-                      className="absolute inset-0 rounded-full bg-primary-500/10"
-                      animate={{
-                        scale: [1, 1.4, 1],
-                        opacity: [0.4, 0, 0.4],
-                      }}
-                      transition={{
-                        duration: 2.5,
-                        repeat: Infinity,
-                        delay: index * 0.3,
-                        ease: "easeInOut",
-                      }}
-                    />
-                    <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#eef5ff] to-[#e1ebff] flex items-center justify-center group-hover:from-[#dce8ff] group-hover:to-[#c5d9ff] transition-all duration-300">
-                      <Icon size={42} className="text-green-600" />
-                    </div>
-                  </motion.div>
-
-                  {/* Title */}
-                  <motion.h3
-                    className="text-xl md:text-2xl font-semibold text-primary-700 mb-2 tracking-tight font-['PlayfairDisplay']"
-                    whileHover={{
-                      scale: 1.05,
-                      color: "#059669",
-                    }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {feature.title}
-                  </motion.h3>
-
-                  {/* Description */}
-                  <motion.p
-                    className="text-[#3f4e62] text-base leading-relaxed max-w-[22ch] mx-auto"
-                    initial={{ opacity: 0.8 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {feature.description}
-                  </motion.p>
-
-                  {/* Animated Indicator Line */}
-                  <motion.div
-                    className="w-12 h-0.5 bg-primary-500/30 mt-4 rounded-full"
-                    whileHover={{
-                      width: "60%",
-                      backgroundColor: "#059669",
-                      transition: { duration: 0.3 },
-                    }}
-                  />
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* CTA Button with Enhanced Animations */}
-          <div className="text-center mt-14">
-            <motion.button
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+    {/* Feature Cards Grid */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+      {features.map((feature, index) => {
+        const Icon = feature.icon;
+        return (
+          <motion.div
+            key={feature.id}
+            custom={index}
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+              duration: 0.7,
+              delay: index * 0.15,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            whileHover={{
+              y: -12,
+              scale: 1.03,
+              transition: { duration: 0.25, ease: "easeOut" },
+            }}
+            className="group relative bg-white/80 backdrop-blur-sm rounded-[28px] px-6 py-8 text-center border border-white/50 shadow-[0_20px_35px_-10px_rgba(0,20,50,0.08),0_8px_18px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_50px_-12px_rgba(0,40,100,0.15)] hover:border-primary-200/50 transition-all duration-300 flex flex-col items-center overflow-hidden"
+          >
+            {/* Animated Background Gradient */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-secondary-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
+            
+            {/* Floating Decorative Elements */}
+            <motion.div
+              className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-primary-500/5"
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 0.6, 0.3],
+              }}
               transition={{
-                duration: 0.6,
-                delay: 0.8,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 5,
+                repeat: Infinity,
+                delay: index * 0.5,
+                ease: "easeInOut",
               }}
+            />
+            <motion.div
+              className="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-secondary-400/5"
+              animate={{
+                scale: [1, 1.4, 1],
+                opacity: [0.2, 0.5, 0.2],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                delay: index * 0.7 + 1,
+                ease: "easeInOut",
+              }}
+            />
+
+            {/* Icon Container with Pulsing Ring */}
+            <motion.div
+              className="relative mb-5"
               whileHover={{
-                scale: 1.05,
-                y: -3,
-                boxShadow: "0 20px 40px -10px rgba(37, 99, 235, 0.4)",
+                scale: 1.1,
+                rotate: [0, -8, 8, -5, 5, 0],
               }}
-              whileTap={{ scale: 0.95 }}
-              className="px-10 py-4 bg-primary-600 text-white rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 inline-flex items-center gap-3"
+              transition={{ duration: 0.6 }}
             >
-              Get Started Now
-              <motion.i
-                className="fa-solid fa-arrow-right"
-                whileHover={{
-                  x: 8,
-                  transition: { duration: 0.2 },
+              <motion.div
+                className="absolute inset-0 rounded-full bg-primary-500/10"
+                animate={{
+                  scale: [1, 1.4, 1],
+                  opacity: [0.4, 0, 0.4],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  delay: index * 0.3,
+                  ease: "easeInOut",
                 }}
               />
-            </motion.button>
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#eef5ff] to-[#e1ebff] flex items-center justify-center group-hover:from-[#dce8ff] group-hover:to-[#c5d9ff] transition-all duration-300">
+                <Icon size={42} className="text-green-600" />
+              </div>
+            </motion.div>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 1 }}
-              className="text-sm text-[#3f4e62] mt-3"
+            {/* Title */}
+            <motion.h3
+              className="text-xl md:text-2xl font-semibold text-primary-700 mb-2 tracking-tight font-['PlayfairDisplay']"
+              whileHover={{
+                scale: 1.05,
+                color: "#059669",
+              }}
+              transition={{ duration: 0.2 }}
             >
-              Join thousands of happy users. No credit card required.
+              {feature.title}
+            </motion.h3>
+
+            {/* Description */}
+            <motion.p
+              className="text-[#3f4e62] text-base leading-relaxed max-w-[22ch] mx-auto"
+              initial={{ opacity: 0.8 }}
+              whileHover={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {feature.description}
             </motion.p>
-          </div>
-        </div>
-      </section>
+
+            {/* Animated Indicator Line */}
+            <motion.div
+              className="w-12 h-0.5 bg-primary-500/30 mt-4 rounded-full"
+              whileHover={{
+                width: "60%",
+                backgroundColor: "#059669",
+                transition: { duration: 0.3 },
+              }}
+            />
+          </motion.div>
+        );
+      })}
+    </div>
+
+    {/* CTA Button with Enhanced Animations */}
+    <div className="text-center mt-14">
+      <motion.button
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{
+          duration: 0.6,
+          delay: 0.8,
+          ease: [0.25, 0.46, 0.45, 0.94],
+        }}
+        whileHover={{
+          scale: 1.05,
+          y: -3,
+          boxShadow: "0 20px 40px -10px rgba(37, 99, 235, 0.4)",
+        }}
+        whileTap={{ scale: 0.95 }}
+        className="px-10 py-4 bg-primary-600 text-white rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 inline-flex items-center gap-3"
+      >
+        Get Started Now
+        <motion.i
+          className="fa-solid fa-arrow-right"
+          whileHover={{
+            x: 8,
+            transition: { duration: 0.2 },
+          }}
+        />
+      </motion.button>
+      
+      <motion.p
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 1 }}
+        className="text-sm text-[#3f4e62] mt-3"
+      >
+        Join thousands of happy users. No credit card required.
+      </motion.p>
+    </div>
+  </div>
+</section>
 
       {/* CTA Section */}
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -953,23 +907,13 @@ const Home = () => {
                   Earn More by <br className="hidden sm:block" />
                   <span className="relative inline-block">
                     Hosting Your Property
-                    <svg
-                      className="absolute -bottom-1 left-0 w-full h-2 text-secondary-300/70"
-                      viewBox="0 0 200 8"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M0 4 Q 25 0, 50 4 T 100 4 T 150 4 T 200 4"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                      />
+                    <svg className="absolute -bottom-1 left-0 w-full h-2 text-secondary-300/70" viewBox="0 0 200 8" fill="currentColor">
+                      <path d="M0 4 Q 25 0, 50 4 T 100 4 T 150 4 T 200 4" stroke="currentColor" strokeWidth="3" fill="none" />
                     </svg>
                   </span>
                 </h2>
                 <p className="text-white/80 text-base sm:text-lg max-w-xl">
-                  List your property, connect with genuine tenants and earn more
-                  with zero hassle.
+                  List your property, connect with genuine tenants and earn more with zero hassle.
                 </p>
 
                 <div className="pt-2">
@@ -986,9 +930,7 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <HomeIcon className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">
-                      Easy Listing
-                    </span>
+                    <span className="text-white font-medium text-sm sm:text-base">Easy Listing</span>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
@@ -996,9 +938,7 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <UserCheck className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">
-                      Verified Tenants
-                    </span>
+                    <span className="text-white font-medium text-sm sm:text-base">Verified Tenants</span>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
@@ -1006,9 +946,7 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <Shield className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">
-                      Secure Payments
-                    </span>
+                    <span className="text-white font-medium text-sm sm:text-base">Secure Payments</span>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
@@ -1016,9 +954,7 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <CreditCard className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">
-                      Zero Brokerage
-                    </span>
+                    <span className="text-white font-medium text-sm sm:text-base">Zero Brokerage</span>
                   </div>
                 </div>
               </div>

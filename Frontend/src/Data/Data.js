@@ -1,4 +1,5 @@
 
+
 // ==========================================================
 // Nestesy — About Us Page Data
 // (FAQ data intentionally excluded — not part of this page)
@@ -225,7 +226,9 @@ export const ctaData = {
 
 
 
-import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react'
+import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react' 
+ 
+ 
 
 
 
@@ -513,6 +516,7 @@ furnishing:"Unfurnished",
 availability:"Immediate",
 amenities:["Parking"],
 image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+
 }
 ];
 
@@ -593,22 +597,22 @@ export const cities = [
   },
 ];
 
-export const budgets = [
-  { value: "all", label: "All Budgets" },
-  { value: "0-5000", label: "₹0 - ₹5,000" },
-  { value: "5000-10000", label: "₹5,000 - ₹10,000" },
-  { value: "10000-15000", label: "₹10,000 - ₹15,000" },
-  { value: "15000-20000", label: "₹15,000 - ₹20,000" },
-  { value: "20000-30000", label: "₹20,000 - ₹30,000" },
-  { value: "30000-50000", label: "₹30,000 - ₹50,000" },
-  { value: "50000-100000", label: "₹50,000 - ₹1,00,000" },
-  { value: "100000+", label: "₹1,00,000+" }
-];
 
 export const propertyTypes = [
-  { value: "all", label: "All Types" },
-  { value: "flat", label: "Flat" },
-  { value: "house", label: "House" },
+  { value: "", label: "All Type" },
+  { value: "apartment", label: "Apartment" },
   { value: "villa", label: "Villa" },
-  { value: "pg", label: "PG" }, 
+  { value: "house", label: "House" },
+  { value: "room", label: "Room" },
+  { value: "studio", label: "Studio" },
 ];
+
+export const budgets = [
+  { value: "", label: "Any Budget" },
+  { value: "10k-25k", label: "₹10K - ₹25K" },
+  { value: "25k-50k", label: "₹25K - ₹50K" },
+  { value: "50k-1l", label: "₹50K - ₹1L" },
+  { value: "1l-2l", label: "₹1L - ₹2L" },
+  { value: "2l+", label: "₹2L+" }, 
+]
+  
