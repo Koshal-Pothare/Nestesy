@@ -3,7 +3,7 @@
 
 import React ,{useState,useEffect} from 'react'
 import { IoHomeOutline } from "react-icons/io5";
-import { Search ,Heart,Menu, X } from 'lucide-react';
+import { Search ,Heart,Menu, X ,User} from 'lucide-react';
 import {NavLink,useLocation,useNavigate} from 'react-router-dom'
 import {motion,AnimatePresence} from 'framer-motion'
 
@@ -21,11 +21,13 @@ useEffect(() => {
   setActiverLink(location.pathname);
 }, [location]);
 
+
+
 const menuItems = [
   { name: 'Home', link: '/' },
   { name: 'About', link: '/about' },
   { name: 'Explore', link: '/explore' },
-  {name:'Become Host' , link:"/become-host"},
+  {name:'Become Host' , link:"/become-a-host"},
 
   { name: 'Contact', link: '/contact' },
 ];
@@ -34,10 +36,10 @@ const menuItems = [
 
   return (
    <>
-    <nav className=" fixed w-full bg-white text-gray-800 py-5  flex justify-between md:justify-around items-center z-50">
+    <nav className=" fixed w-full bg-white text-gray-800 py-3  flex justify-between md:justify-around items-center z-50">
       <div className="flex items-center gap-2 cursor-pointer p-1">
-        <IoHomeOutline size={35} className="font-extrabold text-emerald-500" />
-        <h1 className="text-4xl font-bold font-serif mt-1 tracking-wider">NESTESY</h1>
+        <IoHomeOutline size={35} className="font-extrabold text-primary-500" />
+        <h1 className="text-3xl font-bold font-serif mt-1 tracking-wider">NESTESY</h1>
       </div>
 
         {/* mobile navbar menu */}
@@ -79,11 +81,80 @@ const menuItems = [
 </div>
 
 <div className=" hidden md:flex gap-4 ">
-    <button><Heart size={18} className="text-primary-500"/></button>
+    <button onClick={()=>navigate("/wishlist")} 
+      className="cursor-pointer"
+      ><Heart size={18} className="text-primary-500"/></button>
+  
     {/* <button className="bg-primary-500 text-white font-semibold px-3 py-2 rounded-2xl flex items-center gap-1"><Search size={18} className="text-white"/>Search</button> */}
+
+{isUser ? 
+(<>
+    <div
+              className="relative"
+              onMouseEnter={() => !isTouchDevice && setProfile(true)}
+              onMouseLeave={() => !isTouchDevice && setProfile(false)}
+              onClick={() => isTouchDevice && setProfile(!profile)}
+            >
+              <button
+                className="flex items-center gap-2 py-1.5 px-4 bg-white border-2 border-primary-600 rounded-full text-primary-700 cursor-pointer font-semibold transition-all duration-300 hover:scale-105 hover:bg-primary-700 hover:text-white hover:border-primary-700"
+                aria-label="User profile menu"
+                // aria-expanded={profile}
+              >
+                <User size={18} />
+                {/* {userData?.FirstName || "Profile"} */}
+              </button>
+
+              {/* <AnimatePresence>
+                {profile && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full right-0 mt-2 shadow-lg rounded-xl p-4 w-48 z-50 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-600 font-semibold border border-blue-200"
+                    role="menu"
+                  >
+                    <div className="pb-3 mb-3 border-b border-blue-200">
+                      <h3 className="text-sm text-blue-500">
+                        Hello,{" "}
+                        <span className="text-blue-700 font-bold">
+                          {userData?.FirstName}
+                        </span>
+                      </h3>
+                      {userData?.number && (
+                        <p className="text-xs text-blue-400 mt-0.5">
+                          {userData.number}
+                        </p>
+                      )}
+                    </div>
+
+                    <Link
+                      to="/user-profile"
+                      onClick={() => setProfile(false)}
+                      className="block py-2 px-3 rounded-lg hover:bg-blue-200/50 hover:text-blue-800 transition-all duration-200"
+                      role="menuitem"
+                    >
+                      Dashboard
+                    </Link>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left py-2 px-3 mt-1 text-red-600 flex items-center gap-2 rounded-lg hover:bg-red-50 transition-all duration-200"
+                      role="menuitem"
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence> */}
+            </div>
+</>):(<>
 <button 
 onClick={()=>navigate("/login")}
 className="bg-primary-500 text-white font-semibold px-3 py-2 rounded-2xl transition-all duration-300 hover:bg-primary-600 hover:scale-102 ">Login / Sign Up</button>
+</>)}
+
 </div>
       
 

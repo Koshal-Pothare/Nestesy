@@ -5,42 +5,97 @@ import Home from './pages/Home'
 import Footer from './components/Footer'
 import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
-import SignUp from './auth/SignUp'
+import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
-import About from './components/AboutUs'
+import About from './pages/AboutUs'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import Contact from "./pages/Contact";
+
+import Explore from './pages/Explore'
+import Whishlist from './pages/Wishlist'
+
+//Admin
+import AdminLayout from '../src/Admin/AdminLout'
+import AdminDashboard from '../src/Admin/AdminDashboard'
+import AdminRegister from './auth/AdminRegister'
+import AdminLogin from './auth/AdminLogin'
+
+// Host 
+import HostDashboard from './Host/HostDashboard'
+import HostLayout from './Host/HostLayout'
+
 
 function App() {
   const location = useLocation();
-  const pathname = Location.pathname;
+  const pathname = location.pathname;
 
   useLayoutEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0, 
+     );
   }, [pathname]);
 
-  const hideRoutes =[
+  const hideRoutes = [
     "/login",
-    "/signup"
-  ]
+    "/admin",
+    "/host",
+    "/admin-register",
+    "/admin-login"
+
+   
+  ];
 
   const HideNavbarFooter = hideRoutes.includes(location.pathname);
 
 
+
+
   return (
+
     <>
   
       {!HideNavbarFooter &&<Navbar/> }
       <Routes>
+
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<About/>} />
        <Route path="/login" element={<Login/>} />
-        <Route path="/signup" element={<SignUp/>} />
+        <Route path='/admin-register' element={<AdminRegister />} />
+         <Route path='/admin-login' element={<AdminLogin />} />
+   
+
+
+
+             <Route path="/become-a-host" element={<BecomeHost/>} />  
+         <Route path="/explore" element={<Explore/>} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/wishlist" element={<Whishlist/>} />
+
+         {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} /> 
+         
+        </Route>
+
+        {/* // Host Routes */}
+        <Route path="/host" element={<HostLayout />}>
+          <Route index element={<HostDashboard />} />
+        </Route>
 
       </Routes>
 
+       
 
-      {!HideNavbarFooter &&<Footer/> }
+      {!HideNavbarFooter && <Footer />}
+
+       <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        theme="light"
+      />
+
     </>
-  )
+  );
 }
-
-export default App
+export default App;

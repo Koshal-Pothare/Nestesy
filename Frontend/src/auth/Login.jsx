@@ -57,13 +57,13 @@ const Login = () => {
             />
 
             {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary-900/40 via-transparent to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-primary-900/40 via-transparent to-transparent"></div>
 
             {/* Left Fade */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-900/90 via-transparent to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-primary-900/90 via-transparent to-transparent"></div>
 
-             <div className="absolute top-0 left-0 w-full h-10 bg-gradient-to-b from-primary-900 to-transparent" />
-             <div className="absolute inset-0 bg-gradient-to-b from-primary-900/50 via-transparent to-transparent"></div>
+             <div className="absolute top-0 left-0 w-full h-10 bg-linear-to-b from-primary-900 to-transparent" />
+             <div className="absolute inset-0 bg-linear-to-b from-primary-900/50 via-transparent to-transparent"></div>
           </div>
 
 
@@ -115,7 +115,7 @@ const Login = () => {
         {/* Right Side */}
 
         <div
-  className="m-4"
+  className=" md:m-4"
   style={{
     perspective: "1500px",
   }}
@@ -143,18 +143,18 @@ const Login = () => {
         WebkitBackfaceVisibility: "hidden",
       }}
         
-        className="bg-white rounded-[28px] m-4 p-10 border-3 border-primary-600">
+        className="bg-white rounded-[28px] m-4 p-5 md:p-10 border-3 border-primary-600">
           <h1 
         
-          className="text-4xl font-serif font-semibold mt-10 ">Login to <span className="text-primary-700  tracking-wider ">NESTESY</span></h1>
-        <p className="mt-3 text-gray-600 tracking-wide text-lg">Welcome back! Please enter your details</p>
+          className="text-3xl md:text-4xl font-serif font-semibold mt-5 md:mt-10 ">Login to <span className="text-primary-700  tracking-wider ">NESTESY</span></h1>
+        <p className="mt-3 text-gray-600 tracking-wide text-md md:text-lg">Welcome back! Please enter your details</p>
          
-         <form className="py-10">
+         <form className=" py-5 md:py-10">
             <div>
-                <label htmlFor="email" className="block text-lg font-semibold mt-6">
+                <label htmlFor="email" className="block text-md md:text-lg font-semibold mt-6">
                     Email Address or Username
                 </label>
-               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5  h-15 focus-within:border-blue-500 transition-colors">
+               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
                     <Mail className="text-gray-400 shrink-0" />
                     <input
                       type={"email" || "text"}
@@ -170,11 +170,11 @@ const Login = () => {
             </div>
 
             <div>
-                <label htmlFor="password" className="block text-lg font-semibold mt-6">
+                <label htmlFor="password" className="block  text-md md:text-lg font-semibold mt-6">
                     Password
                 </label>
                 <div>
-                <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-15 focus-within:border-blue-500 transition-colors">
+                <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5  h-12 md:h-15 focus-within:border-blue-500 transition-colors">
                     <Lock className="text-gray-400 shrink-0" />
                     <input
                       type={showPassword ? "text" : "password"}
@@ -197,28 +197,29 @@ const Login = () => {
             </div>
 
             <div className="flex items-center justify-between mt-6">
-               <h1 className="flex items-center gap-2"><input type="checkbox" className=" h-5 w-5 border border-primary-900" />Remember Me</h1>
-               <button className="text-primary-500 hover:text-primary-600 font-semibold cursor-pointer">
+               <h1 className="flex items-center gap-2 text-md"><input type="checkbox" className=" h-5 w-5 border border-primary-900 " />Remember Me</h1>
+               <button className="text-primary-500 hover:text-primary-600 font-semibold cursor-pointer text-md">
                     Forgot Password?
                 </button>
             </div>
            
 
-        <button className="w-full bg-primary-500 mt-10 text-white py-4 text-xl font-semibold rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 hover:scale-102">
+        <button className="w-full bg-primary-500 mt-6 md:mt-10 text-white py-3 md:py-4 text-lg md:text-xl font-semibold rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 hover:scale-102">
             Login
         </button>
 
-        <div className="mt-10 flex items-center gap-2 justify-center text-center">
+        <div className="mt-5 md:mt-10 flex items-center gap-2 justify-center text-center">
           <p className="w-25 h-px bg-primary-700"></p>
-          <h1 className="text-md text-gray-700 font-semibold ">or Continue with</h1>
+          <h1 className=" hidden md:block text-md text-gray-700 font-semibold ">or Continue with</h1>
+          <h1 className="block md:hidden text-md text-gray-700 font-semibold ">or </h1>
           <p className="w-25 h-px bg-primary-700"></p>
         </div>
 
-        <button className ="text-center w-full mt-10 border-3 border-primary-700 py-4 rounded-2xl ">Continue with Google</button>
+        <button className ="text-center w-full mt-5 md:mt-10 border-3 border-primary-700  py-3 md:py-4 rounded-2xl ">Continue with Google</button>
 
          </form>
 
-         <p className="text-center text-gray-600 text-lg mt-6">
+         <p className="text-center text-gray-600  text-md md:text-lg  mt-3 md:mt-6">
            Don't have an account?{' '}
            <button 
            type="button"
@@ -233,7 +234,7 @@ const Login = () => {
 
 {/* sign up  */}
  <div
-      className="bg-white rounded-[28px] border-3 border-primary-600 p-10 absolute inset-0 h-[900px]"
+      className="bg-white rounded-[28px] border-3 border-primary-600 p-5 md:p-10 absolute inset-0 h-full"
       style={{
         transform: "rotateY(180deg)",
         backfaceVisibility: "hidden",
@@ -243,15 +244,15 @@ const Login = () => {
 
       <h1 
         
-          className="text-4xl font-serif font-semibold  ">SignUp to <span className="text-primary-700  tracking-wider ">NESTESY</span></h1>
-        <p className="mt-3 text-gray-600 tracking-wide text-lg">Welcome to NESTESY! Please enter your details</p>
+          className=" text-3xl md:text-4xl font-serif font-semibold  ">SignUp to <span className="text-primary-700  tracking-wider ">NESTESY</span></h1>
+        <p className="mt-3 text-gray-600 tracking-wide  text-md md:text-lg">Welcome to NESTESY! Please enter your details</p>
          
          <form className="py-4">
             <div>
-                <label htmlFor="email" className="block text-lg font-semibold mt-3">
+                <label htmlFor="email" className="block  text-md md:text-lg font-semibold mt-3">
                     Email Address
                 </label>
-               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5  h-15 focus-within:border-blue-500 transition-colors">
+               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
                     <Mail className="text-gray-400 shrink-0" />
                     <input
                       type="email"
@@ -267,10 +268,10 @@ const Login = () => {
             </div>
 
              <div>
-                <label htmlFor="username" className="block text-lg font-semibold mt-6">
+                <label htmlFor="username" className="block text-md md:text-lg font-semibold mt-6">
                     Username
                 </label>
-               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5  h-15 focus-within:border-blue-500 transition-colors">
+               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
                     <Mail className="text-gray-400 shrink-0" />
                     <input
                       type="text"
@@ -287,11 +288,11 @@ const Login = () => {
 
 
             <div>
-                <label htmlFor="password" className="block text-lg font-semibold mt-6">
+                <label htmlFor="password" className="block text-md md:text-lg font-semibold mt-6">
                     Password
                 </label>
                 
-                <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-15 focus-within:border-blue-500 transition-colors">
+                <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
                     <Lock className="text-gray-400 shrink-0" />
                     <input
                       type={showPassword ? "text" : "password"}
@@ -312,10 +313,10 @@ const Login = () => {
 
                   {/* confirm password */}
                   <div>
-                    <label htmlFor="password" className="block text-lg font-semibold mt-6">
+                    <label htmlFor="password" className="block text-md md:text-lg font-semibold mt-6">
                    Confirm  Password
                 </label>
-                   <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-15 focus-within:border-blue-500 transition-colors">
+                   <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12  md:h-15 focus-within:border-blue-500 transition-colors">
                     <Lock className="text-gray-400 shrink-0" />
                     <input
                       type={showPassword ? "text" : "password"}
@@ -343,7 +344,7 @@ const Login = () => {
          
            
 
-        <button className="w-full bg-primary-500 mt-5 text-white py-4 text-xl font-semibold rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 hover:scale-102">
+        <button className="w-full bg-primary-500 mt-5 text-white py-3 md:py-4 text-lg md:text-xl font-semibold rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 hover:scale-102">
             Sign Up
         </button>
 
@@ -353,11 +354,11 @@ const Login = () => {
           <p className="w-25 h-px bg-primary-700"></p>
         </div>
 
-        <button className ="text-center w-full mt-5 border-3 border-primary-700 py-4 rounded-2xl ">Continue with Google</button>
+        <button className ="text-center w-full mt-5 border-3 border-primary-700 py-3 md:py-4 rounded-2xl ">Continue with Google</button>
 
          </form>
 
-         <p className="text-center text-gray-600 text-lg mt-3">
+         <p className="text-center text-gray-600 text-md md:text-lg mt-3">
            Already have an Account ?{' '}
            <button 
            type="button"
