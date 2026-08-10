@@ -718,31 +718,34 @@ const Testimonials = () => {
 
 const CTA = () => {
   return (
-    <section className="px-5 py-10 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.7 }}
-          className="relative min-h-[400px] overflow-hidden rounded-2xl bg-cover bg-center py-28"
-          style={{ backgroundImage: `url(${ctaHomeImg})` }}
-        >
-          <div className="absolute inset-0 bg-[#1f5b3b]/25"></div>
+    <section className="mt-20 mb-20 px-4 md:px-8 lg:px-12">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.7 }}
+        className="relative mx-auto min-h-[450px] max-w-7xl overflow-hidden rounded-3xl bg-cover bg-center py-20 md:py-24"
+        style={{ backgroundImage: `url(${ctaHomeImg})` }}
+      >
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50"></div>
 
-          <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 text-center lg:flex-row lg:px-10 lg:text-left">
+        {/* Main Content */}
+        <div className="relative z-10 mx-auto flex max-w-6xl flex-col justify-center gap-12 px-8 lg:flex-row lg:items-center lg:px-10">
 
-            <div>
-              <h2 className="text-3xl font-bold text-white md:text-4xl">
-                {ctaData.title}
-              </h2>
+          {/* ================= LEFT SIDE ================= */}
+          <div className="flex-1 text-center lg:text-left">
 
-              <p className="mt-3 max-w-xl text-primary-100">
-                {ctaData.description}
-              </p>
-            </div>
+            <h2 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+              {ctaData.title}
+            </h2>
 
-            <div className="flex shrink-0 flex-wrap justify-center gap-4">
+            <p className="mt-4 max-w-xl text-base leading-7 text-white/90 md:text-lg">
+              {ctaData.description}
+            </p>
+
+            {/* Buttons */}
+            <div className="mt-7 flex flex-wrap justify-center gap-4 lg:justify-start">
               {ctaData.buttons.map((btn, index) => (
                 <motion.button
                   key={index}
@@ -750,7 +753,7 @@ const CTA = () => {
                   whileTap={{ scale: 0.96 }}
                   className={
                     btn.type === "primary"
-                      ? "rounded-xl bg-white px-7 py-3.5 font-semibold text-primary-600 shadow-sm transition hover:shadow-lg"
+                      ? "rounded-xl bg-white px-7 py-3.5 font-semibold text-primary-600 shadow-md transition hover:shadow-xl"
                       : "rounded-xl border border-white px-7 py-3.5 font-semibold text-white transition hover:bg-white hover:text-primary-600"
                   }
                 >
@@ -758,13 +761,74 @@ const CTA = () => {
                 </motion.button>
               ))}
             </div>
+          </div>
+
+          {/* ================= RIGHT SIDE STATS ================= */}
+          <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+
+            {/* Stat 1 */}
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
+            >
+              <h3 className="text-3xl font-bold text-white">
+                10,000+
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Verified Properties
+              </p>
+            </motion.div>
+
+            {/* Stat 2 */}
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
+            >
+              <h3 className="text-3xl font-bold text-white">
+                50,000+
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Happy Customers
+              </p>
+            </motion.div>
+
+            {/* Stat 3 */}
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
+            >
+              <h3 className="text-3xl font-bold text-white">
+                500+
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Trusted Hosts
+              </p>
+            </motion.div>
+
+            {/* Stat 4 */}
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
+            >
+              <h3 className="text-3xl font-bold text-white">
+                24/7
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Customer Support
+              </p>
+            </motion.div>
 
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </section>
   );
 };
+
 // About Us Page
 
 const AboutUs = () => {
