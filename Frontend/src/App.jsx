@@ -15,6 +15,7 @@ import Contact from "./pages/Contact";
 
 import Explore from './pages/Explore'
 import Whishlist from './pages/Wishlist'
+import PropertyDetails from './pages/PropertyDetails'
 
 //Admin
 import AdminLayout from '../src/Admin/AdminLout'
@@ -25,6 +26,16 @@ import AdminLogin from './auth/AdminLogin'
 // Host 
 import HostDashboard from './Host/HostDashboard'
 import HostLayout from './Host/HostLayout'
+
+
+
+//User
+import UserLayout from "./User/UserLayout";
+import UserDashboard from "./User/UserDashboard";
+import ActiveBooking from "./User/ActiveBooking";
+import BookingHistory from "./User/BookingHistory";
+import UserWishlist from "./User/UserWishlist";
+import UserProfile from "./User/UserProfile";
 
 
 function App() {
@@ -41,13 +52,15 @@ function App() {
     "/admin",
     "/host",
     "/admin-register",
-    "/admin-login"
+    "/admin-login",
+    "/user",
 
    
   ];
 
-  const HideNavbarFooter = hideRoutes.includes(location.pathname);
-
+  const HideNavbarFooter = hideRoutes.some((route) =>
+  location.pathname.startsWith(route)
+);
 
 
 
@@ -57,7 +70,7 @@ function App() {
   
       {!HideNavbarFooter &&<Navbar/> }
       <Routes>
-
+        <Route path="/property/:id" element={<PropertyDetails />} />
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<About/>} />
        <Route path="/login" element={<Login/>} />
@@ -83,6 +96,21 @@ function App() {
           <Route index element={<HostDashboard />} />
         </Route>
 
+
+
+
+
+
+
+        {/* User Routes */}
+        <Route path="/user" element={<UserLayout/>} >
+         <Route index element={<UserDashboard />} />
+          <Route path="dashboard" element={<UserDashboard />} />
+          <Route path="active-booking" element={<ActiveBooking />} />
+           <Route path="booking-history" element={<BookingHistory />} />
+            <Route path="wishlist" element={<UserWishlist />} />
+             <Route path="profile" element={<UserProfile />} />
+             </Route>
       </Routes>
 
        
