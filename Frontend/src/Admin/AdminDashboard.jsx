@@ -29,8 +29,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-// Mock Data
+ 
 const statsData = [
   {
     id: 1,
@@ -73,8 +72,7 @@ const statsData = [
     trend: "down"
   }
 ];
-
-// Chart data with actual values and day names
+ 
 const chartData = [
   { day: "Mon", value: 65 },
   { day: "Tue", value: 45 },
@@ -127,8 +125,7 @@ const recentProperties = [
     date: "2 days ago"
   }
 ];
-
-// Updated recentUsers - removed status
+ //users
 const recentUsers = [
   {
     id: 1,
@@ -177,7 +174,7 @@ const AdminDashboard = () => {
   const [hoveredStat, setHoveredStat] = useState(null);
   const [hoveredBar, setHoveredBar] = useState(null);
 
-  // Calculate max value for chart scaling with some padding
+  // Calculate max value for chart  
   const maxValue = useMemo(() => {
     const max = Math.max(...chartData.map(item => item.value));
     return max * 1.1;
@@ -473,9 +470,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Custom Scrollbar Styles */}
-      <style jsx>{`
+ 
+      {/* <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
           height: 4px;
@@ -490,7 +486,7 @@ const AdminDashboard = () => {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #a0a7ae;
         }
-      `}</style>
+      `}</style> */}
     </div>
   );
 };

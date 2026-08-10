@@ -23,6 +23,7 @@ import AdminDashboard from '../src/Admin/AdminDashboard'
 // Host 
 import HostDashboard from './Host/HostDashboard'
 import HostLayout from './Host/HostLayout'
+import AddProperty from './Host/AddProperty'
 
 
 function App() {
@@ -37,7 +38,8 @@ function App() {
   const hideRoutes = [
     "/login",
     "/admin",
-    "/host"
+    "/host",
+    "/host/add-property",
    
   ];
 
@@ -72,7 +74,8 @@ function App() {
 
         {/* // Host Routes */}
         <Route path="/host" element={<HostLayout />}>
-          <Route index element={<HostDashboard />} />
+        <Route index element={<HostDashboard />} />
+        <Route path="/host/add-property" element={<AddProperty />} />
         </Route>
 
       </Routes>
