@@ -354,7 +354,8 @@ idealFor:["Students", "Working Professionals", "Couples"],
 images:[
 "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
 "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
-"https://images.unsplash.com/photo-1484154218962-a197022b5858"
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
 ],
 host:"Amit Patel",
 hostPhone:"+91-76543-21098",
@@ -967,3 +968,4 @@ export const budgets = [
   { value: "2l+", label: "₹2L+" }, 
 ]
   
+
