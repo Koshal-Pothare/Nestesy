@@ -1,9 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Home,
   Plus,
-  Edit,
-  Trash2,
   Eye,
   Search,
   MapPin,
@@ -11,18 +9,13 @@ import {
   Bed,
   Bath,
   Square,
-  Upload,
-  X,
   CheckCircle,
   AlertCircle,
   Clock,
   DollarSign,
   Users,
   Star,
-  RefreshCw,
-  Award,
-  TrendingUp,
-  BarChart2
+  Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -110,8 +103,6 @@ const initialProperties = [
 const HostDashboard = () => {
   const navigate = useNavigate();
   const [properties, setProperties] = useState(initialProperties);
-  const [showAddProperty, setShowAddProperty] = useState(false);
-  const [editingProperty, setEditingProperty] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -119,164 +110,21 @@ const HostDashboard = () => {
   const [stats, setStats] = useState(initialStats);
   const [notification, setNotification] = useState(null);
 
-  // Form state for adding/editing property
-  const [formData, setFormData] = useState({
-    title: '',
-    location: '',
-    price: '',
-    type: 'Apartment',
-    bedrooms: '',
-    bathrooms: '',
-    area: '',
-    description: '',
-    amenities: [],
-    images: [],
-    status: 'Pending'
-  });
-
-  const fileInputRef = useRef(null);
-
-  // Available amenities list
-  const availableAmenities = [
-    'Parking', 'Pool', 'Gym', 'Garden', 'Security', 
-    'Lift', 'Power Backup', 'Terrace', 'Balcony', 
-    'Furnished', 'AC', 'WiFi', 'Pet Friendly', 'Playground'
-  ];
-
   // Show notification
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
   };
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Handle amenities toggle
-  const toggleAmenity = (amenity) => {
-    setFormData(prev => ({
-      ...prev,
-      amenities: prev.amenities.includes(amenity)
-        ? prev.amenities.filter(a => a !== amenity)
-        : [...prev.amenities, amenity]
-    }));
-  };
-
-  // Handle image upload
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const imageUrls = files.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, ...imageUrls]
-    }));
-  };
-
-  // Remove image
-  const removeImage = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
-  };
-
-  // Handle form submit for add/edit
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    const newProperty = {
-      id: editingProperty ? editingProperty.id : Date.now(),
-      title: formData.title,
-      location: formData.location,
-      price: parseFloat(formData.price),
-      type: formData.type,
-      bedrooms: parseInt(formData.bedrooms),
-      bathrooms: parseInt(formData.bathrooms),
-      area: parseInt(formData.area),
-      status: formData.status,
-      image: formData.images[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
-      listedDate: new Date().toISOString().split('T')[0],
-      views: 0,
-      inquiries: 0,
-      amenities: formData.amenities,
-      description: formData.description
-    };
-
-    if (editingProperty) {
-      setProperties(prev => prev.map(p => 
-        p.id === editingProperty.id ? newProperty : p
-      ));
-      showNotification('Property updated successfully!');
-    } else {
-      setProperties(prev => [newProperty, ...prev]);
-      showNotification('Property listed successfully!');
-      setStats(prev => ({
-        ...prev,
-        totalProperties: prev.totalProperties + 1,
-        pendingApprovals: prev.pendingApprovals + 1
-      }));
-    }
-
-    resetForm();
-    setShowAddProperty(false);
-    setEditingProperty(null);
-  };
-
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      location: '',
-      price: '',
-      type: 'Apartment',
-      bedrooms: '',
-      bathrooms: '',
-      area: '',
-      description: '',
-      amenities: [],
-      images: [],
-      status: 'Pending'
-    });
-  };
-
-  // Handle edit
-  const handleEdit = (property) => {
-    setEditingProperty(property);
-    setFormData({
-      title: property.title,
-      location: property.location,
-      price: property.price.toString(),
-      type: property.type,
-      bedrooms: property.bedrooms.toString(),
-      bathrooms: property.bathrooms.toString(),
-      area: property.area.toString(),
-      description: property.description || '',
-      amenities: property.amenities || [],
-      images: property.image ? [property.image] : [],
-      status: property.status
-    });
-    setShowAddProperty(true);
-  };
-
-  // Handle delete
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this property?')) {
-      setProperties(prev => prev.filter(p => p.id !== id));
-      setStats(prev => ({
-        ...prev,
-        totalProperties: prev.totalProperties - 1
-      }));
-      showNotification('Property deleted successfully!', 'error');
-    }
-  };
-
   // Handle view property details
   const handleViewDetails = (property) => {
     setSelectedProperty(property);
     setShowDetailModal(true);
+  };
+
+  // Navigate to add property page
+  const handleAddProperty = () => {
+    navigate('/host/add-property');
   };
 
   // Filter properties
@@ -316,8 +164,7 @@ const HostDashboard = () => {
   };
 
   return (
-    <div>
-      {/* Notification */}
+    <div> 
       <AnimatePresence>
         {notification && (
           <motion.div
@@ -421,16 +268,7 @@ const HostDashboard = () => {
       </div>
 
       {/* Quick Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-xl p-4 border border-gray-100 flex items-center gap-4">
-          <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
-            <Eye className="w-5 h-5 text-indigo-500" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Total Views</p>
-            <p className="text-lg font-bold text-gray-800">{stats.totalViews}</p>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div className="bg-white rounded-xl p-4 border border-gray-100 flex items-center gap-4">
           <div className="w-10 h-10 bg-pink-50 rounded-lg flex items-center justify-center">
             <Users className="w-5 h-5 text-pink-500" />
@@ -484,10 +322,7 @@ const HostDashboard = () => {
             <option value="Inactive">Inactive</option>
           </select>
           <button
-            onClick={() => {
-              resetForm();
-              setShowAddProperty(true);
-            }}
+            onClick={handleAddProperty}
             className="px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 flex items-center gap-2 shadow-lg shadow-green-600/20"
           >
             <Plus className="w-5 h-5" />
@@ -542,26 +377,12 @@ const HostDashboard = () => {
                   <span className="text-lg font-bold text-gray-800">{property.price.toLocaleString()}</span>
                   <span className="text-sm text-gray-500">/mo</span>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleViewDetails(property)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Eye className="w-4 h-4 text-gray-500" />
-                  </button>
-                  <button
-                    onClick={() => handleEdit(property)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Edit className="w-4 h-4 text-blue-500" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(property.id)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleViewDetails(property)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Eye className="w-4 h-4 text-gray-500" />
+                </button>
               </div>
             </div>
           </motion.div>
@@ -575,252 +396,6 @@ const HostDashboard = () => {
           <p className="text-gray-400 mt-1">Try adjusting your search or filter</p>
         </div>
       )}
-
-      {/* Add/Edit Property Modal */}
-      <AnimatePresence>
-        {showAddProperty && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
-            onClick={() => {
-              if (!editingProperty) {
-                setShowAddProperty(false);
-              }
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {editingProperty ? 'Edit Property' : 'Add New Property'}
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowAddProperty(false);
-                    setEditingProperty(null);
-                    resetForm();
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Property Title *</label>
-                    <input
-                      type="text"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                      placeholder="e.g., Luxury Villa with Garden"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                      placeholder="e.g., Pune, Maharashtra"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (per month) *</label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                      placeholder="e.g., 65000"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Property Type *</label>
-                    <select
-                      name="type"
-                      value={formData.type}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                    >
-                      <option value="Apartment">Apartment</option>
-                      <option value="Villa">Villa</option>
-                      <option value="Flat">Flat</option>
-                      <option value="Penthouse">Penthouse</option>
-                      <option value="House">House</option>
-                      <option value="Studio">Studio</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Bedrooms *</label>
-                    <input
-                      type="number"
-                      name="bedrooms"
-                      value={formData.bedrooms}
-                      onChange={handleInputChange}
-                      required
-                      min="1"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                      placeholder="e.g., 4"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Bathrooms *</label>
-                    <input
-                      type="number"
-                      name="bathrooms"
-                      value={formData.bathrooms}
-                      onChange={handleInputChange}
-                      required
-                      min="1"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                      placeholder="e.g., 4"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Area (sq.ft) *</label>
-                    <input
-                      type="number"
-                      name="area"
-                      value={formData.area}
-                      onChange={handleInputChange}
-                      required
-                      min="100"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                      placeholder="e.g., 2200"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows="4"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none resize-none"
-                    placeholder="Describe your property..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
-                  <div className="flex flex-wrap gap-2">
-                    {availableAmenities.map((amenity) => (
-                      <button
-                        key={amenity}
-                        type="button"
-                        onClick={() => toggleAmenity(amenity)}
-                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                          formData.amenities.includes(amenity)
-                            ? 'bg-green-600 text-white shadow-md shadow-green-600/20'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        {amenity}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
-                  <div
-                    className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-500 transition-colors cursor-pointer"
-                    onClick={() => fileInputRef.current.click()}
-                  >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleImageUpload}
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                    />
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">Click to upload or drag and drop</p>
-                    <p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
-                  </div>
-                  {formData.images.length > 0 && (
-                    <div className="flex flex-wrap gap-3 mt-4">
-                      {formData.images.map((image, index) => (
-                        <div key={index} className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200">
-                          <img src={image} alt={`Property ${index + 1}`} className="w-full h-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-3 pt-4 border-t border-gray-100">
-                  <button
-                    type="submit"
-                    className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/20"
-                  >
-                    {editingProperty ? 'Update Property' : 'List Property'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAddProperty(false);
-                      setEditingProperty(null);
-                      resetForm();
-                    }}
-                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Property Detail Modal */}
       <AnimatePresence>
@@ -911,27 +486,6 @@ const HostDashboard = () => {
                     <span>👁️ {selectedProperty.views} views</span>
                     <span>💬 {selectedProperty.inquiries} inquiries</span>
                   </div>
-                </div>
-
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={() => {
-                      setShowDetailModal(false);
-                      handleEdit(selectedProperty);
-                    }}
-                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-200"
-                  >
-                    Edit Property
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowDetailModal(false);
-                      handleDelete(selectedProperty.id);
-                    }}
-                    className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all duration-200"
-                  >
-                    Delete Property
-                  </button>
                 </div>
               </div>
             </motion.div>

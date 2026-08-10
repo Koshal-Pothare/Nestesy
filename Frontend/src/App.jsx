@@ -26,6 +26,7 @@ import AdminLogin from './auth/AdminLogin'
 // Host 
 import HostDashboard from './Host/HostDashboard'
 import HostLayout from './Host/HostLayout'
+import AddProperty from './Host/AddProperty'
 
 
 
@@ -51,9 +52,15 @@ function App() {
     "/login",
     "/admin",
     "/host",
+ 
+    "/host/add-property", 
     "/admin-register",
+
+    "/admin-login" 
+
     "/admin-login",
     "/user",
+
 
    
   ];
@@ -93,7 +100,8 @@ function App() {
 
         {/* // Host Routes */}
         <Route path="/host" element={<HostLayout />}>
-          <Route index element={<HostDashboard />} />
+        <Route index element={<HostDashboard />} />
+        <Route path="/host/add-property" element={<AddProperty />} />
         </Route>
 
 

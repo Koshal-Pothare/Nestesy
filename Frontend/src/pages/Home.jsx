@@ -667,17 +667,51 @@ const Home = () => {
       {/* Why Choose Us */}
       <section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7]">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <span className="text-primary-400 font-semibold text-sm uppercase tracking-wider">
+               <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-primary-500 font-bold font-[Roboto] uppercase tracking-wider"
+            >
               Why Choose Us
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0a1e2f] mt-2 mb-4 tracking-tight">
-              We Make It <span className="text-primary-500">Easy</span> for You
-            </h2>
-            <p className="text-lg text-[#3f4e62] max-w-2xl mx-auto">
+            </motion.p>
+
+            <div className="relative inline-block mt-2">
+              <motion.h2
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+                className="text-4xl font-bold text-heading relative font-[PlayfairDisplay]"
+              >
+               We Make It <span className="text-primary-500">Easy</span> for You
+                <motion.span
+                  className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-400 rounded-full shadow-lg shadow-primary-500/30"
+                  initial={{ width: "0%" }}
+                  whileInView={{ width: "100%" }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, ease: "easeInOut", delay: 0.4 }}
+                />
+              </motion.h2>
+            </div>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              className="text-muted mt-4 max-w-2xl mx-auto"
+            >
               Discover why thousands of users trust us for their property needs
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {featureCards}
