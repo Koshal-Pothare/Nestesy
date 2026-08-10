@@ -19,6 +19,8 @@ import Whishlist from './pages/Wishlist'
 //Admin
 import AdminLayout from '../src/Admin/AdminLout'
 import AdminDashboard from '../src/Admin/AdminDashboard'
+import AdminRegister from './auth/AdminRegister'
+import AdminLogin from './auth/AdminLogin'
 
 // Host 
 import HostDashboard from './Host/HostDashboard'
@@ -39,7 +41,10 @@ function App() {
     "/login",
     "/admin",
     "/host",
-    "/host/add-property",
+ 
+    "/host/add-property", 
+    "/admin-register",
+    "/admin-login" 
    
   ];
 
@@ -58,11 +63,13 @@ function App() {
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<About/>} />
        <Route path="/login" element={<Login/>} />
+        <Route path='/admin-register' element={<AdminRegister />} />
+         <Route path='/admin-login' element={<AdminLogin />} />
    
 
 
 
-             
+             <Route path="/become-a-host" element={<BecomeHost/>} />  
          <Route path="/explore" element={<Explore/>} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/wishlist" element={<Whishlist/>} />
@@ -70,6 +77,7 @@ function App() {
          {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
+         
         </Route>
 
         {/* // Host Routes */}

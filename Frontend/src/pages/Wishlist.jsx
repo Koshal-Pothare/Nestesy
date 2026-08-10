@@ -11,6 +11,7 @@ import PropertyCard from '../Ui/PropertyCard'
 import Pagination from '../components/Pagination'
 import { useNavigate } from 'react-router-dom';
 import WishlistSidebar from '../components/WishlistSidebar';
+import SortBy from '../Ui/SortBy'
 
 
 
@@ -20,6 +21,7 @@ const Wishlist = () => {
   const navigate = useNavigate();
 
   const [favorites, setFavorites] = useState([]);
+  const [sortBy, setSortBy] = useState("newest")
 
   useEffect(() => {
     const loadFavorites = () => {
@@ -34,17 +36,34 @@ const Wishlist = () => {
   }, []);
 
 
+
   const [isSavedDataLoading, setIsSaveDataLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+   const sortedProperties = [...favorites].sort((a, b) => {
+        switch (sortBy) {
+            case "priceLow":
+                return a.price - b.price;
+
+            case "priceHigh":
+                return b.price - a.price;
+
+            case "newest":
+                return b.id - a.id;
+
+            default:
+                return 0;
+        }
+    });
+
   const propertiesPerPage = 6;
 
-  const totalPages = Math.ceil(favorites.length / propertiesPerPage);
+  const totalPages = Math.ceil(sortedProperties.length / propertiesPerPage);
 
   const indexOfLastProperty = currentPage * propertiesPerPage;
   const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
 
-  const currentProperties = favorites.slice(
+  const currentProperties = sortedProperties.slice(
     indexOfFirstProperty,
     indexOfLastProperty
   );
@@ -128,18 +147,8 @@ const Wishlist = () => {
 
               </>) : (<>
 
-                <div className="w-full flex justify-end">
-                  <div className=' shadow-2xl shadow-gray-500/20 bg-primary-600 text-white p-3 rounded-2xl mb-5 flex items-center gap-2 '>
-                    <p className='font-semibold text-md'>Sorted by</p>
-                    <select className="outline-none text-center ">
-                      <option className=''>Newest</option>
-                      <option>High-Low</option>
-                      <option>Low-High</option>
-                      <option>Student</option>
-                      <option>Working Professional</option>
-
-                    </select>
-                  </div>
+                <div className="w-full flex justify-end mb-5">
+                 <SortBy sortBy={sortBy} setSortBy={setSortBy} />
                 </div>
 
                 <motion.div
