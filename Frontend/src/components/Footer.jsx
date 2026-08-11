@@ -3,10 +3,11 @@ import { IoHomeOutline } from "react-icons/io5";
 import {     FaLinkedin,FaFacebookF } from "react-icons/fa";
 import { FaInstagram ,FaXTwitter } from "react-icons/fa6";
 import {motion} from 'framer-motion'
-import {Link} from 'react-router-dom'
+import {Link, Navigate, useNavigate} from 'react-router-dom'
 import { Mail,Phone ,MapPin } from 'lucide-react';
 
 const Footer = () => {
+  const  Navigate=useNavigate();
 
 const menuItems = [
   { name: 'Home', link: '/' },
@@ -68,8 +69,12 @@ const menuItems = [
           <div>
             <h1 className="text-2xl font-semibold">Support</h1>
             <ul className="mt-2 space-y-2">
-                <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Help Center</Link></li>
+                <li><Link to='/help_center' className="text-gray-400 hover:text-emerald-500  transition duration-300" >Help Center</Link></li>
                  <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Terms & Condition</Link></li>
+
+                  <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Privacy Policy </Link></li>
+                
+
 <li>
   <Link
     to="/privacy-policy"
@@ -78,6 +83,7 @@ const menuItems = [
     Privacy Policy
   </Link>
 </li>                
+
             </ul>
           </div>
            
