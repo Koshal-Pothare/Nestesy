@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CalendarDays, Clock, MapPin, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
-import { bookVisit, isBooked } from "../utils/bookVisit";
+import { bookVisit, isVisitBooked } from "../utils/bookVisit";
 
 const BookVisitModal = ({ property, open, onClose }) => {
     const [selectedDate, setSelectedDate] = useState("");
@@ -15,7 +15,7 @@ const BookVisitModal = ({ property, open, onClose }) => {
             return;
         }
 
-        if (isBooked(property.id)) {
+        if (isVisitBooked(property.id)) {
             toast.info("You have already booked a visit for this property");
             return;
         }

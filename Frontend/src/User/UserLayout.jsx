@@ -18,8 +18,8 @@ const UserLayout = () => {
       icon: LayoutDashboard,
     },
     {
-      name: "Active Booking",
-      path: "/user/active-booking",
+      name: "Upcoming Booking",
+      path: "/user/upcoming-visits",
       icon: CalendarCheck,
     },
     {

@@ -34,7 +34,7 @@ import AddProperty from './Host/AddProperty'
 //User
 import UserLayout from "./User/UserLayout";
 import UserDashboard from "./User/UserDashboard";
-import ActiveBooking from "./User/ActiveBooking";
+import UpcomingVisits from "./User/UpcomingVisits";
 import BookingHistory from "./User/BookingHistory";
 import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
@@ -61,9 +61,7 @@ function App() {
 
     "/admin-login", 
 
-    "/admin-login",
-
-    "/admin-login" ,
+  
      
    
 
@@ -127,7 +125,7 @@ function App() {
         <Route path="/user" element={<UserLayout/>} >
          <Route index element={<UserDashboard />} />
           <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="active-booking" element={<ActiveBooking />} />
+          <Route path="upcoming-visits" element={<UpcomingVisits />} />
            <Route path="booking-history" element={<BookingHistory />} />
             <Route path="wishlist" element={<UserWishlist />} />
              <Route path="profile" element={<UserProfile />} />

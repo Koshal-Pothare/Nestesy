@@ -15,12 +15,12 @@ export const bookVisit = (property) => {
   }
 };
 
-export const removeBooking = (id) => {
+export const removeVisitBooking = (id) => {
   const visits = getVisit().filter((item) => item.id !== id);
   localStorage.setItem(Visit_KEY, JSON.stringify(visits));
 };
 
-export const isBooked = (id) => {
+export const isVisitBooked = (id) => {
   return getVisit().some((item) => item.id === id);
 };
 
