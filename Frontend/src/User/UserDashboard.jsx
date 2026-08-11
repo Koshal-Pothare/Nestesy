@@ -200,7 +200,7 @@ const cardVariants = {
         <div className="w-full flex justify-between items-center ">
             <h3 className="text-lg text-gray-800 font-semibold ml-5">Upcoming Visits</h3>
         <button
-        onClick={()=>navigate("/user/upcoming-booking")}
+        onClick={()=>navigate("/user/upcoming-visits")}
         className="text-primary-500 text-sm font-semibold mr-5 cursor-pointer">View all</button>
         </div>
       {visits.length === 0 ? (
@@ -279,7 +279,9 @@ const cardVariants = {
        <div className="h-full border border-gray-300 p-3 rounded-2xl shadow-sm bg-white">
         <div className="w-full flex justify-between items-center ">
             <h3 className="text-lg text-gray-800 font-semibold ml-5">Booking History</h3>
-        <button className="text-primary-500 text-sm font-semibold mr-5 cursor-pointer">View all</button>
+        <button 
+        onClick={()=>navigate("/user/booking-history")}
+        className="text-primary-500 text-sm font-semibold mr-5 cursor-pointer">View all</button>
         </div>
              {activeBookings.length === 0 ? (
   <motion.div
@@ -400,6 +402,7 @@ const cardVariants = {
         <motion.button
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
+          onClick={()=>navigate("/explore")}
           className="mt-5 flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-primary-600/20"
         >
           Explore Properties
@@ -413,8 +416,9 @@ const cardVariants = {
         </motion.button>
       </div>
     ) : (
+        <>
 
-      /* Favorite Cards */
+     {/* favorite cards */}
       <motion.div
         initial="hidden"
         animate="show"
@@ -514,10 +518,10 @@ const cardVariants = {
             </div>
           </motion.div>
         ))}
+         
       </motion.div>
-      
-    )}
-    <div className="w-full flex justify-center mt-10">
+
+        <div className="w-full flex justify-center mt-10">
      <motion.button 
       initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -530,6 +534,10 @@ const cardVariants = {
         View all
       </motion.button>
       </div>
+
+      </>
+    )}
+   
   </motion.div>
 
 

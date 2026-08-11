@@ -62,18 +62,7 @@ function App() {
  
     "/host/add-property", 
     "/admin-register",
-
-
-
-  ];
-
     "/admin-login", 
-
-  
-     
-   
-
-
     "/user",
         "/forgot-password"
 
@@ -99,7 +88,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path='/admin-register' element={<AdminRegister />} />
         <Route path='/admin-login' element={<AdminLogin />} />
-        <Route path="/help_center" element={<Help_center/>} />
+        <Route path="/help-center" element={<Help_center/>} />
 
         <Route path="/property/:id" element={<PropertyDetails />} />
         <Route path="/" element={<Home/>} />

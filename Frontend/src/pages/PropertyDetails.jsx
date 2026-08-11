@@ -178,9 +178,7 @@ const PropertyDetails = () => {
               {currentImage + 1} / {property.images?.length}
             </div>
 
-            <button className="absolute right-5 top-5 h-10 w-10 flex items-center justify-center rounded-full bg-white/90 text-red-500 shadow-lg hover:scale-110 transition">
-              <Heart size={18} />
-            </button>
+            
           </div>
 
           {/* Static Images */}

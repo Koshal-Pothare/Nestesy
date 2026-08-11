@@ -35,7 +35,7 @@ const Login = () => {
         }
 
         const handleSignupChange=(e)=>{
-          setSignupData((e)=>({
+          setSignupData((prev)=>({
         ...prev,[e.target.name]:e.target.value,
           }))
         }
@@ -97,7 +97,7 @@ const Login = () => {
 
 
         const handleLogin= async(e)=>{
-         e,preventDefault();
+         e.preventDefault();
 
 const savedUser = JSON.parse(localStorage.getItem("nestesyUser"));
        
@@ -118,7 +118,8 @@ if((matchEmail || matchUserName) && matchPassword){
   const loggedInUser ={
     id: savedUser.id,
     name:savedUser.username,
-    email:savedUser.email
+    email:savedUser.email,
+    createdAt:savedUser.createdAt
   }
 
   localStorage.setItem("nestesyLoggedInUser",JSON.stringify(loggedInUser));
@@ -134,7 +135,7 @@ if((matchEmail || matchUserName) && matchPassword){
 
 
   setTimeout(() => {
-      navigate("/user/dashboard");
+      navigate("/");
     }, 500);
   }
   else {
@@ -418,7 +419,7 @@ if((matchEmail || matchUserName) && matchPassword){
                     <Mail className="text-gray-400 shrink-0" />
                     <input
                       type="email"
-                      name="Email"
+                      name="email"
                      vlaue={signupData.email}
                      onChange={handleSignupChange}
                       placeholder="name@company.com"

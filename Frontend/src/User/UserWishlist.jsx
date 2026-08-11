@@ -110,26 +110,37 @@ const UserWishlist = () => {
 
             {/* Property Grid */}
             <div className="">
-              {favorites.length === 0 ? (<>
+              {favorites.length === 0 ? (
+                <>
 
-                <div className="w-full h-200  flex flex-col items-center justify-center">
-                  <h1 className="text-5xl font-semibold text-gray-300 text-center">No saved property</h1>
-                  <motion.button
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => navigate("/explore")}
-                    className="mt-8 w-50 flex items-center justify-center gap-2 rounded-2xl bg-primary-600 py-4 font-semibold text-white shadow-xl hover:bg-primary-500"
-                  >
-                    Explore Properties
+                <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm"
+        >
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+            <Heart size={38} />
+          </div>
 
-                    <motion.div
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ repeat: Infinity, duration: 1.2 }}
-                    >
-                      <ArrowRight size={18} />
-                    </motion.div>
-                  </motion.button>
-                </div>
+          <h2 className="mt-6 text-xl font-bold text-gray-800 sm:text-2xl">
+            No Favorite Properties
+          </h2>
+
+          <p className="mt-2 max-w-md text-sm leading-6 text-gray-500 sm:text-base">
+            Your completed and cancelled property visits will appear here.
+          </p>
+
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate("/explore")}
+            className="mt-6 flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-600/20 transition hover:bg-primary-700"
+          >
+            Explore Properties
+            <ArrowRight size={17} />
+          </motion.button>
+        </motion.div>
 
               </>) : (<>
 
@@ -163,15 +174,10 @@ const UserWishlist = () => {
                 </div>
               </>)}
             </div>
-
-
-
          
         </>
 
         )}
-
-
 
       </div>
       </section>

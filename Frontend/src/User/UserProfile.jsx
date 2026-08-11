@@ -31,16 +31,23 @@ const UserProfile = () => {
     location: "",
   });
 
+  const profileFields = [
+    formData.username,
+    formData.email,
+    formData.phone,
+    formData.location,
+];
+
   useEffect(() => {
     const loggedInUser = JSON.parse(
-      localStorage.getItem("loggedInUser")
+      localStorage.getItem("nestesyLoggedInUser")
     );
 
     if (loggedInUser) {
       setUser(loggedInUser);
 
       setFormData({
-        username: loggedInUser.username || "",
+        username: loggedInUser.name || "",
         email: loggedInUser.email || "",
         phone: loggedInUser.phone || "",
         location: loggedInUser.location || "",
@@ -62,7 +69,7 @@ const UserProfile = () => {
     };
 
     localStorage.setItem(
-      "loggedInUser",
+      "nestesyLoggedInUser",
       JSON.stringify(updatedUser)
     );
 
@@ -84,7 +91,7 @@ const UserProfile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("nestesyLoggedInUser");
     navigate("/login");
     toast.success("Logged out successfully");
   };
@@ -104,6 +111,14 @@ const UserProfile = () => {
       </div>
     );
   }
+
+  const completedFields = profileFields.filter(
+    (field) => field && field.trim() !== ""
+).length;
+
+const profileCompletion = Math.round(
+    (completedFields / profileFields.length) * 100
+);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -182,8 +197,8 @@ const UserProfile = () => {
             {/* Avatar */}
             <div className="relative">
               <div className="flex h-28 w-28 items-center justify-center rounded-full bg-primary-100 text-3xl font-bold text-primary-700 ring-8 ring-primary-50">
-                {user.username
-                  ? user.username.charAt(0).toUpperCase()
+                {user.name
+                  ? user.name.charAt(0).toUpperCase()
                   : "U"}
               </div>
 
@@ -193,7 +208,7 @@ const UserProfile = () => {
             </div>
 
             <h2 className="mt-5 text-xl font-bold text-gray-900">
-              {user.username || "User"}
+              {user.name || "User"}
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
@@ -238,129 +253,153 @@ const UserProfile = () => {
         </motion.div>
 
         {/* Personal Information */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 xl:col-span-2"
-        >
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-800">
-              Personal Information
-            </h2>
+       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 xl:col-span-2">
+    <div className="mb-6">
+        <h2 className="text-lg font-bold text-gray-800">
+            Personal Information
+        </h2>
+        <p className="mt-1 text-sm text-gray-400">
+            Keep your information up to date.
+        </p>
+    </div>
 
-            <p className="mt-1 text-sm text-gray-400">
-              Keep your information up to date.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {/* Username */}
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-gray-500">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {/* Full Name */}
+        <div>
+            <label className="mb-2 block text-xs font-semibold text-gray-500">
                 Full Name
-              </label>
-
-              <div className="relative">
-                <User
-                  size={17}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition ${
-                    editMode
-                      ? "border-primary-200 bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50"
-                      : "border-gray-100 bg-gray-50 text-gray-600"
-                  }`}
-                />
-              </div>
+            </label>
+            <div className="relative">
+                <User size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="text" name="username" value={formData.username} onChange={handleChange} disabled={!editMode} placeholder="Enter your name" className={`w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition ${editMode ? "border-primary-200 bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50" : "border-gray-100 bg-gray-50 text-gray-600"}`} />
             </div>
+        </div>
 
-            {/* Email */}
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-gray-500">
+        {/* Email */}
+        <div>
+            <label className="mb-2 block text-xs font-semibold text-gray-500">
                 Email Address
-              </label>
-
-              <div className="relative">
-                <Mail
-                  size={17}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  disabled
-                  className="w-full rounded-xl border border-gray-100 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-500 outline-none"
-                />
-              </div>
+            </label>
+            <div className="relative">
+                <Mail size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="email" name="email" value={formData.email} disabled className="w-full rounded-xl border border-gray-100 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-500 outline-none" />
             </div>
+        </div>
 
-            {/* Phone */}
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-gray-500">
+        {/* Phone */}
+        <div>
+            <label className="mb-2 block text-xs font-semibold text-gray-500">
                 Phone Number
-              </label>
-
-              <div className="relative">
-                <Phone
-                  size={17}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  placeholder="Enter phone number"
-                  className={`w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition ${
-                    editMode
-                      ? "border-primary-200 bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50"
-                      : "border-gray-100 bg-gray-50 text-gray-600"
-                  }`}
-                />
-              </div>
+            </label>
+            <div className="relative">
+                <Phone size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} disabled={!editMode} placeholder="Enter phone number" className={`w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition ${editMode ? "border-primary-200 bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50" : "border-gray-100 bg-gray-50 text-gray-600"}`} />
             </div>
+        </div>
 
-            {/* Location */}
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-gray-500">
+        {/* Location */}
+        <div>
+            <label className="mb-2 block text-xs font-semibold text-gray-500">
                 Location
-              </label>
-
-              <div className="relative">
-                <MapPin
-                  size={17}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  placeholder="Enter your city"
-                  className={`w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition ${
-                    editMode
-                      ? "border-primary-200 bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50"
-                      : "border-gray-100 bg-gray-50 text-gray-600"
-                  }`}
-                />
-              </div>
+            </label>
+            <div className="relative">
+                <MapPin size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="text" name="location" value={formData.location} onChange={handleChange} disabled={!editMode} placeholder="Enter your city" className={`w-full rounded-xl border py-3 pl-11 pr-4 text-sm outline-none transition ${editMode ? "border-primary-200 bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50" : "border-gray-100 bg-gray-50 text-gray-600"}`} />
             </div>
-          </div>
-        </motion.div>
+        </div>
+    </div>
+
+    {/* Profile Completion */}
+  <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+    {/* Profile Completion */}
+    <div className="rounded-2xl border border-primary-100 bg-primary-50/50 px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+                    <CheckCircle2 size={17} />
+                </div>
+
+                <div className="min-w-0">
+                    <h3 className="text-sm font-bold text-gray-800">
+                        Profile Completion
+                    </h3>
+
+                    <p className="mt-0.5 text-[11px] text-gray-500">
+                        {completedFields} of {profileFields.length} completed
+                    </p>
+                </div>
+            </div>
+
+            <motion.span
+                key={profileCompletion}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="shrink-0 text-lg font-bold text-primary-600"
+            >
+                {profileCompletion}%
+            </motion.span>
+        </div>
+
+        {/* Progress */}
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-primary-100">
+            <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${profileCompletion}%` }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+                className="h-full rounded-full bg-linear-to-r from-primary-300 via-primary-400 to bg-primary-600"
+            />
+        </div>
+
+        <div className="mt-1.5 flex justify-end">
+            {profileCompletion === 100 ? (
+                <span className="text-[10px] font-semibold text-green-600">
+                    Profile complete ✓
+                </span>
+            ) : (
+                <span className="text-[10px] text-gray-400">
+                    Complete your profile
+                </span>
+            )}
+        </div>
+    </div>
+
+    {/* When Joined */}
+    <div className="rounded-2xl border border-gray-100 bg-gray-50/70 px-4 py-3">
+        <div className="flex h-full items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-gray-500 shadow-sm">
+                    <CalendarDays size={18} />
+                </div>
+
+                <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                         Joined on
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-bold text-gray-700">
+                        {user.createdAt
+                            ? new Date(user.createdAt).toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            })
+                            : "Not available"}
+                    </p>
+                </div>
+            </div>
+
+            <div className="hidden sm:flex h-7 w-7 items-center justify-center rounded-full bg-green-50 text-green-600">
+                <CheckCircle2 size={15} />
+            </div>
+        </div>
+    </div>
+
+
+
+       
+    </div>
+</motion.div>
 
         {/* Account & Security */}
         <motion.div
