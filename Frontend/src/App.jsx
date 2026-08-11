@@ -37,6 +37,7 @@ import ActiveBooking from "./User/ActiveBooking";
 import BookingHistory from "./User/BookingHistory";
 import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
+import PrivacyPolicy from '../src/pages/PrivacyPolicy'
 
 
 function App() {
@@ -56,7 +57,7 @@ function App() {
     "/host/add-property", 
     "/admin-register",
 
-    "/admin-login" 
+    "/admin-login", 
 
     "/admin-login",
     "/user",
@@ -83,6 +84,7 @@ function App() {
        <Route path="/login" element={<Login/>} />
         <Route path='/admin-register' element={<AdminRegister />} />
          <Route path='/admin-login' element={<AdminLogin />} />
+         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
    
 
 
