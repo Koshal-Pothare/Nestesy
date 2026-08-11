@@ -5,7 +5,6 @@ import {
   Plus,
   BarChart2,
   Users,
-  Menu,
   X,
   LogOut,
   ChevronDown,
@@ -13,7 +12,8 @@ import {
   Building2,
   MessageSquare,
   TrendingUp,
-  Star
+  Star,
+  ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,7 +44,7 @@ const HostLayout = () => {
       id: 'dashboard', 
       label: 'Dashboard', 
       icon: LayoutDashboard,
-      path: '/host/dashboard'
+      path: '/host'
     },
     { 
       id: 'properties', 
@@ -72,16 +72,12 @@ const HostLayout = () => {
     }
   ];
 
-  // Quick stats for header
-  const quickStats = [
-    { label: 'Properties', value: '12', icon: Building2, color: 'blue' },
-    { label: 'Active', value: '8', icon: Home, color: 'green' },
-    { label: 'Pending', value: '2', icon: Star, color: 'yellow' },
-    { label: 'Earnings', value: '₹4.25L', icon: TrendingUp, color: 'purple' }
-  ];
-
   const handleLogout = () => {
     navigate('/login');
+  };
+
+  const handleBackToWebsite = () => {
+    navigate('/');
   };
 
   return (
@@ -116,7 +112,7 @@ const HostLayout = () => {
           </div>
         </div>
 
-        {/* Navigation - Removed Help & Support */}
+        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-3">
           <div className="space-y-1">
             {navItems.map((item) => (
@@ -140,17 +136,24 @@ const HostLayout = () => {
                   ({ isActive }) => isActive ? 'text-green-600' : 'text-gray-400 group-hover:text-gray-600'
                 }`} />
                 <span className="font-medium text-sm">{item.label}</span>
-                {item.id === 'add-property' && (
-                  <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-600 text-xs font-semibold rounded-full">
-                    New
-                  </span>
-                )}
+                {item.id === 'add-property'  }
               </NavLink>
             ))}
           </div>
+
+          {/* Back to Website Button */}
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <button
+              onClick={handleBackToWebsite}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-all duration-200 group"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+              <span className="font-medium text-sm">Back to Website</span>
+            </button>
+          </div>
         </nav>
 
-        {/* Sidebar Footer - User Profile */}
+        {/* Sidebar Footer user profile */}
         <div className="p-4 border-t border-gray-100 bg-gray-50/50">
           <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-white transition-colors cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
@@ -172,41 +175,17 @@ const HostLayout = () => {
       </motion.aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header - Removed Notification, Profile Icon, and Profile Dropdown */}
+      <div className="flex-1 flex flex-col min-w-0"> 
         <header className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 sticky top-0 z-40 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu className="w-5 h-5 text-gray-600" />
-              </button>
               <div className="hidden sm:flex items-center gap-2">
                 <h1 className="text-xl font-bold text-gray-800">Host Dashboard</h1>
                 <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
                   Pro
                 </span>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2 sm:gap-4">
-              {/* Quick Stats - Desktop */}
-              <div className="hidden md:flex items-center gap-4">
-                {quickStats.map((stat, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-lg bg-${stat.color}-50`}>
-                      <stat.icon className={`w-3.5 h-3.5 text-${stat.color}-500`} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">{stat.label}</p>
-                      <p className="text-sm font-bold text-gray-800">{stat.value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </div> 
           </div>
         </header>
 

@@ -1,19 +1,9 @@
-
-
 // ==========================================================
 // Nestesy — About Us Page Data
-// (FAQ data intentionally excluded — not part of this page)
 // ==========================================================
 
 // ---------- Hero Section ----------
 export const heroData = {
-  badge: "Find. Book. Live.",
-
-  title: "Find Your Perfect Home",
-
-  description:
-    "Discover verified rental properties across the city. Easy search, secure booking, and trusted owners.",
-
   features: [
     {
       title: "Verified Properties",
@@ -100,7 +90,7 @@ export const servicesData = {
   ],
 };
 
-// ---------- Stats (moved below "Our Services") ----------
+// ---------- Stats ----------
 export const statsData = [
   {
     number: "10,000+",
@@ -143,7 +133,7 @@ export const whyChooseData = {
   },
 };
 
-// ---------- Testimonials (split by audience: Tenant / Owner) ----------
+// ---------- Testimonials ----------
 export const testimonialsData = {
   tag: "What Our Customers Say",
   title: "Trusted by thousands of happy customers",
@@ -223,10 +213,190 @@ export const ctaData = {
   ],
 };
 
+// ---------- Footer ----------
+export const footerData = {
+  logo: "Nestesy",
+
+  description:
+    "Find homes that fit your life. Trusted stays. Better living.",
+
+  company: [
+    "About Us",
+    "Careers",
+    "Blog",
+    "Press",
+  ],
+
+  support: [
+    "Help Center",
+    "Terms of Service",
+    "Privacy Policy",
+    "Contact Us",
+  ],
+
+  hosts: [
+    "Become a Host",
+    "Host Resources",
+    "Community",
+  ],
+
+  newsletter: {
+    title: "Subscribe to our newsletter",
+    subtitle: "Get the latest updates and offers.",
+    placeholder: "Enter your email",
+  },
+
+  copyright: "© 2025 Nestesy. All rights reserved.",
+};
+
+// ==========================================================
+// Nestesy — Privacy Policy Page Data
+// ==========================================================
+
+import {
+  FileText,
+  User,
+  Settings,
+  House,
+  Cookie,
+  Share2,
+  ShieldCheck,
+  LockKeyhole,
+  Users,
+  Link,
+  Pencil,
+  Mail,
+  Home,
+  ChartLine,
+  NotebookPen,
+  Wallet,
+  UserRoundPlus
+} from "lucide-react";
 
 
 
-import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react' 
+// ---------- Privacy Policy Hero ----------
+export const privacyPolicyHeroData = {
+  badge: "Your Privacy Matters",
+
+  title: "Privacy Policy",
+
+  description:
+    "At Nestesy, we are committed to protecting your privacy and ensuring the security of your personal information.",
+
+  lastUpdated: "Last Updated: August 10, 2026",
+};
+
+// ---------- Privacy Policy Sections ----------
+export const privacyPolicyData = [
+  {
+    id: 1,
+    title: "Introduction",
+    icon: FileText,
+    description:
+      "This Privacy Policy explains how Nestesy collects, uses, discloses, and protects your personal information when you use our platform.",
+  },
+
+  {
+    id: 2,
+    title: "Information We Collect",
+    icon: User,
+    description:
+      "We collect information that you provide directly to us, such as your name, email address, phone number, and payment details.",
+  },
+
+  {
+    id: 3,
+    title: "How We Use Your Information",
+    icon: Settings,
+    description:
+      "We use your information to provide, maintain, and improve our services, process bookings, and communicate with you.",
+  },
+
+  {
+    id: 4,
+    title: "Property & Booking Information",
+    icon: House,
+    description:
+      "We collect property details, booking preferences, and transaction information to facilitate secure rentals and provide a better user experience.",
+  },
+
+  {
+    id: 5,
+    title: "Cookies & Tracking Technologies",
+    icon: Cookie,
+    description:
+      "We use cookies and similar technologies to enhance your browsing experience, analyze site traffic, and personalize content.",
+  },
+
+  {
+    id: 6,
+    title: "How We Share Your Information",
+    icon: Share2,
+    description:
+      "We do not sell your personal information. We may share it with trusted partners to provide our services or comply with legal obligations.",
+  },
+
+  {
+    id: 7,
+    title: "Data Security",
+    icon: ShieldCheck,
+    description:
+      "We implement appropriate technical and organizational measures to protect your personal information from unauthorized access.",
+  },
+
+  {
+    id: 8,
+    title: "Your Privacy Rights",
+    icon: LockKeyhole,
+    description:
+      "You have the right to access, update, or delete your personal information. You can also opt-out of certain communications.",
+  },
+
+  {
+    id: 9,
+    title: "Children's Privacy",
+    icon: Users,
+    description:
+      "Nestesy is not intended for children under the age of 13. We do not knowingly collect personal information from children.",
+  },
+
+  {
+    id: 10,
+    title: "Third-Party Links",
+    icon: Link,
+    description:
+      "Our platform may contain links to third-party websites. We are not responsible for their privacy practices or content.",
+  },
+
+  {
+    id: 11,
+    title: "Changes to This Privacy Policy",
+    icon: Pencil,
+    description:
+      "We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page.",
+  },
+
+  {
+    id: 12,
+    title: "Contact Us",
+    icon: Mail,
+    description:
+      "If you have any questions or concerns about this Privacy Policy, please contact us at support@nestesy.com.",
+  },
+];
+
+// ---------- Privacy Policy CTA ----------
+export const privacyPolicyCTAData = {
+  title: "Still have questions?",
+
+  description:
+    "Our support team is here to help you with any privacy-related concerns.",
+
+  buttonText: "Contact Us",
+};
+
+
  
  
 
@@ -272,9 +442,6 @@ export const HostSteps =[
 
 
 
-
-
-// Explore page properties
 
 export const Properties = [
 {
@@ -354,7 +521,8 @@ idealFor:["Students", "Working Professionals", "Couples"],
 images:[
 "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
 "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
-"https://images.unsplash.com/photo-1484154218962-a197022b5858"
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
 ],
 host:"Amit Patel",
 hostPhone:"+91-76543-21098",
@@ -871,7 +1039,6 @@ securityDeposit:12000,
 maintenance:700
 }
 ];
-// Home data
 
 export const cities = [
   {

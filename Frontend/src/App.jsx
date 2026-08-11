@@ -15,6 +15,8 @@ import Contact from "./pages/Contact";
 
 import Explore from './pages/Explore'
 import Whishlist from './pages/Wishlist'
+import PropertyDetails from './pages/PropertyDetails'
+import ForgotPassword from './auth/ForgotPassword'
 
 //Admin
 import AdminLayout from '../src/Admin/AdminLout'
@@ -25,8 +27,23 @@ import AdminLogin from './auth/AdminLogin'
 // Host 
 import HostDashboard from './Host/HostDashboard'
 import HostLayout from './Host/HostLayout'
+
 import Faq from './pages/Help_center'
 import Help_center from './pages/Help_center'
+
+import AddProperty from './Host/AddProperty'
+
+
+
+//User
+import UserLayout from "./User/UserLayout";
+import UserDashboard from "./User/UserDashboard";
+import UpcomingVisits from "./User/UpcomingVisits";
+import BookingHistory from "./User/BookingHistory";
+import UserWishlist from "./User/UserWishlist";
+import UserProfile from "./User/UserProfile";
+import PrivacyPolicy from '../src/pages/PrivacyPolicy'
+
 
 
 function App() {
@@ -42,14 +59,30 @@ function App() {
     "/login",
     "/admin",
     "/host",
+ 
+    "/host/add-property", 
     "/admin-register",
-    "/admin-login"
+
 
 
   ];
 
-  const HideNavbarFooter = hideRoutes.includes(location.pathname);
+    "/admin-login", 
 
+  
+     
+   
+
+
+    "/user",
+        "/forgot-password"
+
+   
+  ];
+
+  const HideNavbarFooter = hideRoutes.some((route) =>
+  location.pathname.startsWith(route)
+);
 
 
 
@@ -60,12 +93,27 @@ function App() {
       {!HideNavbarFooter && <Navbar />}
       <Routes>
 
+
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path='/admin-register' element={<AdminRegister />} />
         <Route path='/admin-login' element={<AdminLogin />} />
         <Route path="/help_center" element={<Help_center/>} />
+
+        <Route path="/property/:id" element={<PropertyDetails />} />
+        <Route path="/" element={<Home/>} />
+        <Route path="/about" element={<About/>} />
+       <Route path="/login" element={<Login/>} />
+        <Route path='/admin-register' element={<AdminRegister />} />
+         <Route path='/admin-login' element={<AdminLogin />} />
+
+         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+   
+
+
+   <Route path="/forgot-password" element={<ForgotPassword />} />
+
 
 
 
@@ -82,9 +130,25 @@ function App() {
 
         {/* // Host Routes */}
         <Route path="/host" element={<HostLayout />}>
-          <Route index element={<HostDashboard />} />
+        <Route index element={<HostDashboard />} />
+        <Route path="/host/add-property" element={<AddProperty />} />
         </Route>
 
+
+
+
+
+
+
+        {/* User Routes */}
+        <Route path="/user" element={<UserLayout/>} >
+         <Route index element={<UserDashboard />} />
+          <Route path="dashboard" element={<UserDashboard />} />
+          <Route path="upcoming-visits" element={<UpcomingVisits />} />
+           <Route path="booking-history" element={<BookingHistory />} />
+            <Route path="wishlist" element={<UserWishlist />} />
+             <Route path="profile" element={<UserProfile />} />
+             </Route>
       </Routes>
 
 

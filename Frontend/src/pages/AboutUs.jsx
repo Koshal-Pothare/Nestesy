@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import {
   Target,
+  Eye,
   Binoculars,
   Users,
   Wallet,
@@ -18,6 +19,8 @@ import {
   Star,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Quote,
   User,
 } from "lucide-react";
@@ -33,10 +36,13 @@ import {
   ctaData,
 } from "../Data/Data";
 
+import sofaImage from "../assets/About/mission-vision.png";
+import cityImage from "../assets/About/mission-city.png";
+
 import heroBg from "../assets/About/about-hero-bg.png";
 import ctaHomeImg from "../assets/About/cta-home.png";
 
-// ---------- icon maps ----------
+
 const heroIcons = {
   shield: <FaShieldAlt />,
   calendar: <FaCalendarAlt />,
@@ -164,48 +170,132 @@ const Hero = () => {
 
 const MissionVision = () => {
   return (
-    <div className="bg-background px-5 py-16">
+    <section className="bg-[#faf9f5] px-5 py-16 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          {aboutData.map((item, index) => (
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="relative overflow-hidden rounded-[32px] bg-[#f4f1e8]"
+        >
+
+          <img
+            src={cityImage}
+            alt=""
+            className="pointer-events-none absolute bottom-0 left-0 z-0 h-[180px] w-[65%] object-cover object-bottom opacity-30 sm:h-[210px] lg:h-[240px]"
+          />
+
+          <div className="relative z-10 grid min-h-[500px] lg:grid-cols-[58%_42%]">
+
+            <div className="flex items-center px-7 py-12 sm:px-10 lg:px-14 lg:py-16">
+
+              <div className="w-full">
+
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-8 text-sm font-semibold uppercase tracking-[0.2em] text-[#a48443]"
+                >
+                  What Drives Us
+                </motion.p>
+
+                <div className="grid gap-10 md:grid-cols-2 md:gap-0">
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -25 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="md:border-r md:border-[#d8d4c8] md:pr-10"
+                  >
+
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#1f5b3b] text-white">
+                      <Target size={25} strokeWidth={1.8} />
+                    </div>
+
+                    <h3 className="font-serif text-3xl font-bold text-[#1f5b3b]">
+                      Our Mission
+                    </h3>
+
+                    <div className="mt-4 h-[2px] w-10 bg-[#b99b55]"></div>
+
+                    <p className="mt-5 max-w-sm text-[15px] leading-7 text-[#5c605b]">
+                      To make renting simple and stress-free by providing
+                      verified listings, secure communication, and exceptional
+                      support.
+                    </p>
+
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 25 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.15 }}
+                    className="md:pl-10"
+                  >
+
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#1f5b3b] text-white">
+                      <Eye size={25} strokeWidth={1.8} />
+                    </div>
+
+                    <h3 className="font-serif text-3xl font-bold text-[#1f5b3b]">
+                      Our Vision
+                    </h3>
+
+                    <div className="mt-4 h-[2px] w-10 bg-[#b99b55]"></div>
+
+                    <p className="mt-5 max-w-sm text-[15px] leading-7 text-[#5c605b]">
+                      To be the most trusted rental platform that empowers
+                      people to find, list, and manage homes with confidence.
+                    </p>
+
+                  </motion.div>
+
+                </div>
+              </div>
+            </div>
+
             <motion.div
-              key={index}
-              custom={index}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeUp}
-              whileHover={{ y: -6 }}
-              className="rounded-2xl border border-primary-100 bg-card p-8 shadow-sm transition-all duration-300 hover:border-primary-200 hover:shadow-[0_8px_25px_rgba(31,91,59,0.15)]"
+              initial={{ opacity: 0, scale: 1.03 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative min-h-[360px] overflow-hidden lg:min-h-[500px]"
             >
-              <motion.div
-                whileHover={{ rotate: -8, scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-primary-600"
-              >
-                {aboutIcons[item.icon]}
-              </motion.div>
 
-              <h3 className="mt-6 text-2xl font-bold text-heading">
-                {item.title}
-              </h3>
+              <img
+                src={sofaImage}
+                alt="Beautiful modern living room"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
 
-              <div className="mt-2 h-1 w-10 rounded-full bg-primary-500"></div>
+              {/* Smooth blend between content and image */}
+              <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-[#f4f1e8] to-transparent lg:w-40"></div>
 
-              <p className="mt-4 leading-7 text-muted">{item.description}</p>
+              {/* Bottom soft blend */}
+              <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#f4f1e8]/30 to-transparent"></div>
+
             </motion.div>
-          ))}
-        </div>
+
+          </div>
+
+        </motion.div>
       </div>
-    </div>
+    </section>
   );
 };
+
 
 // Our Services Section
 
 const Services = () => {
   return (
-    <div className="bg-background px-5 py-16">
+    <section className="py-16">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -213,7 +303,7 @@ const Services = () => {
         transition={{ duration: 0.6 }}
         className="mx-auto max-w-2xl text-center"
       >
-        <p className="text-sm font-semibold tracking-widest text-primary-500">
+        <p className="text-sm font-semibold uppercase tracking-wider text-primary-500">
           {servicesData.tag}
         </p>
 
@@ -221,7 +311,9 @@ const Services = () => {
           {servicesData.title}
         </h2>
 
-        <p className="mt-4 text-lg text-muted">{servicesData.subtitle}</p>
+        <p className="mt-4 text-lg text-muted">
+          {servicesData.subtitle}
+        </p>
       </motion.div>
 
       <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
@@ -234,30 +326,45 @@ const Services = () => {
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeUp}
             whileHover={{ y: -8, scale: 1.03 }}
-            className="rounded-2xl border border-primary-100 bg-card p-7 text-center shadow-sm transition-all duration-300 hover:border-primary-200 hover:shadow-[0_8px_25px_rgba(31,91,59,0.15)]"
+            className={`rounded-2xl border p-7 text-center shadow-sm transition-all duration-300 ${
+              index % 2 === 1
+                ? "border-primary-600 bg-primary-600 hover:border-primary-700 hover:shadow-[0_8px_25px_rgba(31,91,59,0.25)]"
+                : "border-primary-100 bg-card hover:border-primary-200 hover:shadow-[0_8px_25px_rgba(31,91,59,0.15)]"
+            }`}
           >
+            {/* Icon */}
             <motion.div
               whileHover={{ rotate: -8, scale: 1.1 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary-100 text-2xl text-primary-600"
+              className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full text-2xl ${
+                index % 2 === 1
+                  ? "bg-white text-primary-600 shadow-sm"
+                  : "bg-primary-100 text-primary-600"
+              }`}
             >
               {serviceIcons[item.icon]}
             </motion.div>
 
-            <h3 className="mt-7 text-lg font-semibold text-heading">
+            <h3
+              className={`mt-7 text-lg font-semibold ${
+                index % 2 === 1 ? "text-white" : "text-heading"
+              }`}
+            >
               {item.title}
             </h3>
 
-            <p className="mt-3 text-sm leading-7 text-muted">
+            <p
+              className={`mt-3 text-sm leading-7 ${
+                index % 2 === 1 ? "text-primary-50" : "text-muted"
+              }`}>
               {item.description}
             </p>
           </motion.div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
-
 // Animated Counter (used inside Stats)
 
 const Counter = ({ text }) => {
@@ -301,32 +408,35 @@ const Counter = ({ text }) => {
 
 const Stats = () => {
   return (
-    <section className="bg-primary-700">
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-          {statsData.map((stat, index) => (
-            <motion.div
-              key={index}
-              custom={index}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.5 }}
-              variants={fadeUp}
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center justify-center gap-3"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">
+    <section className="bg-[#faf9f5] px-5 py-10 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-7xl">
+        <div className="rounded-2xl bg-primary-600 px-6 py-11 shadow-sm sm:px-10 lg:px-14">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {statsData.map((stat, index) => (
+              <motion.div
+                key={index}
+                custom={index}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.5 }}
+                variants={fadeUp}
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center justify-center gap-3"
+              >
                 {statIcons[stat.icon]}
-              </div>
 
-              <div>
-                <h3 className="text-2xl font-bold text-white">
-                  <Counter text={stat.number} />
-                </h3>
-                <p className="text-sm text-primary-100">{stat.title}</p>
-              </div>
-            </motion.div>
-          ))}
+                <div>
+                  <h3 className="text-2xl font-bold text-white">
+                    <Counter text={stat.number} />
+                  </h3>
+
+                  <p className="text-sm text-primary-100">
+                    {stat.title}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -433,13 +543,22 @@ const avatarColors = ["bg-primary-500", "bg-secondary-500", "bg-primary-700"];
 
 const Testimonials = () => {
   const [audience, setAudience] = useState("tenant");
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const list = testimonialsData[audience];
 
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % list.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + list.length) % list.length);
+  };
+
   return (
-    <section className="bg-background px-5 py-16">
+    <section className="px-5 py-16 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
-        {/* Heading */}
+
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -448,7 +567,7 @@ const Testimonials = () => {
           className="flex items-center justify-between gap-4"
         >
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary-500">
+            <p className="text-sm font-semibold uppercase tracking-wider text-primary-500">
               {testimonialsData.tag}
             </p>
 
@@ -457,11 +576,13 @@ const Testimonials = () => {
             </h2>
           </div>
 
-          {/* Tenant / Owner Button */}
           <div className="relative shrink-0">
             <select
               value={audience}
-              onChange={(e) => setAudience(e.target.value)}
+              onChange={(e) => {
+                setAudience(e.target.value);
+                setCurrentIndex(0);
+              }}
               className="w-32 cursor-pointer appearance-none rounded-xl border border-primary-200 bg-card px-4 py-3 pr-9 text-sm font-semibold text-heading shadow-sm outline-none transition hover:border-primary-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
             >
               <option value="tenant">Tenant</option>
@@ -475,62 +596,119 @@ const Testimonials = () => {
           </div>
         </motion.div>
 
-        <motion.div
-          key={audience}
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3"
-        >
-          {list.map((item, index) => (
+        <div className="relative mt-8">
+
+          <button
+            onClick={prevSlide}
+            className="absolute -left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-primary-100 bg-white text-primary-600 shadow-md transition hover:bg-primary-50"
+            aria-label="Previous testimonial"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div className="overflow-hidden px-1 py-2">
             <motion.div
-              key={item.id}
-              custom={index}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeUp}
-              whileHover={{ y: -6, scale: 1.02 }}
-              className="rounded-2xl border border-primary-100 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary-200 hover:shadow-[0_8px_25px_rgba(31,91,59,0.15)]"
+              key={`${audience}-${currentIndex}`}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="grid grid-cols-1 gap-6 md:grid-cols-3"
             >
-              <Quote size={20} className="text-primary-300" />
+              {Array.from({ length: Math.min(3, list.length) }).map(
+                (_, index) => {
+                  const item = list[(currentIndex + index) % list.length];
 
-              <p className="mt-3 min-h-[92px] text-sm leading-6 text-text">
-                {item.review}
-              </p>
+                  return (
+                    <motion.div
+                      key={item.id}
+                      whileHover={{ y: -6, scale: 1.02 }}
+                      className="rounded-2xl border border-primary-100 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary-200 hover:shadow-[0_8px_25px_rgba(31,91,59,0.15)]"
+                    >
+                      <Quote size={20} className="text-primary-300" />
 
-              {/* User */}
-              <div className="mt-5 flex items-center gap-3">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                  className={`flex h-11 w-11 items-center justify-center rounded-full text-white ${
-                    avatarColors[index % avatarColors.length]
-                  }`}
-                >
-                  <User size={20} />
-                </motion.div>
+                      <p className="mt-3 min-h-[92px] text-sm leading-6 text-text">
+                        {item.review}
+                      </p>
 
-                <div>
-                  <h5 className="font-semibold text-heading">{item.name}</h5>
-                  <p className="text-xs text-muted">{item.city}</p>
-                </div>
-              </div>
+                      <div className="mt-5 flex items-center gap-3">
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                          }}
+                          className={`flex h-11 w-11 items-center justify-center rounded-full text-white ${
+                            avatarColors[index % avatarColors.length]
+                          }`}
+                        >
+                          <User size={20} />
+                        </motion.div>
 
-              <div className="mt-3 flex gap-0.5">
-                {Array.from({ length: item.rating }).map((_, i) => (
-                  <motion.span
-                    key={i}
-                    whileHover={{ scale: 1.3, rotate: 10 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                  </motion.span>
-                ))}
-              </div>
+                        <div>
+                          <h5 className="font-semibold text-heading">
+                            {item.name}
+                          </h5>
+
+                          <p className="text-xs text-muted">
+                            {item.city}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex gap-0.5">
+                        {Array.from({ length: item.rating }).map(
+                          (_, i) => (
+                            <motion.span
+                              key={i}
+                              whileHover={{
+                                scale: 1.3,
+                                rotate: 10,
+                              }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 400,
+                              }}
+                            >
+                              <Star
+                                size={14}
+                                className="fill-yellow-400 text-yellow-400"
+                              />
+                            </motion.span>
+                          )
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                }
+              )}
             </motion.div>
+          </div>
+
+          <button
+            onClick={nextSlide}
+            className="absolute -right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-primary-100 bg-white text-primary-600 shadow-md transition hover:bg-primary-50"
+            aria-label="Next testimonial"
+          >
+            <ChevronRight size={20} />
+          </button>
+
+        </div>
+
+        <div className="mt-6 flex justify-center gap-2">
+          {list.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === currentIndex
+                  ? "w-6 bg-primary-600"
+                  : "w-2 bg-primary-200"
+              }`}
+              aria-label={`Go to testimonial ${index + 1}`}
+            />
           ))}
-        </motion.div>
+        </div>
+
       </div>
     </section>
   );
@@ -540,46 +718,106 @@ const Testimonials = () => {
 
 const CTA = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.4 }}
-      transition={{ duration: 0.7 }}
-      className="relative mx-5 mb-10 overflow-hidden rounded-2xl bg-cover bg-center py-24"
-      style={{ backgroundImage: `url(${ctaHomeImg})` }}
-    >
-      <div className="absolute inset-0 bg-[#07130d]/70"></div>
+    <section className="mt-20 mb-20 px-4 md:px-8 lg:px-12">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.7 }}
+        className="relative mx-auto min-h-[450px] max-w-7xl overflow-hidden rounded-3xl bg-cover bg-center py-20 md:py-24"
+        style={{ backgroundImage: `url(${ctaHomeImg})` }}
+      >
+        <div className="absolute inset-0 bg-black/50"></div>
 
-      {/* Content */}
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 text-center lg:flex-row lg:px-10 lg:text-left">
-        <div>
-          <h2 className="text-3xl font-bold text-white md:text-4xl">
-            {ctaData.title}
-          </h2>
+        {/* Main Content */}
+        <div className="relative z-10 mx-auto flex max-w-6xl flex-col justify-center gap-12 px-8 lg:flex-row lg:items-center lg:px-10">
 
-          <p className="mt-3 max-w-xl text-primary-100">
-            {ctaData.description}
-          </p>
-        </div>
+          <div className="flex-1 text-center lg:text-left">
 
-        <div className="flex shrink-0 flex-wrap justify-center gap-4">
-          {ctaData.buttons.map((btn, index) => (
-            <motion.button
-              key={index}
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.96 }}
-              className={
-                btn.type === "primary"
-                  ? "rounded-xl bg-white px-7 py-3.5 font-semibold text-primary-600 shadow-sm transition hover:shadow-lg"
-                  : "rounded-xl border border-white px-7 py-3.5 font-semibold text-white transition hover:bg-white hover:text-primary-600"
-              }
+            <h2 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+              {ctaData.title}
+            </h2>
+
+            <p className="mt-4 max-w-xl text-base leading-7 text-white/90 md:text-lg">
+              {ctaData.description}
+            </p>
+
+            <div className="mt-7 flex flex-wrap justify-center gap-4 lg:justify-start">
+              {ctaData.buttons.map((btn, index) => (
+                <motion.button
+                  key={index}
+                  whileHover={{ scale: 1.05, y: -3 }}
+                  whileTap={{ scale: 0.96 }}
+                  className={
+                    btn.type === "primary"
+                      ? "rounded-xl bg-white px-7 py-3.5 font-semibold text-primary-600 shadow-md transition hover:shadow-xl"
+                      : "rounded-xl border border-white px-7 py-3.5 font-semibold text-white transition hover:bg-white hover:text-primary-600"
+                  }
+                >
+                  {btn.text}
+                </motion.button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+
+            {/* Stat 1 */}
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
             >
-              {btn.text}
-            </motion.button>
-          ))}
+              <h3 className="text-3xl font-bold text-white">
+                10,000+
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Verified Properties
+              </p>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md">
+              <h3 className="text-3xl font-bold text-white">
+                50,000+
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Happy Customers
+              </p>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
+            >
+              <h3 className="text-3xl font-bold text-white">
+                500+
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Trusted Hosts
+              </p>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
+            >
+              <h3 className="text-3xl font-bold text-white">
+                24/7
+              </h3>
+
+              <p className="mt-1 text-sm text-white/90">
+                Customer Support
+              </p>
+            </motion.div>
+
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </section>
   );
 };
 

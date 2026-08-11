@@ -9,11 +9,10 @@ import {
   LogOut,
   Menu,
   X,
-  Search,
-  ChevronDown,
   LayoutDashboard,
   Star,
   MessageSquare,
+  ArrowLeft,
 } from 'lucide-react';
 
 // Navigation items  
@@ -49,8 +48,7 @@ const AdminLayout = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // Close mobile menu when route changes
+ 
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
@@ -66,6 +64,10 @@ const AdminLayout = () => {
     if (isMobile) {
       setMobileMenuOpen(!mobileMenuOpen);
     }
+  };
+
+  const handleBackToWebsite = () => {
+    navigate('/');
   };
 
   return (
@@ -94,9 +96,9 @@ const AdminLayout = () => {
         `}
       >
         {/* Logo  */}
-        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-green-50/50 to-white flex-shrink-0">
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-primary-50/50 to-white flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-green-400 flex items-center justify-center shadow-lg shadow-green-200">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-400 flex items-center justify-center shadow-lg shadow-primary-200">
               <Home className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -106,7 +108,7 @@ const AdminLayout = () => {
           </div>
         </div>
 
-        {/* Navigation - Full height with no overflow */}
+        {/* Navigation   */}
         <nav className="p-4 flex-1 flex flex-col overflow-hidden">
           <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold px-4 mb-3 flex-shrink-0">
             Main Menu
@@ -121,19 +123,19 @@ const AdminLayout = () => {
                   className={`
                     flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
                     ${isActive 
-                      ? 'bg-gradient-to-r from-green-50 to-green-100/50 text-green-700 font-semibold shadow-sm' 
+                      ? 'bg-gradient-to-r from-primary-50 to-primary-100/50 text-primary-700 font-semibold shadow-sm' 
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                     }
                   `}
                 >
                   <item.icon 
                     className={`w-5 h-5 transition-colors ${
-                      isActive ? 'text-green-600' : 'text-gray-400 group-hover:text-gray-600'
+                      isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600'
                     }`} 
                   />
                   <span className="text-sm">{item.name}</span>
                   {isActive && (
-                    <span className="ml-auto w-1.5 h-8 bg-gradient-to-b from-green-500 to-green-300 rounded-full" />
+                    <span className="ml-auto w-1.5 h-8 bg-gradient-to-b from-primary-500 to-primary-300 rounded-full" />
                   )}
                 </NavLink>
               );
@@ -141,8 +143,17 @@ const AdminLayout = () => {
           </div>
         </nav>
 
-        {/* Bottom section - Fixed at bottom */}
+        {/* Bottom section */}
         <div className="border-t border-gray-200 p-4 flex-shrink-0 bg-white">
+          {/* Back to Website Button */}
+          <button
+            onClick={handleBackToWebsite}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-primary-600 hover:bg-primary-50 transition-all duration-200 group mb-2"
+          >
+            <ArrowLeft className="w-5 h-5 text-primary-500 group-hover:text-primary-600" />
+            <span className="text-sm font-medium">Back to Website</span>
+          </button>
+
           {/* Logout */}
           <button
             onClick={handleLogout}
@@ -153,9 +164,9 @@ const AdminLayout = () => {
           </button>
 
           {/* User Profile Card */}
-          <div className="mt-3 p-4 bg-gradient-to-r from-green-50 to-blue-50/50 rounded-xl border border-green-100">
+          <div className="mt-3 p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-xl border border-primary-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-600 to-green-400 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-400 flex items-center justify-center text-white font-semibold text-sm shadow-md">
                 AD
               </div>
               <div>
@@ -184,38 +195,13 @@ const AdminLayout = () => {
                 <h2 className="text-lg sm:text-xl font-bold text-gray-800 hidden sm:block">
                   {navigation.find(item => item.path === location.pathname)?.name || 'Dashboard'}
                 </h2>
-                <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                <span className="text-xs bg-primary-500 text-white px-3 py-1 rounded-full font-semibold">
                   Live
                 </span>
               </div>
             </div>
-
-            {/* Right Side */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              {/* Search */}
-              <div className="hidden md:flex items-center bg-gray-50 rounded-xl px-4 py-2 border border-gray-200 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-200 transition-all">
-                <Search className="w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="bg-transparent border-none outline-none ml-2 text-sm w-32 lg:w-48 text-gray-700 placeholder:text-gray-400"
-                />
-                <kbd className="ml-2 px-2 py-0.5 bg-gray-200 rounded text-xs text-gray-500 hidden lg:block">
-                  ⌘K
-                </kbd>
-              </div>
-
-              {/* Profile */}
-              <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 pr-3 rounded-xl transition-colors">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-r from-green-600 to-green-400 flex items-center justify-center text-white font-semibold text-sm">
-                  AD
-                </div>
-                <div className="hidden sm:block">
-                  <p className="text-sm font-semibold text-gray-800">Admin</p>
-                  <p className="text-xs text-gray-500">Administrator</p>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-500 hidden sm:block" />
-              </div>
+ 
+            <div className="flex items-center gap-3 sm:gap-4"> 
             </div>
           </div>
         </header>
