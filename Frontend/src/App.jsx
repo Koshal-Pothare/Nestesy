@@ -16,6 +16,7 @@ import Contact from "./pages/Contact";
 import Explore from './pages/Explore'
 import Whishlist from './pages/Wishlist'
 import PropertyDetails from './pages/PropertyDetails'
+import ForgotPassword from './auth/ForgotPassword'
 
 //Admin
 import AdminLayout from '../src/Admin/AdminLout'
@@ -57,11 +58,17 @@ function App() {
     "/host/add-property", 
     "/admin-register",
 
+
     "/admin-login", 
 
     "/admin-login",
-    "/user",
 
+    "/admin-login" ,
+     
+   
+
+    "/user",
+        "/forgot-password"
 
    
   ];
@@ -84,8 +91,12 @@ function App() {
        <Route path="/login" element={<Login/>} />
         <Route path='/admin-register' element={<AdminRegister />} />
          <Route path='/admin-login' element={<AdminLogin />} />
+
          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
    
+
+   <Route path="/forgot-password" element={<ForgotPassword />} />
+
 
 
 
