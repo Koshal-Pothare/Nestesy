@@ -70,8 +70,14 @@ const menuItems = [
             <ul className="mt-2 space-y-2">
                 <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Help Center</Link></li>
                  <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Terms & Condition</Link></li>
-                  <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Privact Policy </Link></li>
-                
+<li>
+  <Link
+    to="/privacy-policy"
+    className="text-gray-400 hover:text-emerald-500 transition duration-300"
+  >
+    Privacy Policy
+  </Link>
+</li>                
             </ul>
           </div>
            
