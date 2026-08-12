@@ -50,7 +50,7 @@ const HostLayout = () => {
       id: 'properties', 
       label: 'My Properties', 
       icon: Building2,
-      path: '/host/properties'
+      path: '/host/my-properties'
     },
     { 
       id: 'add-property', 
