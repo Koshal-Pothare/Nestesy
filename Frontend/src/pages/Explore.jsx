@@ -6,32 +6,152 @@ import {
     ShieldCheck, User, Headset, IndianRupee, MapPin, Building2, Wallet2, Wallet, Search, ChevronUp,
     BedDouble, Bath, Ruler, Heart, ListFilterPlus, Home
 } from 'lucide-react'
-import { Properties } from '../Data/Data'
+import { budgets, Properties, propertyTypes } from '../Data/Data'
 import ExploreSidebar from '../components/ExploreSidebar'
 import CTA from '../assets/Explore/CTA.png'
 import PropertyCard from '../Ui/PropertyCard'
 import { useNavigate } from "react-router-dom"
 import Pagination from '../components/Pagination'
+import SortBy from '../Ui/SortBy'
 
 const Explore = () => {
 
-    const [propertyLoading, StylePropertyLoading] = useState(false);
+    const [filter, setFilter] = useState({
+        location: "",
+        propertyType: "Any",
+        budget: "Any",
+        priceRange: 15000,
+        bedroom: "",
+        furnishing: "",
+        amenities: [],
+        availability: "",
+        idealFor: "",
+    })
 
+
+    const [rotate, setRotate] = useState(0);
+    const [sortBy, setSortBy] = useState("newest")
+    const [filteredProperties, setFilteredProperties] = useState(Properties);
+    const [propertyLoading, StylePropertyLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
 
+    const scrollToProperty = () => {
+        document.getElementById("properties")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    };
+
+    const handleChange = (e) => {
+        setFilter((prev) => ({
+            ...prev, [e.target.name]: e.target.value
+        }))
+    }
+
+    const handleSearch = () => {
+        let result = [...Properties];
+
+        if (filter.location.trim()) {
+            result = result.filter((property) =>
+                property.location
+                    .toLowerCase()
+                    .includes(filter.location.toLowerCase())
+            );
+        }
+
+        if (filter.propertyType !== "Any") {
+            result = result.filter(
+                (property) => property.propertyType === filter.propertyType
+            );
+        }
+
+        if (filter.budget !== "Any") {
+            const [min, max] = filter.budget.split("-").map(Number);
+
+            result = result.filter(
+                (property) => property.price >= min && property.price <= max
+            );
+        }
+
+        if (filter.idealFor) {
+            result = result.filter((property) =>
+                property.idealFor.includes(filter.idealFor)
+            );
+        }
+
+        setFilteredProperties(result);
+        setCurrentPage(1);
+
+        scrollToProperty();
+        console.log("Search clicked")
+    };
+
+    const handleAmenity = (amenity) => {
+        setFilter((prev) => {
+
+            const exists = prev.amenities.includes(amenity);
+
+            return {
+                ...prev,
+                amenities: exists
+                    ? prev.amenities.filter((a) => a !== amenity)
+                    : [...prev.amenities, amenity]
+            }
+
+        });
+    };
+
+    // sorting logic
+
+
+    const sortedProperties = [...filteredProperties].sort((a, b) => {
+        switch (sortBy) {
+            case "priceLow":
+                return a.price - b.price;
+
+            case "priceHigh":
+                return b.price - a.price;
+
+            case "newest":
+                return b.id - a.id;
+
+            default:
+                return 0;
+        }
+    });
+
+    // reseting filter 
+    const resetFilters = () => {
+        setFilter({
+            location: "",
+            propertyType: "Any",
+            budget: "Any",
+            priceRange: 15000,
+            bedroom: "",
+            furnishing: "",
+            amenities: [],
+            availability: "",
+        });
+
+        setSortBy("newest");
+        setRotate((prev) => prev + 360);
+        setFilteredProperties(Properties);
+        setCurrentPage(1);
+    };
+
+    // pagination
     const propertiesPerPage = 9;
 
-    const totalPages = Math.ceil(Properties.length / propertiesPerPage);
+    const totalPages = Math.ceil(sortedProperties.length / propertiesPerPage);
 
     const indexOfLastProperty = currentPage * propertiesPerPage;
     const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
 
-    const currentProperties = Properties.slice(
+    const currentProperties = sortedProperties.slice(
         indexOfFirstProperty,
         indexOfLastProperty
     );
 
-   
 
     const navigate = useNavigate();
 
@@ -97,7 +217,7 @@ const Explore = () => {
             {/*hero section */}
             <div className="relative">
                 <div
-                    className="relative h-[650px] w-full bg-cover bg-center bg-no-repeat flex items-center text-center md:text-left p-10"
+                    className="relative h-[600px] w-full bg-cover bg-center bg-no-repeat flex items-center text-center md:text-left p-10"
                     style={{
                         backgroundImage: `url(${DesktopHero})`,
                     }}
@@ -174,9 +294,9 @@ const Explore = () => {
                     initial={{ opacity: 0, y: 60 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: .4 }}
-                    className="absolute hidden md:flex left-1/2 -bottom-14 -translate-x-1/2 z-30 w-[95%] max-w-6xl"
+                    className="absolute hidden md:flex left-1/2 -bottom-10 -translate-x-1/2 z-30 w-[95%] max-w-6xl border border-primary-500 rounded-3xl"
                 >
-                    <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-6">
+                    <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-6 w-full">
 
                         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 
@@ -190,6 +310,10 @@ const Explore = () => {
                                     <input
                                         placeholder="Search city or locality"
                                         className=" w-full outline-none text-lg"
+                                        type="text"
+                                        name='location'
+                                        value={filter.location}
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
@@ -201,10 +325,16 @@ const Explore = () => {
                                         Property
                                     </label>
 
-                                    <select className=" w-full outline-none bg-transparent">
-                                        <option>Apartment</option>
-                                        <option>Villa</option>
-                                        <option>PG</option>
+                                    <select className=" w-full outline-none bg-transparent"
+                                        name="propertyType"
+                                        value={filter.propertyType}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="Any">Any</option>
+                                        <option value="Apartment">Apartment</option>
+                                        <option value="Flat">Flat</option>
+                                        <option value="PG">PG</option>
+                                        <option value="Independent House">Independent House</option>
                                     </select>
                                 </div>
                             </div>
@@ -216,15 +346,23 @@ const Explore = () => {
                                         Budget
                                     </label>
 
-                                    <select className=" w-full outline-none bg-transparent">
-                                        <option>Any</option>
-                                        <option>₹10k-20k</option>
-                                        <option>₹20k-50k</option>
+                                    <select
+                                        name="budget"
+                                        value={filter.budget}
+                                        onChange={handleChange}
+                                        className=" w-full outline-none bg-transparent">
+                                        <option value="Any">Any</option>
+                                        <option value="0-10000">Below ₹10k</option>
+                                        <option value="10000-20000">₹10k - ₹20k</option>
+                                        <option value="20000-50000">₹20k - ₹50k</option>
+                                        <option value="50000-1000000">Above ₹50k</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <button className="rounded-2xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition">
+                            <button
+                                onClick={handleSearch}
+                                className="rounded-2xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition">
                                 Search
                             </button>
 
@@ -244,29 +382,22 @@ const Explore = () => {
 
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start" id="properties">
 
                         {/* Sidebar */}
 
-                        <ExploreSidebar />
+                        <ExploreSidebar filter={filter} setFilter={setFilter} handleChange={handleChange}
+                            reset={resetFilters} search={handleSearch} handleAmenity={handleAmenity}
+                            rotate={rotate} setRotate={setRotate}
+                        />
 
 
                         {/* Property Grid */}
 
                         <div className="lg:col-span-3">
 
-                            <div className="w-full flex justify-end">
-                                <div className=' shadow-2xl shadow-gray-500/20 bg-primary-600 text-white p-3 rounded-2xl mb-5 flex items-center gap-2 '>
-                                    <p className='font-semibold text-md'>Sorted by</p>
-                                    <select className="outline-none text-center ">
-                                        <option className=''>Newest</option>
-                                        <option>High-Low</option>
-                                        <option>Low-High</option>
-                                        <option>Student</option>
-                                        <option>Working Professional</option>
-
-                                    </select>
-                                </div>
+                            <div className="w-full flex justify-end mb-5">
+                                <SortBy sortBy={sortBy} setSortBy={setSortBy} />
                             </div>
 
                             <motion.div
@@ -312,20 +443,16 @@ const Explore = () => {
                 transition={{ duration: 0.7 }}
                 viewport={{ once: true }}
                 className="w-full px-6 py-20"
-
-
             >
                 <div
                     style={{
                         backgroundImage: `url(${CTA})`,
                     }}
-                    className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
-
-
-                    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+                    className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto h-[400px] rounded-[32px]  px-8 py-10 md:px-12 md:py-12">
+                    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-start gap-10">
 
                         {/* Left Content */}
-                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left py-10">
 
                             <motion.div
                                 whileHover={{
@@ -346,24 +473,30 @@ const Explore = () => {
                                 <p className="mt-3 text-primary-100 text-base md:text-lg max-w-xl leading-7">
                                     Explore your wishlist and schedule a visit for the properties that caught your eye.
                                 </p>
+                                {/* CTA Button */}
+                                <motion.button
+                                    whileHover={{
+                                        scale: 1.05,
+                                        y: -2,
+                                    }}
+                                    whileTap={{
+                                        scale: 0.96,
+                                    }}
+                                    onClick={() => navigate("/wishlist")}
+                                    className="bg-transparent backdrop-blur-xl mt-10 text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
+                                >
+                                    Explore Whishlist
+                                </motion.button>
+
+
                             </div>
 
+ 
                         </div>
 
-                        {/* CTA Button */}
-                        <motion.button
-                            whileHover={{
-                                scale: 1.05,
-                                y: -2,
-                            }}
-                            whileTap={{
-                                scale: 0.96,
-                            }}
-                            onClick={() => navigate("/wishlist")}
-                            className="bg-transparent backdrop-blur-xl  text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
-                        >
-                            Explore Whishlist
-                        </motion.button>
+                     
+  
+
 
                     </div>
 

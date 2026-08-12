@@ -1,13 +1,148 @@
 import React ,{useState}from "react";
 import { IoHomeOutline } from "react-icons/io5";
-import { ShieldCheck, IndianRupee, Headphones ,Eye ,EyeOff,Lock,Mail} from "lucide-react";
+import { ShieldCheck, IndianRupee, Headphones ,Eye ,EyeOff,Lock,Mail,User} from "lucide-react";
 import login from "../assets/login.png";
 import {motion} from 'framer-motion'
+import Swal from 'sweetalert2';
+import { toast } from "react-toastify";
+import {useNavigate} from "react-router-dom"
 
 const Login = () => {
 
+  const navigate= useNavigate();
+
     const[showPassword,setShowPassword]= useState(false);
     const[signUpform,setSignUpForm]= useState(false);
+
+        const[loginData,setLoginData]=useState({
+          email:"",
+          password:""
+        });
+
+        const[signupData,setSignupData]= useState({
+           username:"",
+           email:"",
+           password:"",
+           cnfpassword:""
+        })
+
+        const[isAgreed,setIsAgreed] = useState(false);
+
+        const handleLoginChange=(e)=>{
+         setLoginData((prev)=>({
+           ...prev,[e.target.name]:e.target.value,
+         }))
+        }
+
+        const handleSignupChange=(e)=>{
+          setSignupData((prev)=>({
+        ...prev,[e.target.name]:e.target.value,
+          }))
+        }
+
+        
+
+        const handleSignUp= async(e)=>{
+           e.preventDefault();
+
+           const{email,password,username,cnfpassword} = signupData;
+
+           if(password !== cnfpassword) {
+            toast.error("Password not matched");
+            return;
+           }
+
+        const exsistingUser = JSON.parse(localStorage.getItem("nestesyUsers"));
+
+        if(exsistingUser){
+          if(
+
+          exsistingUser.email.toLowerCase() === email.toLowerCase() ||
+          exsistingUser.password.toLowerCase() === password.toLowerCase()
+          ){
+            toast.error("User already exists");
+            return;
+          } 
+        }
+
+        const user = {
+          id: Date.now(),
+          username,
+          email,
+          password,
+           createdAt: new Date().toISOString(),
+
+        };
+
+        localStorage.setItem("nestesyUser" , JSON.stringify(user));
+
+        await Swal.fire({
+          title: "Signup Successful!",
+          text: "Please login to continue",
+          icon: "success",
+          confirmButtonColor: "#1e3a5f",
+        });
+     
+        
+  setSignupData({
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  setSignUpForm(false);
+
+        }
+
+
+        const handleLogin= async(e)=>{
+         e.preventDefault();
+
+const savedUser = JSON.parse(localStorage.getItem("nestesyUser"));
+       
+if(!savedUser){
+  toast.error("User not found . Plz signUp first");
+  return;
+}
+
+const enteredNameEmail = loginData.email.trim().toLowerCase();
+
+const matchEmail = savedUser.email.toLowerCase()=== enteredNameEmail ;
+
+const matchUserName = savedUser.username.toLowerCase() === enteredNameEmail ;
+
+const matchPassword = savedUser.password=== loginData.password;
+
+if((matchEmail || matchUserName) && matchPassword){
+  const loggedInUser ={
+    id: savedUser.id,
+    name:savedUser.username,
+    email:savedUser.email,
+    createdAt:savedUser.createdAt
+  }
+
+  localStorage.setItem("nestesyLoggedInUser",JSON.stringify(loggedInUser));
+
+
+    await Swal.fire({
+          title: "Signup Successful!",
+          text: "Please login to continue",
+          icon: "success",
+          confirmButtonColor: "#1e3a5f",
+        });
+       
+
+
+  setTimeout(() => {
+      navigate("/");
+    }, 500);
+  }
+  else {
+    toast.error("Invalid email/username or password");
+  }
+}
+        
 
 
 
@@ -149,7 +284,7 @@ const Login = () => {
           className="text-3xl md:text-4xl font-serif font-semibold mt-5 md:mt-10 ">Login to <span className="text-primary-700  tracking-wider ">NESTESY</span></h1>
         <p className="mt-3 text-gray-600 tracking-wide text-md md:text-lg">Welcome back! Please enter your details</p>
          
-         <form className=" py-5 md:py-10">
+         <form className=" py-5 md:py-10" onSubmit={handleLogin}>
             <div>
                 <label htmlFor="email" className="block text-md md:text-lg font-semibold mt-6">
                     Email Address or Username
@@ -157,9 +292,10 @@ const Login = () => {
                <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
                     <Mail className="text-gray-400 shrink-0" />
                     <input
-                      type={"email" || "text"}
-                      name={"Email" || "Username"}
-                     
+                      type="text"
+                      name="email"
+                     value={loginData.email}
+                     onChange={handleLoginChange}
                       placeholder="name@company.com"
                      
                       required
@@ -179,8 +315,9 @@ const Login = () => {
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      name="Password"
-                    
+                      name="password"
+                      value={loginData.password}
+                      onChange={handleLoginChange}
                       required
                       className="w-full px-4  outline-none"
                     />
@@ -196,15 +333,20 @@ const Login = () => {
 
             </div>
 
-            <div className="flex items-center justify-between mt-6">
-               <h1 className="flex items-center gap-2 text-md"><input type="checkbox" className=" h-5 w-5 border border-primary-900 " />Remember Me</h1>
-               <button className="text-primary-500 hover:text-primary-600 font-semibold cursor-pointer text-md">
+            <div className="flex  justify-end mt-6">
+           
+               <button 
+               type="button"
+               onClick={()=>navigate("/forgot-password")}
+               className="text-primary-500 hover:text-primary-600 font-semibold cursor-pointer text-md">
                     Forgot Password?
                 </button>
             </div>
            
 
-        <button className="w-full bg-primary-500 mt-6 md:mt-10 text-white py-3 md:py-4 text-lg md:text-xl font-semibold rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 hover:scale-102">
+        <button 
+        type="submit"
+        className="w-full bg-primary-500 mt-6 md:mt-10 text-white py-3 md:py-4 text-lg md:text-xl font-semibold rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 hover:scale-102">
             Login
         </button>
 
@@ -247,36 +389,19 @@ const Login = () => {
           className=" text-3xl md:text-4xl font-serif font-semibold  ">SignUp to <span className="text-primary-700  tracking-wider ">NESTESY</span></h1>
         <p className="mt-3 text-gray-600 tracking-wide  text-md md:text-lg">Welcome to NESTESY! Please enter your details</p>
          
-         <form className="py-4">
-            <div>
-                <label htmlFor="email" className="block  text-md md:text-lg font-semibold mt-3">
-                    Email Address
-                </label>
-               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
-                    <Mail className="text-gray-400 shrink-0" />
-                    <input
-                      type="email"
-                      name="Email"
-                     
-                      placeholder="name@company.com"
-                     
-                      required
-                      className="w-full px-4 py-2 outline-none"
-                    />
-                  </div>
+         <form className="py-4" onSubmit={handleSignUp}>
 
-            </div>
-
-             <div>
+              <div>
                 <label htmlFor="username" className="block text-md md:text-lg font-semibold mt-6">
                     Username
                 </label>
                <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
-                    <Mail className="text-gray-400 shrink-0" />
+                    <User className="text-gray-400 shrink-0" />
                     <input
                       type="text"
-                      name="Username"
-                     
+                      name="username"
+                     value={signupData.username}
+                     onChange={handleSignupChange}
                       placeholder="Enter your username"
                      
                       required
@@ -286,9 +411,31 @@ const Login = () => {
 
             </div>
 
+            <div>
+                <label htmlFor="email" className="block  text-md md:text-lg font-semibold mt-3">
+                    Email Address
+                </label>
+               <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12 md:h-15 focus-within:border-blue-500 transition-colors">
+                    <Mail className="text-gray-400 shrink-0" />
+                    <input
+                      type="email"
+                      name="email"
+                     vlaue={signupData.email}
+                     onChange={handleSignupChange}
+                      placeholder="name@company.com"
+                     
+                      required
+                      className="w-full px-4 py-2 outline-none"
+                    />
+                  </div>
+
+            </div>
+
+             
+
 
             <div>
-                <label htmlFor="password" className="block text-md md:text-lg font-semibold mt-6">
+                <label htmlFor="password" className="block text-md md:text-lg font-semibold mt-3">
                     Password
                 </label>
                 
@@ -297,8 +444,9 @@ const Login = () => {
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      name="Password"
-                    
+                      name="password"
+                      value={signupData.password}
+                    onChange={handleSignupChange}
                       required
                       className="w-full px-4  outline-none"
                     />
@@ -313,7 +461,7 @@ const Login = () => {
 
                   {/* confirm password */}
                   <div>
-                    <label htmlFor="password" className="block text-md md:text-lg font-semibold mt-6">
+                    <label htmlFor="password" className="block text-md md:text-lg font-semibold mt-3">
                    Confirm  Password
                 </label>
                    <div className="mt-2 flex items-center border border-gray-300 rounded-2xl px-5 h-12  md:h-15 focus-within:border-blue-500 transition-colors">
@@ -321,8 +469,9 @@ const Login = () => {
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      name="Password"
-                    
+                      name="cnfpassword"
+                      value={signupData.cnfpassword}
+                    onChange={handleSignupChange}
                       required
                       className="w-full px-4  outline-none"
                     />
@@ -340,25 +489,42 @@ const Login = () => {
                 
 
             </div>
-
+    <div className="flex gap-3 mt-6">
+              <input
+                type="checkbox"
+                checked={isAgreed}
+                onChange={(e) => setIsAgreed(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-blue-600"
+              />
+              <p className="text-xs text-gray-500">
+                I agree to the
+                <span className="text-primary-600 font-semibold mx-1 cursor-pointer">Terms of Service</span>
+                and
+                <span className="text-primary-600 font-semibold ml-1 cursor-pointer">Privacy Policy</span>
+              </p>
+            </div>
          
            
 
-        <button className="w-full bg-primary-500 mt-5 text-white py-3 md:py-4 text-lg md:text-xl font-semibold rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 hover:scale-102">
+        <button 
+        type="submit"
+        checked={isAgreed}
+        className=
+        {`w-full bg-primary-500 mt-5 text-white py-3 md:py-4 text-lg md:text-xl font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300 ${isAgreed ? "hover:bg-primary-600 hover:scale-105 cursor-pointer" : "disabled cursor-not-allowed"}`}>
             Sign Up
         </button>
 
-        <div className="mt-5 flex items-center gap-2 justify-center text-center">
+        <div className="mt-3 flex items-center gap-2 justify-center text-center">
           <p className="w-25 h-px bg-primary-700"></p>
-          <h1 className="text-md text-gray-700 font-semibold ">or Continue with</h1>
+          <h1 className="text-[12px] text-gray-700 font-semibold ">or Continue with</h1>
           <p className="w-25 h-px bg-primary-700"></p>
         </div>
 
-        <button className ="text-center w-full mt-5 border-3 border-primary-700 py-3 md:py-4 rounded-2xl ">Continue with Google</button>
+        <button className ="text-center w-full mt-3 border-3 border-primary-700 py-3 md:py-4 rounded-2xl ">Continue with Google</button>
 
          </form>
 
-         <p className="text-center text-gray-600 text-md md:text-lg mt-3">
+         <p className="text-center text-gray-600 text-md md:text-lg mt-2">
            Already have an Account ?{' '}
            <button 
            type="button"

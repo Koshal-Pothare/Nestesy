@@ -1,19 +1,9 @@
-
-
 // ==========================================================
 // Nestesy — About Us Page Data
-// (FAQ data intentionally excluded — not part of this page)
 // ==========================================================
 
 // ---------- Hero Section ----------
 export const heroData = {
-  badge: "Find. Book. Live.",
-
-  title: "Find Your Perfect Home",
-
-  description:
-    "Discover verified rental properties across the city. Easy search, secure booking, and trusted owners.",
-
   features: [
     {
       title: "Verified Properties",
@@ -100,7 +90,7 @@ export const servicesData = {
   ],
 };
 
-// ---------- Stats (moved below "Our Services") ----------
+// ---------- Stats ----------
 export const statsData = [
   {
     number: "10,000+",
@@ -143,7 +133,7 @@ export const whyChooseData = {
   },
 };
 
-// ---------- Testimonials (split by audience: Tenant / Owner) ----------
+// ---------- Testimonials ----------
 export const testimonialsData = {
   tag: "What Our Customers Say",
   title: "Trusted by thousands of happy customers",
@@ -223,125 +213,193 @@ export const ctaData = {
   ],
 };
 
+// ---------- Footer ----------
+export const footerData = {
+  logo: "Nestesy",
+
+  description:
+    "Find homes that fit your life. Trusted stays. Better living.",
+
+  company: [
+    "About Us",
+    "Careers",
+    "Blog",
+    "Press",
+  ],
+
+  support: [
+    "Help Center",
+    "Terms of Service",
+    "Privacy Policy",
+    "Contact Us",
+  ],
+
+  hosts: [
+    "Become a Host",
+    "Host Resources",
+    "Community",
+  ],
+
+  newsletter: {
+    title: "Subscribe to our newsletter",
+    subtitle: "Get the latest updates and offers.",
+    placeholder: "Enter your email",
+  },
+
+  copyright: "© 2025 Nestesy. All rights reserved.",
+};
+
+// ==========================================================
+// Nestesy — Privacy Policy Page Data
+// ==========================================================
+
+import {
+  FileText,
+  User,
+  Settings,
+  House,
+  Cookie,
+  Share2,
+  ShieldCheck,
+  LockKeyhole,
+  Users,
+  Link,
+  Pencil,
+  Mail,
+  Home,
+  ChartLine,
+  NotebookPen,
+  Wallet,
+  UserRoundPlus
+} from "lucide-react";
 
 
 
-import { Home ,Users, ChartLine,ShieldCheck,Settings,House,NotebookPen , Wallet,UserRoundPlus} from 'lucide-react' 
- 
-// Home Page Data
+// ---------- Privacy Policy Hero ----------
+export const privacyPolicyHeroData = {
+  badge: "Your Privacy Matters",
 
-export const cities = [
+  title: "Privacy Policy",
+
+  description:
+    "At Nestesy, we are committed to protecting your privacy and ensuring the security of your personal information.",
+
+  lastUpdated: "Last Updated: August 10, 2026",
+};
+
+// ---------- Privacy Policy Sections ----------
+export const privacyPolicyData = [
   {
     id: 1,
-    name: "Mumbai",
-    state: "Maharashtra",
-    properties: "2.5K+",
-    image: "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800",
+    title: "Introduction",
+    icon: FileText,
+    description:
+      "This Privacy Policy explains how Nestesy collects, uses, discloses, and protects your personal information when you use our platform.",
   },
+
   {
     id: 2,
-    name: "Pune",
-    state: "Maharashtra",
-    properties: "1.8K+",
-    image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800",
+    title: "Information We Collect",
+    icon: User,
+    description:
+      "We collect information that you provide directly to us, such as your name, email address, phone number, and payment details.",
   },
+
   {
     id: 3,
-    name: "Bangalore",
-    state: "Karnataka",
-    properties: "3.2K+",
-    image: "https://images.unsplash.com/photo-1533994201280-56ebd4a62693?w=800",
+    title: "How We Use Your Information",
+    icon: Settings,
+    description:
+      "We use your information to provide, maintain, and improve our services, process bookings, and communicate with you.",
   },
+
   {
     id: 4,
-    name: "Delhi",
-    state: "Delhi",
-    properties: "1.9K+",
-    image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800",
+    title: "Property & Booking Information",
+    icon: House,
+    description:
+      "We collect property details, booking preferences, and transaction information to facilitate secure rentals and provide a better user experience.",
   },
+
   {
     id: 5,
-    name: "Hyderabad",
-    state: "Telangana",
-    properties: "1.5K+",
-    image: "https://images.unsplash.com/photo-1566070723696-a39017e90a78?w=800",
+    title: "Cookies & Tracking Technologies",
+    icon: Cookie,
+    description:
+      "We use cookies and similar technologies to enhance your browsing experience, analyze site traffic, and personalize content.",
   },
+
   {
     id: 6,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+    title: "How We Share Your Information",
+    icon: Share2,
+    description:
+      "We do not sell your personal information. We may share it with trusted partners to provide our services or comply with legal obligations.",
   },
+
   {
-     id: 7,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+    id: 7,
+    title: "Data Security",
+    icon: ShieldCheck,
+    description:
+      "We implement appropriate technical and organizational measures to protect your personal information from unauthorized access.",
   },
-   {
-     id: 8,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+
+  {
+    id: 8,
+    title: "Your Privacy Rights",
+    icon: LockKeyhole,
+    description:
+      "You have the right to access, update, or delete your personal information. You can also opt-out of certain communications.",
   },
-   {
-     id: 9,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+
+  {
+    id: 9,
+    title: "Children's Privacy",
+    icon: Users,
+    description:
+      "Nestesy is not intended for children under the age of 13. We do not knowingly collect personal information from children.",
   },
-   {
-     id: 10,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+
+  {
+    id: 10,
+    title: "Third-Party Links",
+    icon: Link,
+    description:
+      "Our platform may contain links to third-party websites. We are not responsible for their privacy practices or content.",
   },
-   {
-     id: 11,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+
+  {
+    id: 11,
+    title: "Changes to This Privacy Policy",
+    icon: Pencil,
+    description:
+      "We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page.",
   },
-   {
-     id: 12,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
-  },
-   {
-     id: 13,
-    name: "Chennai",
-    state: "Tamil Nadu",
-    properties: "1.2K+",
-    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800",
+
+  {
+    id: 12,
+    title: "Contact Us",
+    icon: Mail,
+    description:
+      "If you have any questions or concerns about this Privacy Policy, please contact us at support@nestesy.com.",
   },
 ];
 
+// ---------- Privacy Policy CTA ----------
+export const privacyPolicyCTAData = {
+  title: "Still have questions?",
 
-export const propertyTypes = [
-  { value: "", label: "All Type" },
-  { value: "apartment", label: "Apartment" },
-  { value: "villa", label: "Villa" },
-  { value: "house", label: "House" },
-  { value: "room", label: "Room" },
-  { value: "studio", label: "Studio" },
-];
+  description:
+    "Our support team is here to help you with any privacy-related concerns.",
 
-export const budgets = [
-  { value: "", label: "Any Budget" },
-  { value: "10k-25k", label: "₹10K - ₹25K" },
-  { value: "25k-50k", label: "₹25K - ₹50K" },
-  { value: "50k-1l", label: "₹50K - ₹1L" },
-  { value: "1l-2l", label: "₹1L - ₹2L" },
-  { value: "2l+", label: "₹2L+" }, 
-]
+  buttonText: "Contact Us",
+};
+
+
+ 
+ 
+
 
 
 // Become Host Benifits
@@ -385,249 +443,694 @@ export const HostSteps =[
 
 
 
-
-// Explore page properties
-
 export const Properties = [
 {
 id:1,
 title:"Modern 2BHK Apartment",
 location:"Mumbai",
-propertyType:"Apartment",
+propertyType:"Flat",
 price:28000,
 bedrooms:2,
+bathrooms:2,
+area:850,
+description:"Beautiful modern apartment with premium amenities in the heart of Mumbai. Close to shopping centers and public transport.",
 furnishing:"Fully Furnished",
 availability:"Immediate",
 amenities:["Parking","WiFi","Lift","Security","Gym"],
-image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1494526585095-c41746248156"
+],
+host:"Rajesh Kumar",
+hostPhone:"+91-98765-43210",
+hostEmail:"rajesh.kumar@email.com",
+rating:4.8,
+reviews:124,
+listedOn:"2026-01-15",
+visitTime:"10:00 AM - 6:00 PM",
+securityDeposit:28000,
+maintenance:2000
 },
 {
 id:2,
 title:"Luxury Villa with Garden",
 location:"Pune",
-propertyType:"Villa",
+propertyType:"Flat",
 price:65000,
 bedrooms:4,
+bathrooms:4,
+area:2200,
+description:"Spacious luxury villa with a beautiful garden and premium finishes. Perfect for large families seeking comfort and elegance.",
 furnishing:"Semi Furnished",
 availability:"Within 15 Days",
 amenities:["Parking","Pool","Garden","Security","Power Backup"],
-image:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
+"https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+],
+host:"Priya Sharma",
+hostPhone:"+91-87654-32109",
+hostEmail:"priya.sharma@email.com",
+rating:4.9,
+reviews:89,
+listedOn:"2026-01-20",
+visitTime:"9:00 AM - 5:00 PM",
+securityDeposit:65000,
+maintenance:3500
 },
 {
 id:3,
 title:"Affordable PG",
 location:"Nagpur",
-propertyType:"PG",
+propertyType:"Sharing",
 price:8500,
 bedrooms:1,
+bathrooms:1,
+area:350,
+description:"Budget-friendly PG accommodation with all basic amenities. Ideal for students and working professionals.",
 furnishing:"Fully Furnished",
 availability:"Immediate",
 amenities:["WiFi","AC","Security"],
-image:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+],
+host:"Amit Patel",
+hostPhone:"+91-76543-21098",
+hostEmail:"amit.patel@email.com",
+rating:4.2,
+reviews:56,
+listedOn:"2026-02-01",
+visitTime:"11:00 AM - 7:00 PM",
+securityDeposit:8500,
+maintenance:500
 },
 {
 id:4,
 title:"Spacious Independent House",
 location:"Hyderabad",
-propertyType:"Independent House",
+propertyType:"Flat",
 price:35000,
 bedrooms:3,
+bathrooms:3,
+area:1500,
+description:"Well-designed independent house with ample space and natural light. Features a beautiful garden and power backup.",
 furnishing:"Semi Furnished",
 availability:"Next Month",
 amenities:["Parking","Garden","Power Backup"],
-image:"https://images.unsplash.com/photo-1568605114967-8130f3a36994"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1568605114967-8130f3a36994",
+"https://images.unsplash.com/photo-1572120360610-d971b9d7767c",
+"https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+],
+host:"Sneha Reddy",
+hostPhone:"+91-65432-10987",
+hostEmail:"sneha.reddy@email.com",
+rating:4.6,
+reviews:78,
+listedOn:"2026-01-10",
+visitTime:"10:00 AM - 6:00 PM",
+securityDeposit:35000,
+maintenance:2500
 },
 {
 id:5,
 title:"Premium Studio Apartment",
 location:"Bangalore",
-propertyType:"Apartment",
+propertyType:"Single Room",
 price:22000,
 bedrooms:1,
+bathrooms:1,
+area:550,
+description:"Contemporary studio apartment with modern interiors. Located in a prime area with excellent connectivity.",
 furnishing:"Fully Furnished",
 availability:"Immediate",
 amenities:["WiFi","Lift","Gym"],
-image:"https://images.unsplash.com/photo-1494526585095-c41746248156"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1494526585095-c41746248156",
+"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+],
+host:"Arjun Nair",
+hostPhone:"+91-54321-09876",
+hostEmail:"arjun.nair@email.com",
+rating:4.7,
+reviews:103,
+listedOn:"2026-01-25",
+visitTime:"9:00 AM - 5:00 PM",
+securityDeposit:22000,
+maintenance:1500
 },
 {
 id:6,
 title:"3BHK Family Apartment",
 location:"Delhi",
-propertyType:"Apartment",
+propertyType:"Flat",
 price:42000,
 bedrooms:3,
+bathrooms:2,
+area:1250,
+description:"Spacious family apartment with all modern facilities. Safe and secure locality with excellent schools and hospitals nearby.",
 furnishing:"Semi Furnished",
 availability:"Within 15 Days",
 amenities:["Parking","Gym","Lift","Security"],
-image:"https://images.unsplash.com/photo-1484154218962-a197022b5858"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+"https://images.unsplash.com/photo-1494526585095-c41746248156",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+],
+host:"Vikram Singh",
+hostPhone:"+91-43210-98765",
+hostEmail:"vikram.singh@email.com",
+rating:4.5,
+reviews:92,
+listedOn:"2026-02-05",
+visitTime:"11:00 AM - 7:00 PM",
+securityDeposit:42000,
+maintenance:3000
 },
 {
 id:7,
 title:"Budget PG for Students",
 location:"Pune",
-propertyType:"PG",
+propertyType:"Sharing",
 price:7000,
 bedrooms:1,
+bathrooms:1,
+area:300,
+description:"Economical PG accommodation designed specifically for students. Includes laundry facility and high-speed WiFi.",
 furnishing:"Fully Furnished",
 availability:"Immediate",
 amenities:["WiFi","Laundry","Security"],
-image:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+"https://images.unsplash.com/photo-1484154218962-a197022b5858"
+],
+host:"Meera Joshi",
+hostPhone:"+91-32109-87654",
+hostEmail:"meera.joshi@email.com",
+rating:4.0,
+reviews:67,
+listedOn:"2026-02-10",
+visitTime:"10:00 AM - 6:00 PM",
+securityDeposit:7000,
+maintenance:400
 },
 {
 id:8,
 title:"Luxury Penthouse",
 location:"Mumbai",
-propertyType:"Apartment",
+propertyType:"Flat",
 price:90000,
 bedrooms:4,
+bathrooms:4,
+area:2800,
+description:"Exclusive penthouse with panoramic city views and world-class amenities. The epitome of luxury living.",
 furnishing:"Fully Furnished",
 availability:"Next Month",
 amenities:["Pool","Gym","Parking","Lift","Security"],
-image:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+"https://images.unsplash.com/photo-1568605114967-8130f3a36994",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+],
+host:"Karan Mehta",
+hostPhone:"+91-21098-76543",
+hostEmail:"karan.mehta@email.com",
+rating:4.9,
+reviews:145,
+listedOn:"2026-01-05",
+visitTime:"9:00 AM - 5:00 PM",
+securityDeposit:90000,
+maintenance:5000
 },
 {
 id:9,
 title:"Cozy Independent House",
 location:"Nagpur",
-propertyType:"Independent House",
+propertyType:"Flat",
 price:18000,
 bedrooms:2,
+bathrooms:2,
+area:900,
+description:"Charming independent house with a cozy atmosphere. Perfect for small families seeking privacy and comfort.",
 furnishing:"Unfurnished",
 availability:"Immediate",
 amenities:["Parking","Garden"],
-image:"https://images.unsplash.com/photo-1572120360610-d971b9d7767c"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1572120360610-d971b9d7767c",
+"https://images.unsplash.com/photo-1568605114967-8130f3a36994",
+"https://images.unsplash.com/photo-1512917774080-9991f1c4c750"
+],
+host:"Ravi Deshmukh",
+hostPhone:"+91-10987-65432",
+hostEmail:"ravi.deshmukh@email.com",
+rating:4.3,
+reviews:45,
+listedOn:"2026-02-15",
+visitTime:"11:00 AM - 7:00 PM",
+securityDeposit:18000,
+maintenance:1200
 },
 {
 id:10,
 title:"Modern Villa",
 location:"Goa",
-propertyType:"Villa",
+propertyType:"Flat",
 price:75000,
 bedrooms:5,
+bathrooms:5,
+area:2800,
+description:"Stunning modern villa with pool and lush garden. Located in a peaceful area with easy access to beaches.",
 furnishing:"Fully Furnished",
 availability:"Immediate",
 amenities:["Pool","Garden","Parking","WiFi","Security"],
-image:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+],
+host:"Maria Fernandes",
+hostPhone:"+91-98765-01234",
+hostEmail:"maria.fernandes@email.com",
+rating:4.8,
+reviews:112,
+listedOn:"2026-01-18",
+visitTime:"10:00 AM - 6:00 PM",
+securityDeposit:75000,
+maintenance:4000
 },
 {
 id:11,
 title:"Compact Apartment",
 location:"Chennai",
-propertyType:"Apartment",
+propertyType:"Single Room",
 price:18000,
 bedrooms:1,
+bathrooms:1,
+area:500,
+description:"Compact and efficient apartment ideal for singles or couples. Well-maintained building with security.",
 furnishing:"Semi Furnished",
 availability:"Within 15 Days",
 amenities:["Lift","Security"],
-image:"https://images.unsplash.com/photo-1494526585095-c41746248156"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1494526585095-c41746248156",
+"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+"https://images.unsplash.com/photo-1484154218962-a197022b5858"
+],
+host:"Suresh Iyer",
+hostPhone:"+91-87654-12345",
+hostEmail:"suresh.iyer@email.com",
+rating:4.1,
+reviews:34,
+listedOn:"2026-02-08",
+visitTime:"9:00 AM - 5:00 PM",
+securityDeposit:18000,
+maintenance:1000
 },
 {
 id:12,
 title:"Premium Villa",
 location:"Hyderabad",
-propertyType:"Villa",
+propertyType:"Flat",
 price:80000,
 bedrooms:5,
+bathrooms:5,
+area:3000,
+description:"Premium villa with exquisite architecture and top-notch amenities. Features a private pool and gym.",
 furnishing:"Fully Furnished",
 availability:"Next Month",
 amenities:["Pool","Gym","Parking","Garden","Power Backup"],
-image:"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
+"https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+"https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+],
+host:"Ananya Reddy",
+hostPhone:"+91-76543-23456",
+hostEmail:"ananya.reddy@email.com",
+rating:4.9,
+reviews:156,
+listedOn:"2026-01-12",
+visitTime:"10:00 AM - 6:00 PM",
+securityDeposit:80000,
+maintenance:4500
 },
 {
 id:13,
 title:"Affordable Apartment",
 location:"Indore",
-propertyType:"Apartment",
+propertyType:"Flat",
 price:14000,
 bedrooms:2,
+bathrooms:2,
+area:720,
+description:"Affordable apartment with basic amenities. Great value for money in a convenient location.",
 furnishing:"Unfurnished",
 availability:"Immediate",
 amenities:["Parking","Lift"],
-image:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+"https://images.unsplash.com/photo-1494526585095-c41746248156",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+],
+host:"Deepak Malhotra",
+hostPhone:"+91-65432-34567",
+hostEmail:"deepak.malhotra@email.com",
+rating:3.9,
+reviews:28,
+listedOn:"2026-02-20",
+visitTime:"11:00 AM - 7:00 PM",
+securityDeposit:14000,
+maintenance:800
 },
 {
 id:14,
 title:"Luxury Duplex",
 location:"Ahmedabad",
-propertyType:"Independent House",
+propertyType:"Flat",
 price:48000,
 bedrooms:4,
+bathrooms:4,
+area:1800,
+description:"Stunning duplex house with modern design and premium finishes. Perfect for luxury living.",
 furnishing:"Semi Furnished",
 availability:"Within 15 Days",
 amenities:["Parking","Garden","Power Backup","Security"],
-image:"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be",
+"https://images.unsplash.com/photo-1568605114967-8130f3a36994",
+"https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c"
+],
+host:"Neha Shah",
+hostPhone:"+91-54321-45678",
+hostEmail:"neha.shah@email.com",
+rating:4.7,
+reviews:88,
+listedOn:"2026-01-28",
+visitTime:"9:00 AM - 5:00 PM",
+securityDeposit:48000,
+maintenance:2800
 },
 {
 id:15,
 title:"Student Friendly PG",
 location:"Bangalore",
-propertyType:"PG",
+propertyType:"Sharing",
 price:9000,
 bedrooms:1,
+bathrooms:1,
+area:320,
+description:"Student-friendly PG with AC and laundry facilities. Close to universities and tech parks.",
 furnishing:"Fully Furnished",
 availability:"Immediate",
 amenities:["WiFi","Laundry","Security","AC"],
-image:"https://images.unsplash.com/photo-1484154218962-a197022b5858"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+],
+host:"Kiran Kumar",
+hostPhone:"+91-43210-56789",
+hostEmail:"kiran.kumar@email.com",
+rating:4.4,
+reviews:73,
+listedOn:"2026-02-03",
+visitTime:"10:00 AM - 6:00 PM",
+securityDeposit:9000,
+maintenance:600
 },
 {
 id:16,
 title:"Lake View Apartment",
 location:"Pune",
-propertyType:"Apartment",
+propertyType:"Flat",
 price:31000,
 bedrooms:2,
+bathrooms:2,
+area:950,
+description:"Scenic lake view apartment with modern amenities. Peaceful location with stunning views.",
 furnishing:"Fully Furnished",
 availability:"Next Month",
 amenities:["Parking","Gym","Lift","WiFi"],
-image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1494526585095-c41746248156"
+],
+host:"Rohit Sharma",
+hostPhone:"+91-32109-67890",
+hostEmail:"rohit.sharma@email.com",
+rating:4.6,
+reviews:95,
+listedOn:"2026-01-08",
+visitTime:"11:00 AM - 7:00 PM",
+securityDeposit:31000,
+maintenance:2000
 },
 {
 id:17,
 title:"Classic Villa",
 location:"Jaipur",
-propertyType:"Villa",
+propertyType:"Flat",
 price:55000,
 bedrooms:4,
+bathrooms:4,
+area:2100,
+description:"Classic villa with traditional architecture and modern comforts. Beautiful garden and peaceful surroundings.",
 furnishing:"Semi Furnished",
 availability:"Immediate",
 amenities:["Garden","Parking","Security"],
-image:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+"https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be",
+"https://images.unsplash.com/photo-1512917774080-9991f1c4c750"
+],
+host:"Rajiv Singh",
+hostPhone:"+91-21098-78901",
+hostEmail:"rajiv.singh@email.com",
+rating:4.5,
+reviews:67,
+listedOn:"2026-02-12",
+visitTime:"9:00 AM - 5:00 PM",
+securityDeposit:55000,
+maintenance:3500
 },
 {
 id:18,
 title:"Family Apartment",
 location:"Surat",
-propertyType:"Apartment",
+propertyType:"Flat",
 price:24000,
 bedrooms:3,
+bathrooms:2,
+area:1050,
+description:"Family-friendly apartment with all necessary amenities. Safe neighborhood with good schools nearby.",
 furnishing:"Semi Furnished",
 availability:"Immediate",
 amenities:["Lift","Parking","Security"],
-image:"https://images.unsplash.com/photo-1494526585095-c41746248156"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1494526585095-c41746248156",
+"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+"https://images.unsplash.com/photo-1484154218962-a197022b5858",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+],
+host:"Manish Patel",
+hostPhone:"+91-10987-89012",
+hostEmail:"manish.patel@email.com",
+rating:4.3,
+reviews:56,
+listedOn:"2026-02-18",
+visitTime:"10:00 AM - 6:00 PM",
+securityDeposit:24000,
+maintenance:1800
 },
 {
 id:19,
 title:"Luxury Smart Home",
 location:"Mumbai",
-propertyType:"Independent House",
+propertyType:"Flat",
 price:95000,
 bedrooms:5,
+bathrooms:5,
+area:3200,
+description:"Ultra-modern smart home with AI-powered features and premium amenities. The future of luxury living.",
 furnishing:"Fully Furnished",
 availability:"Within 15 Days",
 amenities:["Pool","Gym","Parking","WiFi","Power Backup","Security"],
-image:"https://images.unsplash.com/photo-1568605114967-8130f3a36994"
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1568605114967-8130f3a36994",
+"https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
+"https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+],
+host:"Aditya Shah",
+hostPhone:"+91-98765-90123",
+hostEmail:"aditya.shah@email.com",
+rating:4.9,
+reviews:178,
+listedOn:"2026-01-02",
+visitTime:"9:00 AM - 5:00 PM",
+securityDeposit:95000,
+maintenance:6000
 },
 {
 id:20,
 title:"Budget 1BHK",
 location:"Nagpur",
-propertyType:"Apartment",
+propertyType:"Single Room",
 price:12000,
 bedrooms:1,
+bathrooms:1,
+area:450,
+description:"Budget-friendly 1BHK apartment with basic amenities. Ideal for singles or small families on a budget.",
 furnishing:"Unfurnished",
 availability:"Immediate",
 amenities:["Parking"],
-image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
- 
-} 
-];  
+idealFor:["Students", "Working Professionals", "Couples"],
+images:[
+"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+"https://images.unsplash.com/photo-1494526585095-c41746248156",
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+],
+host:"Sanjay Verma",
+hostPhone:"+91-87654-01234",
+hostEmail:"sanjay.verma@email.com",
+rating:3.8,
+reviews:34,
+listedOn:"2026-02-22",
+visitTime:"11:00 AM - 7:00 PM",
+securityDeposit:12000,
+maintenance:700
+}
+];
+
+export const cities = [
+  {
+    id: 1,
+    name: "Mumbai",
+    image: "https://images.unsplash.com/photo-1526481280695-3c4691f11d52?w=800&auto=format&fit=crop&q=80",
+    properties: 1250,
+  },
+  {
+    id: 2,
+    name: "Delhi",
+    image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&auto=format&fit=crop&q=80",
+    properties: 980,
+  },
+  {
+    id: 3,
+    name: "Bangalore",
+    image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=800&auto=format&fit=crop&q=80",
+    properties: 1100,
+  },
+  {
+    id: 4,
+    name: "Chennai",
+    image: "https://images.unsplash.com/photo-1609920658906-8223bd289001?w=800&auto=format&fit=crop&q=80",
+    properties: 750,
+  },
+  {
+    id: 5,
+    name: "Hyderabad",
+    image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&auto=format&fit=crop&q=80",
+    properties: 820,
+  },
+  {
+    id: 6,
+    name: "Pune",
+    image: "https://images.unsplash.com/photo-1625731207891-5c96d7c7f39e?w=800&auto=format&fit=crop&q=80",
+    properties: 650,
+  },
+  {
+    id: 7,
+    name: "Kolkata",
+    image: "https://images.unsplash.com/photo-1558431382-27e303142255?w=800&auto=format&fit=crop&q=80",
+    properties: 580,
+  },
+  {
+    id: 8,
+    name: "Ahmedabad",
+    image: "https://images.unsplash.com/photo-1619026390971-65b9c9fbb8d0?w=800&auto=format&fit=crop&q=80",
+    properties: 490,
+  },
+  {
+    id: 9,
+    name: "Jaipur",
+    image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=800&auto=format&fit=crop&q=80",
+    properties: 430,
+  },
+  {
+    id: 10,
+    name: "Lucknow",
+    image: "https://images.unsplash.com/photo-1599661046827-dacff0c0f09d?w=800&auto=format&fit=crop&q=80",
+    properties: 380,
+  },
+  {
+    id: 11,
+    name: "Nagpur",
+    image: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&auto=format&fit=crop&q=80",
+    properties: 320,
+  },
+  {
+    id: 12,
+    name: "Indore",
+    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80",
+    properties: 290,
+  },
+];
+
+
+export const propertyTypes = [
+  { value: "", label: "All Type" },
+  { value: "apartment", label: "Apartment" },
+  { value: "villa", label: "Villa" },
+  { value: "house", label: "House" },
+  { value: "room", label: "Room" },
+  { value: "studio", label: "Studio" },
+];
+
+export const budgets = [
+  { value: "", label: "Any Budget" },
+  { value: "10k-25k", label: "₹10K - ₹25K" },
+  { value: "25k-50k", label: "₹25K - ₹50K" },
+  { value: "50k-1l", label: "₹50K - ₹1L" },
+  { value: "1l-2l", label: "₹1L - ₹2L" },
+  { value: "2l+", label: "₹2L+" }, 
+]
+  
