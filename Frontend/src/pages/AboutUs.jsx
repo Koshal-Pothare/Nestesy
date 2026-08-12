@@ -410,7 +410,7 @@ const Stats = () => {
   return (
     <section className="bg-[#faf9f5] px-5 py-10 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
-        <div className="rounded-2xl bg-primary-600 px-6 py-8 shadow-sm sm:px-10 lg:px-14">
+        <div className="rounded-2xl bg-primary-600 px-6 py-11 shadow-sm sm:px-10 lg:px-14">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {statsData.map((stat, index) => (
               <motion.div
@@ -727,13 +727,11 @@ const CTA = () => {
         className="relative mx-auto min-h-[450px] max-w-7xl overflow-hidden rounded-3xl bg-cover bg-center py-20 md:py-24"
         style={{ backgroundImage: `url(${ctaHomeImg})` }}
       >
-        {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/50"></div>
 
         {/* Main Content */}
         <div className="relative z-10 mx-auto flex max-w-6xl flex-col justify-center gap-12 px-8 lg:flex-row lg:items-center lg:px-10">
 
-          {/* ================= LEFT SIDE ================= */}
           <div className="flex-1 text-center lg:text-left">
 
             <h2 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">
@@ -744,7 +742,6 @@ const CTA = () => {
               {ctaData.description}
             </p>
 
-            {/* Buttons */}
             <div className="mt-7 flex flex-wrap justify-center gap-4 lg:justify-start">
               {ctaData.buttons.map((btn, index) => (
                 <motion.button
@@ -763,7 +760,6 @@ const CTA = () => {
             </div>
           </div>
 
-          {/* ================= RIGHT SIDE STATS ================= */}
           <div className="grid w-full max-w-sm grid-cols-2 gap-4">
 
             {/* Stat 1 */}
@@ -780,11 +776,9 @@ const CTA = () => {
               </p>
             </motion.div>
 
-            {/* Stat 2 */}
             <motion.div
               whileHover={{ y: -5 }}
-              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
-            >
+              className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md">
               <h3 className="text-3xl font-bold text-white">
                 50,000+
               </h3>
@@ -794,7 +788,6 @@ const CTA = () => {
               </p>
             </motion.div>
 
-            {/* Stat 3 */}
             <motion.div
               whileHover={{ y: -5 }}
               className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"
@@ -808,7 +801,6 @@ const CTA = () => {
               </p>
             </motion.div>
 
-            {/* Stat 4 */}
             <motion.div
               whileHover={{ y: -5 }}
               className="rounded-2xl bg-white/20 p-5 text-center backdrop-blur-md"

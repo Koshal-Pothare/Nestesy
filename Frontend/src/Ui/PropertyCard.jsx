@@ -8,17 +8,23 @@ import { useNavigate } from "react-router-dom";
 const PropertyCard = ({ property, index }) => {
     const [favorite, setFavorite] = useState(isFavorite(property.id));
     const navigate = useNavigate();
+const handleFavorite = () => {
+  const added = toggleFavorite(property);
 
-    const handleFavorite = () => {
-        const added = toggleFavorite(property);
-        setFavorite(added);
+  if (added === null) {
+    toast.info("Please login to save properties");
+  
+    return;
+  }
 
-        if (added) {
-            toast.success("Property added to Wishlist ❤️");
-        } else {
-            toast.info("Property removed from Wishlist");
-        }
-    };
+  setFavorite(added);
+
+  if (added) {
+    toast.success("Property added to Wishlist ❤️");
+  } else {
+    toast.info("Property removed from Wishlist");
+  }
+};
 
     const handleViewProperty = () => {
         navigate(`/property/${property.id}`);

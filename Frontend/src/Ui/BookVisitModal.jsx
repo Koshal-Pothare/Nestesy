@@ -2,41 +2,64 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CalendarDays, Clock, MapPin, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
-import { bookVisit, isBooked } from "../utils/bookVisit";
+import { bookVisit, isVisitBooked } from "../utils/bookVisit";
+import Swal from 'sweetalert2'
+import { useNavigate } from "react-router-dom";
 
 const BookVisitModal = ({ property, open, onClose }) => {
     const [selectedDate, setSelectedDate] = useState("");
 
     if (!property) return null;
 
-    const handleBookVisit = () => {
-        if (!selectedDate) {
-            toast.error("Please select a visit date");
-            return;
-        }
+    const navigate= useNavigate()
 
-        if (isBooked(property.id)) {
-            toast.info("You have already booked a visit for this property");
-            return;
-        }
+  const handleBookVisit = () => {
+    const loggedInUser = JSON.parse(
+        localStorage.getItem("nestesyLoggedInUser")
+    );
 
-        const visitData = {
-            ...property,
-            visitDate: selectedDate,
-            visitTime: property.visitTime,
-            bookedAt: new Date().toISOString(),
-        };
+    if (!loggedInUser) {
+        Swal.fire({
+            icon: "warning",
+            title: "Login Required",
+            text: "Please login first to book a visit.",
+            confirmButtonText: "OK",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate("/login");
+            }
+        });
 
-        bookVisit(visitData);
+        return;
+    }
 
-        toast.success("Visit booked successfully! 🎉");
+    if (!selectedDate) {
+        toast.error("Please select a visit date");
+        return;
+    }
 
-        setSelectedDate("");
+    if (isVisitBooked(property.id)) {
+        toast.info("You have already booked a visit for this property");
+        return;
+    }
 
-        setTimeout(() => {
-            onClose();
-        }, 500);
+    const visitData = {
+        ...property,
+        visitDate: selectedDate,
+        visitTime: property.visitTime,
+        bookedAt: new Date().toISOString(),
     };
+
+    bookVisit(visitData);
+
+    toast.success("Visit booked successfully! 🎉");
+
+    setSelectedDate("");
+
+    setTimeout(() => {
+        onClose();
+    }, 500);
+};
 
     return (
         <AnimatePresence>

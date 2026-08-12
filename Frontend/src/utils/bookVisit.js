@@ -1,41 +1,63 @@
-const Visit_KEY = "upcomingVisits";
+const getVisitKey = () => {
+  const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
+
+  if (!user) return null;
+
+  return `upcomingVisits_${user.email}`;
+};
 
 export const getVisit = () => {
-  return JSON.parse(localStorage.getItem(Visit_KEY)) || [];
+  const key = getVisitKey();
+
+  if (!key) return [];
+
+  return JSON.parse(localStorage.getItem(key)) || [];
 };
 
 export const bookVisit = (property) => {
+  const key = getVisitKey();
+
+  if (!key) return false;
+
   const visits = getVisit();
 
-  const exists = visits.some((item) => item.id === property.id);
+  const exists = visits.some(
+    (item) => item.id === property.id
+  );
 
-  if (!exists) {
-    visits.push(property);
-    localStorage.setItem(Visit_KEY, JSON.stringify(visits));
-  }
+  if (exists) return false;
+
+  visits.push(property);
+
+  localStorage.setItem(
+    key,
+    JSON.stringify(visits)
+  );
+
+  return true;
 };
 
-export const removeBooking = (id) => {
-  const visits = getVisit().filter((item) => item.id !== id);
-  localStorage.setItem(Visit_KEY, JSON.stringify(visits));
+export const removeVisitBooking = (id) => {
+  const key = getVisitKey();
+
+  if (!key) return;
+
+  const visits = getVisit().filter(
+    (item) => item.id !== id
+  );
+
+  localStorage.setItem(
+    key,
+    JSON.stringify(visits)
+  );
 };
 
-export const isBooked = (id) => {
-  return getVisit().some((item) => item.id === id);
+export const isVisitBooked = (id) => {
+  const key = getVisitKey();
+
+  if (!key) return false;
+
+  return getVisit().some(
+    (item) => item.id === id
+  );
 };
-
-// export const toggleFavorite = (property) => {
-//   const favorites = getFavorites();
-
-//   const exists = favorites.some((item) => item.id === property.id);
-
-//   if (exists) {
-//     const updated = favorites.filter((item) => item.id !== property.id);
-//     localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
-//     return false;
-//   }
-
-//   favorites.push(property);
-//   localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-//   return true;
-// };
