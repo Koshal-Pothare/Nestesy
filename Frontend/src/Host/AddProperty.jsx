@@ -307,24 +307,28 @@ const AddProperty = () => {
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
+    // Combine all images into a single array for the property card
+    const allImages = [
+      ...formData.outerImages,
+      ...formData.livingRoomImages,
+      ...formData.bathroomImages,
+      ...formData.balconyImages,
+      ...formData.kitchenImages,
+      ...formData.bedroomImages.flat()
+    ];
+
     const newProperty = {
       id: Date.now(),
       title: formData.title,
       location: formData.location,
       price: parseFloat(formData.price),
       type: formData.type,
-      bhk: parseInt(formData.bhk),
+      bedrooms: parseInt(formData.bhk),  
       bathrooms: parseInt(formData.bathrooms),
       area: parseInt(formData.area),
-      status: 'Pending Verification',
-      outerImages: formData.outerImages,
-      livingRoomImages: formData.livingRoomImages,
-      bathroomImages: formData.bathroomImages,
-      balconyImages: formData.balconyImages,
-      kitchenImages: formData.kitchenImages,
-      bedroomImages: formData.bedroomImages,
+      status: 'Pending',
+      images: allImages, // Use images array for PropertyCard
       listedDate: new Date().toISOString().split('T')[0],
-      views: 0,
       inquiries: 0,
       amenities: formData.amenities,
       description: formData.description,
@@ -340,15 +344,49 @@ const AddProperty = () => {
       }
     };
 
-    console.log('Property submitted for verification:', newProperty);
-    showNotification('Property submitted for verification successfully!', 'success');
-    
-    setIsSubmitting(false);
-    
-    setTimeout(() => {
-      resetForm();
-      navigate('/host/properties');
-    }, 1500);
+    // Save to localStorage
+    try {
+      // Get existing properties
+      const storedProperties = localStorage.getItem('hostProperties');
+      let existingProperties = [];
+      
+      if (storedProperties) {
+        existingProperties = JSON.parse(storedProperties);
+      }
+      
+      // Add new property at the beginning
+      const updatedProperties = [newProperty, ...existingProperties];
+      
+      // Save back to localStorage
+      localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('propertyAdded', { 
+        detail: newProperty 
+      }));
+      
+      // Dispatch storage event for cross-tab communication
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'hostProperties',
+        newValue: JSON.stringify(updatedProperties),
+        oldValue: storedProperties,
+      }));
+      
+      console.log('Property submitted for verification:', newProperty);
+      showNotification('Property submitted for verification successfully!', 'success');
+      
+      setIsSubmitting(false);
+      
+      setTimeout(() => {
+        resetForm();
+        navigate('/host/properties');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error saving property:', error);
+      showNotification('Failed to save property. Please try again.', 'error');
+      setIsSubmitting(false);
+    }
   };
 
   // Reset form
@@ -586,7 +624,7 @@ const AddProperty = () => {
             />
           </div>
 
-          {/* Property Images Section - Keep all image upload sections here */}
+          {/* Property Images Section */}
           <div className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Image className="w-5 h-5 text-purple-600" />
@@ -1156,7 +1194,7 @@ const AddProperty = () => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/host/properties')}
+              onClick={() => navigate('/host/my-properties')}
               className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200"
             >
               Cancel

@@ -23,15 +23,16 @@ import AdminLayout from '../src/Admin/AdminLout'
 import AdminDashboard from '../src/Admin/AdminDashboard'
 import AdminRegister from './auth/AdminRegister'
 import AdminLogin from './auth/AdminLogin'
+import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
 
 // Host 
 import HostDashboard from './Host/HostDashboard'
-import HostLayout from './Host/HostLayout'
-
+import HostLayout from './Host/HostLayout' 
 import Faq from './pages/Help_center'
-import Help_center from './pages/Help_center'
-
+import Help_center from './pages/Help_center' 
 import AddProperty from './Host/AddProperty'
+import MyProperties from './Host/MyProperties'
+import HostAnalytics from './Host/HostAnalytics'
 
 
 
@@ -64,7 +65,9 @@ function App() {
     "/admin-register",
     "/admin-login", 
     "/user",
-        "/forgot-password"
+    "/forgot-password",
+    "/host/my-properties",
+    "/host/analytics",
 
    
   ];
@@ -113,14 +116,16 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-
+          <Route index element={<AdminDashboard />} /> 
+          <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
         </Route>
 
         {/* // Host Routes */}
         <Route path="/host" element={<HostLayout />}>
         <Route index element={<HostDashboard />} />
         <Route path="/host/add-property" element={<AddProperty />} />
+        <Route path="/host/my-properties" element={<MyProperties />} />
+        <Route path="/host/analytics" element={<HostAnalytics />} />
         </Route>
 
 

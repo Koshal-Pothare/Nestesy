@@ -1,4 +1,5 @@
-import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
+import React, { useRef, useState, useEffect, useMemo, useCallback, } from "react";
+import { useNavigate } from "react-router-dom";
 import Hero from "../assets/Home/Hero.png";
 import CardLogo from "../assets/Home/CardLogo.png";
 import CTA from "../assets/Home/CTA.png";
@@ -29,7 +30,8 @@ import {
 } from "../Data/Data";
 import { motion, useInView } from 'framer-motion';
 
-// Memoized TypingText component
+
+// TypingText component
 const TypingText = React.memo(({ text, className, delay = 0.2 }) => {
   const [displayText, setDisplayText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -82,62 +84,51 @@ const TypingText = React.memo(({ text, className, delay = 0.2 }) => {
   );
 });
 
-// Optimized Counter Hook
+// Counter Hook
 const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
   const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const elementRef = useRef(null);
-  const isInView = useInView(elementRef, { once: true, amount: 0.3 });
-  const animationRef = useRef(null);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
-    if (isInView && !isVisible) {
-      setIsVisible(true);
-      const startTime = Date.now() + startDelay;
-      const target = parseFloat(targetValue.replace(/[^0-9.]/g, ''));
-      const suffix = targetValue.replace(/[0-9.]/g, '');
+    if (!isInView) return;
 
-      const animate = () => {
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
+    const numeric = parseFloat(targetValue.match(/[\d.]+/)?.[0] || 0);
+    const suffix = targetValue.replace(/[\d.]/g, "");
 
-        if (elapsed < 0) {
-          animationRef.current = requestAnimationFrame(animate);
-          return;
-        }
+    let start;
 
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const currentValue = eased * target;
+    const animate = (timestamp) => {
+      if (!start) start = timestamp + startDelay;
 
-        if (progress < 1) {
-          setCount(currentValue);
-          animationRef.current = requestAnimationFrame(animate);
-        } else {
-          setCount(target);
-        }
-      };
+      const progress = Math.min((timestamp - start) / duration, 1);
 
-      animationRef.current = requestAnimationFrame(animate);
-    }
+      if (progress < 0) {
+        requestAnimationFrame(animate);
+        return;
+      }
 
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      const value = numeric * progress;
+      setCount(value);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
       }
     };
-  }, [isInView, isVisible, targetValue, duration, startDelay]);
 
-  const displayValue = targetValue.includes('.')
-    ? count.toFixed(1)
-    : Math.round(count);
+    requestAnimationFrame(animate);
+  }, [isInView, targetValue, duration, startDelay]);
 
-  const suffix = targetValue.replace(/[0-9.]/g, '');
-
-  return { count: displayValue, suffix, ref: elementRef };
+  return {
+    count: targetValue.includes(".")
+      ? count.toFixed(1)
+      : Math.round(count),
+    suffix: targetValue.replace(/[\d.]/g, ""),
+    ref,
+  };
 };
 
-// Memoized FeatureCard
+//  FeatureCard
 const FeatureCard = React.memo(({ feature }) => {
   const Icon = feature.icon;
 
@@ -156,7 +147,8 @@ const FeatureCard = React.memo(({ feature }) => {
   );
 });
 
-const Home = () => {
+const Home = () => { 
+const navigate = useNavigate();
   const curveRef = useRef(null);
   const isCurveVisible = useInView(curveRef, { once: true });
 
@@ -164,6 +156,7 @@ const Home = () => {
   const letters = text.split("");
   const words = "Spaces that feel like".split(" ");
 
+  // Counter values  
   const counter1 = useCounter("12K+", 2000, 900);
   const counter2 = useCounter("8K+", 2000, 1000);
   const counter3 = useCounter("150+", 2000, 700);
@@ -197,7 +190,7 @@ const Home = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [getCitiesPerRow]);
 
-  // Memoize city rows
+  // city rows
   const cityRows = useMemo(() => {
     if (!duplicatedCities.length) return [];
     const rows = [];
@@ -206,17 +199,14 @@ const Home = () => {
     }
     return rows;
   }, [duplicatedCities, citiesPerRow]);
-
-  // Initialize duplicated cities (only 2x for smooth scrolling)
+ 
   useEffect(() => {
     setDuplicatedCities([...cities, ...cities]);
-  }, []);
-
-  // Optimized infinite scroll with ref for position
+  }, []); 
   useEffect(() => {
     if (isPaused || duplicatedCities.length === 0) return;
 
-    const scrollSpeed = 1.5;
+    const scrollSpeed = 25.5;
     let animationId;
 
     const animateScroll = () => {
@@ -269,7 +259,7 @@ const Home = () => {
     },
   ], []);
 
-  // Memoize property types and budgets options
+  // property types and budgets options
   const propertyTypeOptions = useMemo(() => 
     propertyTypes.map((type) => (
       <option key={type.value} value={type.value}>
@@ -285,13 +275,12 @@ const Home = () => {
       </option>
     )), []
   );
-
-  // Memoize city cards to prevent unnecessary re-renders
+ 
   const cityCards = useMemo(() => 
     cityRows.map((row, rowIndex) => (
       <div
         key={rowIndex}
-        className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 min-w-full"
+        className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 p-2 gap-4 min-w-full"
         style={{ width: `${100 / cityRows.length}%` }}
       >
         {row.map((city, index) => (
@@ -326,14 +315,14 @@ const Home = () => {
     )), [cityRows]
   );
 
-  // Memoize feature cards
+  // feature cards
   const featureCards = useMemo(() => 
     features.map((feature) => (
       <FeatureCard key={feature.id} feature={feature} />
     )), [features]
   );
 
-  // Memoize property cards
+  // property cards
   const propertyCards = useMemo(() => 
     Properties.slice(0, 6).map((property, index) => (
       <PropertyCard key={property.id} property={property} index={index} />
@@ -414,17 +403,26 @@ const Home = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 0 0 001 1h3m10-11l2 2m-2-2v10a1 0 0 01-1 1h-3m-6 0a1 0 0 001-1v-4a1 0 0 011-1h2a1 0 0 011 1v4a1 0 0 001 1m-6 0h6"
                   />
                 </svg>
-                <div ref={curveRef} className="absolute -bottom-5 right-4 w-full">
+                <div
+                  ref={curveRef}
+                  className="absolute -bottom-5 right-4 w-full"
+                >
                   <svg
                     viewBox="0 0 500 120"
                     className="w-48 sm:w-56 md:w-64 lg:w-72"
                     style={{ transform: "translateY(10px)" }}
                   >
                     <defs>
-                      <linearGradient id="greenCurve" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <linearGradient
+                        id="greenCurve"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="0%"
+                      >
                         <stop offset="0%" style={{ stopColor: "#4ade80" }} />
                         <stop offset="100%" style={{ stopColor: "#86efac" }} />
                       </linearGradient>
@@ -458,7 +456,10 @@ const Home = () => {
               transition={{ duration: 0.6, delay: 1 }}
             >
               Discover verified flats and houses for rent.
-              <span className="block sm:inline"> Trusted hosts. Secure stays. Better living.</span>
+              <span className="block sm:inline">
+                {" "}
+                Trusted hosts. Secure stays. Better living.
+              </span>
             </motion.p>
 
             <motion.div
@@ -469,28 +470,32 @@ const Home = () => {
             >
               <div ref={counter1.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter1.count}{counter1.suffix}
+                  {counter1.count}
+                  {counter1.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Properties</span>
               </div>
 
               <div ref={counter2.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter2.count}{counter2.suffix}
+                  {counter2.count}
+                  {counter2.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Happy Clients</span>
               </div>
 
               <div ref={counter3.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter3.count}{counter3.suffix}
+                  {counter3.count}
+                  {counter3.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Cities</span>
               </div>
 
               <div ref={counter4.ref} className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-white">
-                  {counter4.count}{counter4.suffix}
+                  {counter4.count}
+                  {counter4.suffix}
                 </span>
                 <span className="text-gray-400 text-sm">Rating</span>
               </div>
@@ -503,54 +508,79 @@ const Home = () => {
       <div className="relative z-20 -mt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <motion.div
-            className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-100"
+            className="bg-white rounded-2xl shadow-2xl  p-6 sm:p-8 border border-gray-100"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.4 }}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
               <div className="relative lg:col-span-1">
-                <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
+                <MapPin
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
+                />
                 <input
                   type="text"
                   placeholder="Search city or locality"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                 />
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Where</label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
+                  Where
+                </label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
+                <Calendar
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
+                />
                 <input
                   type="date"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                 />
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Move In</label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
+                  Move In
+                </label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
+                <Calendar
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
+                />
                 <input
                   type="date"
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                 />
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Move Out</label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
+                  Move Out
+                </label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <HomeIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
+                <HomeIcon
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
+                />
                 <select className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 appearance-none cursor-pointer">
                   {propertyTypeOptions}
                 </select>
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Property Type</label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
+                  Property Type
+                </label>
               </div>
 
               <div className="relative lg:col-span-1">
-                <IndianRupee size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600" />
+                <IndianRupee
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
+                />
                 <select className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 appearance-none cursor-pointer">
                   {budgetOptions}
                 </select>
-                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">Budget</label>
+                <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
+                  Budget
+                </label>
               </div>
 
               <button className="lg:col-span-1 w-full bg-primary-500 hover:bg-green-700 transition-all duration-300 rounded-xl text-white font-semibold py-3.5 flex justify-center items-center gap-2 shadow-lg shadow-green-600/30 hover:shadow-green-600/40 hover:-translate-y-0.5">
@@ -563,7 +593,7 @@ const Home = () => {
       </div>
 
       {/* Popular Cities Section */}
-      <section className="relative z-10 bg-gray-50 pt-24 pb-16 overflow-hidden">
+      <section className="relative z-10 -mt-18 bg-white rounded-t-[70px] pt-24 pb-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
@@ -588,12 +618,16 @@ const Home = () => {
                 transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
                 className="text-4xl font-bold text-heading mb-2"
               >
-                Explore <span className="text-primary-500">Homes</span> in Top Locations
+                Explore <span className="text-primary-500">Homes</span> in Top
+                Locations
               </motion.h2>
             </div>
             <button className="flex items-center gap-2 text-primary-500 font-semibold hover:text-green-700 transition-colors group whitespace-nowrap font-[Roboto]">
               View all cities
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight
+                size={18}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </button>
           </motion.div>
 
@@ -644,7 +678,8 @@ const Home = () => {
                 transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
                 className="text-4xl font-bold text-heading relative font-[PlayfairDisplay]"
               >
-                Discover Your Next <span className="text-primary-500">Home</span>
+                Discover Your Next{" "}
+                <span className="text-primary-500">Home</span>
                 <motion.span
                   className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-400 rounded-full shadow-lg shadow-primary-500/30"
                   initial={{ width: "0%" }}
@@ -661,7 +696,8 @@ const Home = () => {
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
               className="text-muted mt-4 max-w-2xl mx-auto"
             >
-              Browse our handpicked premium homes with verified listings and trusted owners.
+              Browse our handpicked premium homes with verified listings and
+              trusted owners.
             </motion.p>
           </motion.div>
 
@@ -669,7 +705,10 @@ const Home = () => {
             {propertyCards}
           </div>
           <div className="flex justify-center mt-10">
-            <button className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold text-lg hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center">
+            <button
+              onClick={() => navigate("/explore")}
+              className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold text-lg hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center"
+            >
               View All Properties
               <i className="fa-solid fa-arrow-right ml-2"></i>
             </button>
@@ -680,17 +719,52 @@ const Home = () => {
       {/* Why Choose Us */}
       <section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7]">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <span className="text-primary-400 font-semibold text-sm uppercase tracking-wider">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-primary-500 font-bold font-[Roboto] uppercase tracking-wider"
+            >
               Why Choose Us
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0a1e2f] mt-2 mb-4 tracking-tight">
-              We Make It <span className="text-primary-500">Easy</span> for You
-            </h2>
-            <p className="text-lg text-[#3f4e62] max-w-2xl mx-auto">
+            </motion.p>
+
+            <div className="relative inline-block mt-2">
+              <motion.h2
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+                className="text-4xl font-bold text-heading relative font-[PlayfairDisplay]"
+              >
+                We Make It <span className="text-primary-500">Easy</span> for
+                You
+                <motion.span
+                  className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-400 rounded-full shadow-lg shadow-primary-500/30"
+                  initial={{ width: "0%" }}
+                  whileInView={{ width: "100%" }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, ease: "easeInOut", delay: 0.4 }}
+                />
+              </motion.h2>
+            </div>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              className="text-muted mt-4 max-w-2xl mx-auto"
+            >
               Discover why thousands of users trust us for their property needs
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {featureCards}
@@ -728,13 +802,23 @@ const Home = () => {
                   Earn More by <br className="hidden sm:block" />
                   <span className="relative inline-block">
                     Hosting Your Property
-                    <svg className="absolute -bottom-1 left-0 w-full h-2 text-secondary-300/70" viewBox="0 0 200 8" fill="currentColor">
-                      <path d="M0 4 Q 25 0, 50 4 T 100 4 T 150 4 T 200 4" stroke="currentColor" strokeWidth="3" fill="none" />
+                    <svg
+                      className="absolute -bottom-1 left-0 w-full h-2 text-secondary-300/70"
+                      viewBox="0 0 200 8"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M0 4 Q 25 0, 50 4 T 100 4 T 150 4 T 200 4"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                      />
                     </svg>
                   </span>
                 </h2>
                 <p className="text-white/80 text-base sm:text-lg max-w-xl">
-                  List your property, connect with genuine tenants and earn more with zero hassle.
+                  List your property, connect with genuine tenants and earn more
+                  with zero hassle.
                 </p>
 
                 <div className="pt-2">
@@ -751,7 +835,9 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <HomeIcon className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">Easy Listing</span>
+                    <span className="text-white font-medium text-sm sm:text-base">
+                      Easy Listing
+                    </span>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
@@ -759,7 +845,9 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <UserCheck className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">Verified Tenants</span>
+                    <span className="text-white font-medium text-sm sm:text-base">
+                      Verified Tenants
+                    </span>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
@@ -767,7 +855,9 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <Shield className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">Secure Payments</span>
+                    <span className="text-white font-medium text-sm sm:text-base">
+                      Secure Payments
+                    </span>
                   </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/10 hover:bg-white/15 transition-all duration-300 hover:scale-105">
@@ -775,7 +865,9 @@ const Home = () => {
                     <div className="p-2 bg-primary-500/30 rounded-xl">
                       <CreditCard className="w-5 h-5 text-secondary-300" />
                     </div>
-                    <span className="text-white font-medium text-sm sm:text-base">Zero Brokerage</span>
+                    <span className="text-white font-medium text-sm sm:text-base">
+                      Zero Brokerage
+                    </span>
                   </div>
                 </div>
               </div>
