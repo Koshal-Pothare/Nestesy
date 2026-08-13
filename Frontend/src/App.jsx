@@ -1,10 +1,10 @@
-import { useState , useLayoutEffect} from 'react'
+import { useState, useLayoutEffect } from 'react'
 
 import './App.css'
 import Home from './pages/Home'
 import Footer from './components/Footer'
 import Navbar from './components/Navbar'
-import { BrowserRouter, Routes, Route ,useLocation , } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, } from 'react-router-dom';
 import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
 import About from './pages/AboutUs'
@@ -27,6 +27,10 @@ import AdminLogin from './auth/AdminLogin'
 // Host 
 import HostDashboard from './Host/HostDashboard'
 import HostLayout from './Host/HostLayout'
+
+import Faq from './pages/Help_center'
+import Help_center from './pages/Help_center'
+
 import AddProperty from './Host/AddProperty'
 
 
@@ -34,7 +38,7 @@ import AddProperty from './Host/AddProperty'
 //User
 import UserLayout from "./User/UserLayout";
 import UserDashboard from "./User/UserDashboard";
-import ActiveBooking from "./User/ActiveBooking";
+import UpcomingVisits from "./User/UpcomingVisits";
 import BookingHistory from "./User/BookingHistory";
 import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
@@ -42,13 +46,14 @@ import PrivacyPolicy from '../src/pages/PrivacyPolicy';
 import TermsConditions from '../src/pages/TermsCondition';
 
 
+
 function App() {
   const location = useLocation();
   const pathname = location.pathname;
 
   useLayoutEffect(() => {
-    window.scrollTo(0, 0, 
-     );
+    window.scrollTo(0, 0,
+    );
   }, [pathname]);
 
   const hideRoutes = [
@@ -58,16 +63,7 @@ function App() {
  
     "/host/add-property", 
     "/admin-register",
-
-
     "/admin-login", 
-
-    "/admin-login",
-
-    "/admin-login" ,
-     
-   
-
     "/user",
         "/forgot-password"
 
@@ -83,9 +79,18 @@ function App() {
   return (
 
     <>
-  
-      {!HideNavbarFooter &&<Navbar/> }
+
+      {!HideNavbarFooter && <Navbar />}
       <Routes>
+
+
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path='/admin-register' element={<AdminRegister />} />
+        <Route path='/admin-login' element={<AdminLogin />} />
+        <Route path="/help-center" element={<Help_center/>} />
+
         <Route path="/property/:id" element={<PropertyDetails />} />
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<About/>} />
@@ -97,20 +102,21 @@ function App() {
          <Route path="/terms-conditions" element={<TermsConditions />} />
    
 
+
    <Route path="/forgot-password" element={<ForgotPassword />} />
 
 
 
 
-             <Route path="/become-a-host" element={<BecomeHost/>} />  
-         <Route path="/explore" element={<Explore/>} />
+        <Route path="/become-a-host" element={<BecomeHost />} />
+        <Route path="/explore" element={<Explore />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/wishlist" element={<Whishlist/>} />
+        <Route path="/wishlist" element={<Whishlist />} />
 
-         {/* Admin Routes */}
+        {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} /> 
-         
+          <Route index element={<AdminDashboard />} />
+
         </Route>
 
         {/* // Host Routes */}
@@ -129,18 +135,18 @@ function App() {
         <Route path="/user" element={<UserLayout/>} >
          <Route index element={<UserDashboard />} />
           <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="active-booking" element={<ActiveBooking />} />
+          <Route path="upcoming-visits" element={<UpcomingVisits />} />
            <Route path="booking-history" element={<BookingHistory />} />
             <Route path="wishlist" element={<UserWishlist />} />
              <Route path="profile" element={<UserProfile />} />
              </Route>
       </Routes>
 
-       
+
 
       {!HideNavbarFooter && <Footer />}
 
-       <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={2000}
         theme="light"

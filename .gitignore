@@ -1,0 +1,9 @@
+@"
+node_modules/
+.env
+uploads/
+dist/
+coverage/
+*.log
+.DS_Store
+"@ | Set-Content .gitignoregit status

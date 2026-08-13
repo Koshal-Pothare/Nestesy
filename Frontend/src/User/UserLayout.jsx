@@ -1,5 +1,5 @@
-import React from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import React, { useEffect ,useState} from "react";
+import { NavLink, Outlet,useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   CalendarCheck,
@@ -7,10 +7,19 @@ import {
   Heart,
   User,
   LogOut,
+   ArrowLeft 
 } from "lucide-react";
 import WishlistSidebar from "../components/WishlistSidebar";
 
 const UserLayout = () => {
+const navigate = useNavigate();
+const[userData,setUserData] = useState([]);
+
+useEffect(()=>{
+const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
+setUserData(user);
+},[])
+
   const navLinks = [
     {
       name: "Dashboard",
@@ -18,8 +27,8 @@ const UserLayout = () => {
       icon: LayoutDashboard,
     },
     {
-      name: "Active Booking",
-      path: "/user/active-booking",
+      name: "Upcoming Visits",
+      path: "/user/upcoming-visits",
       icon: CalendarCheck,
     },
     {
@@ -38,6 +47,11 @@ const UserLayout = () => {
       icon: User,
     },
   ];
+
+  const handleLogout=()=>{
+    localStorage.removeItem("nestesyLoggedInUser");
+    navigate("/")
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,10 +96,19 @@ const UserLayout = () => {
 
         </nav>
 
-      
+
+      {/* back to website */}
+        <button 
+        onClick={()=>navigate("/")}
+        className="flex items-center gap-3 px-4 py-3 rounded-xl text-primarey-500 transition cursor-pointer">
+          <  ArrowLeft size={20} />
+          Back to website
+        </button>
 
         {/* Logout */}
-        <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition">
+        <button 
+        onClick={handleLogout}
+        className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition">
           <LogOut size={20} />
           Logout
         </button>
@@ -101,7 +124,7 @@ const UserLayout = () => {
 
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
-              Welcome Back 👋
+              Welcome Back <span className="text-primary-600 font-bold">{userData.name}</span>👋
             </h2>
 
             <p className="text-sm text-gray-500">
@@ -109,9 +132,7 @@ const UserLayout = () => {
             </p>
           </div>
 
-          <div className="w-11 h-11 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
-            KP
-          </div>
+        
 
         </header>
 

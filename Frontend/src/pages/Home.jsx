@@ -29,7 +29,7 @@ import {
 } from "../Data/Data";
 import { motion, useInView } from 'framer-motion';
 
-// TypingText component
+// Memoized TypingText component
 const TypingText = React.memo(({ text, className, delay = 0.2 }) => {
   const [displayText, setDisplayText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -82,51 +82,62 @@ const TypingText = React.memo(({ text, className, delay = 0.2 }) => {
   );
 });
 
-// Counter Hook
+// Optimized Counter Hook
 const useCounter = (targetValue, duration = 2000, startDelay = 0) => {
   const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef(null);
+  const isInView = useInView(elementRef, { once: true, amount: 0.3 });
+  const animationRef = useRef(null);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (isInView && !isVisible) {
+      setIsVisible(true);
+      const startTime = Date.now() + startDelay;
+      const target = parseFloat(targetValue.replace(/[^0-9.]/g, ''));
+      const suffix = targetValue.replace(/[0-9.]/g, '');
 
-    const numeric = parseFloat(targetValue.match(/[\d.]+/)?.[0] || 0);
-    const suffix = targetValue.replace(/[\d.]/g, "");
+      const animate = () => {
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
 
-    let start;
+        if (elapsed < 0) {
+          animationRef.current = requestAnimationFrame(animate);
+          return;
+        }
 
-    const animate = (timestamp) => {
-      if (!start) start = timestamp + startDelay;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const currentValue = eased * target;
 
-      const progress = Math.min((timestamp - start) / duration, 1);
+        if (progress < 1) {
+          setCount(currentValue);
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          setCount(target);
+        }
+      };
 
-      if (progress < 0) {
-        requestAnimationFrame(animate);
-        return;
-      }
+      animationRef.current = requestAnimationFrame(animate);
+    }
 
-      const value = numeric * progress;
-      setCount(value);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
       }
     };
+  }, [isInView, isVisible, targetValue, duration, startDelay]);
 
-    requestAnimationFrame(animate);
-  }, [isInView, targetValue, duration, startDelay]);
+  const displayValue = targetValue.includes('.')
+    ? count.toFixed(1)
+    : Math.round(count);
 
-  return {
-    count: targetValue.includes(".")
-      ? count.toFixed(1)
-      : Math.round(count),
-    suffix: targetValue.replace(/[\d.]/g, ""),
-    ref,
-  };
+  const suffix = targetValue.replace(/[0-9.]/g, '');
+
+  return { count: displayValue, suffix, ref: elementRef };
 };
 
-//  FeatureCard
+// Memoized FeatureCard
 const FeatureCard = React.memo(({ feature }) => {
   const Icon = feature.icon;
 
@@ -153,7 +164,6 @@ const Home = () => {
   const letters = text.split("");
   const words = "Spaces that feel like".split(" ");
 
-  // Counter values  
   const counter1 = useCounter("12K+", 2000, 900);
   const counter2 = useCounter("8K+", 2000, 1000);
   const counter3 = useCounter("150+", 2000, 700);
@@ -187,7 +197,7 @@ const Home = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [getCitiesPerRow]);
 
-  // city rows
+  // Memoize city rows
   const cityRows = useMemo(() => {
     if (!duplicatedCities.length) return [];
     const rows = [];
@@ -196,10 +206,13 @@ const Home = () => {
     }
     return rows;
   }, [duplicatedCities, citiesPerRow]);
- 
+
+  // Initialize duplicated cities (only 2x for smooth scrolling)
   useEffect(() => {
     setDuplicatedCities([...cities, ...cities]);
-  }, []); 
+  }, []);
+
+  // Optimized infinite scroll with ref for position
   useEffect(() => {
     if (isPaused || duplicatedCities.length === 0) return;
 
@@ -256,7 +269,7 @@ const Home = () => {
     },
   ], []);
 
-  // property types and budgets options
+  // Memoize property types and budgets options
   const propertyTypeOptions = useMemo(() => 
     propertyTypes.map((type) => (
       <option key={type.value} value={type.value}>
@@ -272,7 +285,8 @@ const Home = () => {
       </option>
     )), []
   );
- 
+
+  // Memoize city cards to prevent unnecessary re-renders
   const cityCards = useMemo(() => 
     cityRows.map((row, rowIndex) => (
       <div
@@ -312,14 +326,14 @@ const Home = () => {
     )), [cityRows]
   );
 
-  // feature cards
+  // Memoize feature cards
   const featureCards = useMemo(() => 
     features.map((feature) => (
       <FeatureCard key={feature.id} feature={feature} />
     )), [features]
   );
 
-  // property cards
+  // Memoize property cards
   const propertyCards = useMemo(() => 
     Properties.slice(0, 6).map((property, index) => (
       <PropertyCard key={property.id} property={property} index={index} />
@@ -400,7 +414,7 @@ const Home = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 0 0 001 1h3m10-11l2 2m-2-2v10a1 0 0 01-1 1h-3m-6 0a1 0 0 001-1v-4a1 0 0 011-1h2a1 0 0 011 1v4a1 0 0 001 1m-6 0h6"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                   />
                 </svg>
                 <div ref={curveRef} className="absolute -bottom-5 right-4 w-full">
@@ -447,7 +461,6 @@ const Home = () => {
               <span className="block sm:inline"> Trusted hosts. Secure stays. Better living.</span>
             </motion.p>
 
-            {/* FIXED: Stats display with proper counter values */}
             <motion.div
               className="mt-8 flex flex-wrap gap-6 sm:gap-10"
               initial={{ opacity: 0, y: 20 }}
@@ -487,7 +500,7 @@ const Home = () => {
       </section>
 
       {/* Search Form Card */}
-      <div className="relative z-10 -mt-24 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-20 -mt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <motion.div
             className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-100"
@@ -667,51 +680,17 @@ const Home = () => {
       {/* Why Choose Us */}
       <section className="py-20 px-6 bg-gradient-to-br from-[#f8faff] to-[#eef2f7]">
         <div className="max-w-7xl mx-auto">
-               <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <motion.p
-              initial={{ opacity: 0, y: -20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-primary-500 font-bold font-[Roboto] uppercase tracking-wider"
-            >
+          <div className="text-center mb-14">
+            <span className="text-primary-400 font-semibold text-sm uppercase tracking-wider">
               Why Choose Us
-            </motion.p>
-
-            <div className="relative inline-block mt-2">
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-                className="text-4xl font-bold text-heading relative font-[PlayfairDisplay]"
-              >
-               We Make It <span className="text-primary-500">Easy</span> for You
-                <motion.span
-                  className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-primary-500 to-secondary-400 rounded-full shadow-lg shadow-primary-500/30"
-                  initial={{ width: "0%" }}
-                  whileInView={{ width: "100%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, ease: "easeInOut", delay: 0.4 }}
-                />
-              </motion.h2>
-            </div>
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-              className="text-muted mt-4 max-w-2xl mx-auto"
-            >
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0a1e2f] mt-2 mb-4 tracking-tight">
+              We Make It <span className="text-primary-500">Easy</span> for You
+            </h2>
+            <p className="text-lg text-[#3f4e62] max-w-2xl mx-auto">
               Discover why thousands of users trust us for their property needs
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {featureCards}
