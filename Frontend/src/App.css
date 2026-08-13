@@ -1,0 +1,3 @@
+.thin-scrollbar::-webkit-scrollbar {
+  height: 8px; /* Scrollbar ki height patli karne ke liye */
+}

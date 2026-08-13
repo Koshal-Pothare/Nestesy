@@ -120,17 +120,18 @@ export default function Help_center() {
 
       <div className="min-h-screen bg-[#fbfaf6] font-sans ">
 
-        <section className="relative">
+        <section className="relative w-full">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7 }}
-            className="relative h-[420px] md:h-[480px] overflow-hidden bg-cover bg-top"
-            style={{ backgroundImage: "url('/help_center.jpeg')" }}
+            className=" inset-0 h-[500px] md:h-[600px]  w-full overflow-hidden bg-cover bg-center bg-no-repeat
+            "
+            style={{ backgroundImage: "url('/help_center.png')" }}
           >
 
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 from-10% via-emerald-950/60 via-40% to-transparent to-75%" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/20 to-black/50" />
 
             <div className="relative max-w-6xl mx-auto px-6 h-full flex flex-col justify-center">
               <div className="max-w-xl">
@@ -246,7 +247,7 @@ export default function Help_center() {
           {CATEGORIES.map((c) => (
             <motion.button initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
               key={c.id}
               onClick={() => setActiveCat(c.id)}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold border transition-colors ${activeCat === c.id
@@ -268,7 +269,7 @@ export default function Help_center() {
                   animate={{ opacity: 1, y: 0 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.6, delay: 0.8 }}
+                  transition={{ duration: 0.6,  }}
                   className="flex items-center gap-3 font-serif font-bold text-2xl text-emerald-900 mb-5">
                   <span className="w-2 h-2 rounded-full bg-amber-600" />
                   {group.title}
