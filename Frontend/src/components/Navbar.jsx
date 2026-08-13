@@ -47,7 +47,7 @@ const menuItems = [
   { name: 'About', link: '/about' },
   { name: 'Explore', link: '/explore' },
   {name:'Become Host' , link:"/become-a-host"},
-
+   {name:"Reviews" , link:"/reviews"},
   { name: 'Contact', link: '/contact' },
 ];
 
