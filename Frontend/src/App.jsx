@@ -119,7 +119,7 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
-          <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
+          <route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
         </Route>
 
         {/* // Host Routes */}
