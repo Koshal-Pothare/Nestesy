@@ -1134,3 +1134,179 @@ export const budgets = [
   { value: "2l+", label: "₹2L+" }, 
 ]
   
+
+
+// ==========================================================
+// Nestesy — Terms & Conditions Page Data
+// ==========================================================
+
+export const termsData = {
+  // ---------- Hero Section ----------
+  hero: {
+    badge: "OUR POLICIES",
+    title: "Terms & Conditions",
+    description:
+      "Please read these terms carefully before using Nestesy.",
+    subDescription:
+      "By accessing our platform, you agree to be bound by these terms.",
+  },
+
+  // ---------- Table of Contents ----------
+  contents: [
+    {
+      id: 1,
+      title: "Acceptance of Terms",
+    },
+    {
+      id: 2,
+      title: "About Nestesy",
+    },
+    {
+      id: 3,
+      title: "User Accounts",
+    },
+    {
+      id: 4,
+      title: "Property Listings",
+    },
+    {
+      id: 5,
+      title: "Bookings & Payments",
+    },
+    {
+      id: 6,
+      title: "User Responsibilities",
+    },
+    {
+      id: 7,
+      title: "Prohibited Activities",
+    },
+    {
+      id: 8,
+      title: "Limitation of Liability",
+    },
+    {
+      id: 9,
+      title: "Indemnification",
+    },
+    {
+      id: 10,
+      title: "Changes to Terms",
+    },
+    {
+      id: 11,
+      title: "Governing Law",
+    },
+    {
+      id: 12,
+      title: "Contact Us",
+    },
+  ],
+
+  // ---------- Terms Sections ----------
+  sections: [
+    {
+      id: 1,
+      title: "Acceptance of Terms",
+      icon: "FileText",
+      content:
+        "By accessing or using Nestesy's website or mobile application, you agree to comply with and be bound by these Terms & Conditions, along with our Privacy Policy.",
+    },
+
+    {
+      id: 2,
+      title: "About Nestesy",
+      icon: "House",
+      content:
+        "Nestesy is an online platform that connects property owners with potential tenants. We provide a space to list, discover, and book rental properties.",
+    },
+
+    {
+      id: 3,
+      title: "User Accounts",
+      icon: "User",
+      content:
+        "To access certain features, you must create an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.",
+    },
+
+    {
+      id: 4,
+      title: "Property Listings",
+      icon: "Building2",
+      content:
+        "Property owners are solely responsible for the accuracy of the information provided in their listings. Nestesy is not liable for any misleading or incorrect information.",
+    },
+
+    {
+      id: 5,
+      title: "Bookings & Payments",
+      icon: "CalendarDays",
+      content:
+        "All bookings are subject to availability and confirmation. Payments must be completed through our secure platform. Refunds are subject to our Refund Policy.",
+    },
+
+    {
+      id: 6,
+      title: "User Responsibilities",
+      icon: "ShieldCheck",
+      content:
+        "Users are expected to provide accurate information, respect property rules, and use the Nestesy platform responsibly and lawfully.",
+    },
+
+    {
+      id: 7,
+      title: "Prohibited Activities",
+      icon: "Ban",
+      content:
+        "Users must not misuse the platform, provide false information, engage in fraudulent activities, or use Nestesy for any unlawful purpose.",
+    },
+
+    {
+      id: 8,
+      title: "Limitation of Liability",
+      icon: "AlertTriangle",
+      content:
+        "Nestesy provides the platform on an as-is basis and is not responsible for losses arising from inaccurate listings, user conduct, or circumstances beyond our reasonable control.",
+    },
+
+    {
+      id: 9,
+      title: "Indemnification",
+      icon: "Scale",
+      content:
+        "Users agree to indemnify and hold Nestesy harmless from claims, damages, losses, or expenses resulting from their misuse of the platform or violation of these Terms.",
+    },
+
+    {
+      id: 10,
+      title: "Changes to Terms",
+      icon: "RefreshCw",
+      content:
+        "Nestesy may update these Terms & Conditions from time to time. Any changes will be posted on this page, and continued use of the platform means acceptance of the updated terms.",
+    },
+
+    {
+      id: 11,
+      title: "Governing Law",
+      icon: "Gavel",
+      content:
+        "These Terms & Conditions shall be governed by and interpreted in accordance with the applicable laws and regulations.",
+    },
+
+    {
+      id: 12,
+      title: "Contact Us",
+      icon: "Mail",
+      content:
+        "If you have any questions regarding these Terms & Conditions, please contact the Nestesy support team.",
+    },
+  ],
+
+  // ---------- Important Note ----------
+  importantNote: {
+    title: "Important Note",
+    text: "These terms may be updated from time to time.",
+    subText: "Please review this page regularly for any changes.",
+    buttonText: "Back to Home",
+  },
+};

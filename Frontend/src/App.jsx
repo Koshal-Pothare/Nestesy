@@ -38,7 +38,8 @@ import ActiveBooking from "./User/ActiveBooking";
 import BookingHistory from "./User/BookingHistory";
 import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
-import PrivacyPolicy from '../src/pages/PrivacyPolicy'
+import PrivacyPolicy from '../src/pages/PrivacyPolicy';
+import TermsConditions from '../src/pages/TermsCondition';
 
 
 function App() {
@@ -93,6 +94,7 @@ function App() {
          <Route path='/admin-login' element={<AdminLogin />} />
 
          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+         <Route path="/terms-conditions" element={<TermsConditions />} />
    
 
    <Route path="/forgot-password" element={<ForgotPassword />} />
