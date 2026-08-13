@@ -189,7 +189,6 @@ const TermsSections = ({
               }`}
             >
 
-              {/* Header */}
               <button
                 onClick={() =>
                   toggleSection(section.id)
@@ -208,7 +207,6 @@ const TermsSections = ({
                 </div>
 
 
-                {/* Text */}
                 <div className="min-w-0 flex-1">
 
                   <h3 className="text-base font-semibold text-[#15462f] sm:text-lg">
@@ -232,7 +230,6 @@ const TermsSections = ({
                 </div>
 
 
-                {/* Arrow */}
                 <ChevronDown
                   size={22}
                   className={`shrink-0 text-[#174b30] transition-transform duration-300 ${
@@ -245,7 +242,6 @@ const TermsSections = ({
               </button>
 
 
-              {/* Full Content */}
               {isOpen && (
 
                 <div className="border-t border-gray-100 px-5 pb-6 sm:px-6">
@@ -281,10 +277,8 @@ const ImportantNote = () => {
   return (
     <div className="mt-6 flex flex-col gap-5 rounded-xl bg-[#f2faef] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
-      {/* Left Side */}
       <div className="flex items-center gap-4">
 
-        {/* Icon */}
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#e4f5df] text-[#174b30]">
 
           <ShieldCheck
@@ -295,7 +289,6 @@ const ImportantNote = () => {
         </div>
 
 
-        {/* Text */}
         <div>
 
           <h3 className="text-base font-semibold text-[#17452e]">
@@ -319,7 +312,6 @@ const ImportantNote = () => {
       </div>
 
 
-      {/* Button */}
       <button
         onClick={() => {
           window.location.href = "/";
@@ -385,7 +377,6 @@ const TermsContent = () => {
 
         <div className="grid grid-cols-1 gap-7 lg:grid-cols-[255px_1fr]">
 
-          {/* Sidebar */}
 
           <TermsSidebar
             openSection={openSection}
@@ -393,7 +384,6 @@ const TermsContent = () => {
           />
 
 
-          {/* Right Side */}
 
           <div>
 
