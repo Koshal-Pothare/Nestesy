@@ -70,6 +70,11 @@ const menuItems = [
           <div>
             <h1 className="text-2xl font-semibold">Support</h1>
             <ul className="mt-2 space-y-2">
+
+                <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Help Center</Link></li>
+<Link to="/terms-conditions" className="text-gray-400 hover:text-emerald-500 transition duration-300">Terms & Conditions</Link><li>
+  <Link to="/privacy-policy" className="text-gray-400 hover:text-emerald-500 transition duration-300">
+
                 <li><Link to='/help-center' className="text-gray-400 hover:text-emerald-500  transition duration-300" >FAQ</Link></li>
                  <li><Link  className="text-gray-400 hover:text-emerald-500  transition duration-300">Terms & Condition</Link></li>
 
@@ -81,6 +86,7 @@ const menuItems = [
     to="/privacy-policy"
     className="text-gray-400 hover:text-emerald-500 transition duration-300"
   >
+
     Privacy Policy
   </Link>
 </li>                

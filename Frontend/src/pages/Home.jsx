@@ -4,6 +4,7 @@ import Hero from "../assets/Home/Hero.png";
 import CardLogo from "../assets/Home/CardLogo.png";
 import CTA from "../assets/Home/CTA.png";
 import PropertyCard from "../Ui/PropertyCard";
+
 import {
   Search,
   MapPin,
@@ -782,6 +783,8 @@ const navigate = useNavigate();
         </div>
       </section>
 
+
+ {/* <Review/> */}
       {/* CTA Section */}
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="relative overflow-hidden rounded-3xl shadow-2xl">

@@ -31,7 +31,7 @@ const HeroSection = () => {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#f8f9f5]/100 via-[#f8f9f5]/90 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#f8f9f5]/80 via-[#f8f9f5]/45 to-transparent" />
 
       {/* Hero Content */}
       <div className="relative z-10 mx-auto flex min-h-[500px] max-w-7xl items-center px-5 py-20 sm:px-8 lg:px-10">
@@ -51,7 +51,6 @@ const HeroSection = () => {
             className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#e9efe2] px-4 py-2 text-sm font-medium text-[#245b31]"
           >
             <ShieldCheck size={15} />
-
             {privacyPolicyHeroData.badge}
           </motion.div>
 
@@ -60,7 +59,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-5xl font-semibold tracking-tight text-[#10251b] sm:text-6xl"
+            className="font-sans text-5xl font-normal tracking-tight text-[#10251b] sm:text-6xl"
           >
             {privacyPolicyHeroData.title}
           </motion.h1>
@@ -70,7 +69,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-6 max-w-lg text-base leading-7 text-gray-700 sm:text-lg"
+            className="mt-6 max-w-lg font-sans text-base leading-7 text-gray-700 sm:text-lg"
           >
             {privacyPolicyHeroData.description}
           </motion.p>
@@ -80,10 +79,9 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-7 flex items-center gap-2 text-sm font-medium text-[#10251b]"
+            className="mt-7 flex items-center gap-2 font-sans text-sm font-medium text-[#10251b]"
           >
             <CalendarDays size={18} />
-
             {privacyPolicyHeroData.lastUpdated}
           </motion.div>
 
