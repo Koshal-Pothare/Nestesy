@@ -18,10 +18,11 @@ import {
 } from "lucide-react";
 
 import { termsData } from "../data/data";
+import termsHero from "../assets/terms-hero.png";
 
 
 // ==========================================================
-// ICONS
+// ICON MAPPING
 // ==========================================================
 
 const iconMap = {
@@ -47,18 +48,16 @@ const iconMap = {
 const TermsHero = () => {
   return (
     <section
-      className="relative h-[280px] overflow-hidden bg-cover bg-center sm:h-[320px] md:h-[350px]"
+      className="relative h-[340px] overflow-hidden bg-cover bg-center sm:h-[400px] md:h-[450px]"
       style={{
-        backgroundImage: "url('/terms-hero.jpg')",
+        backgroundImage: `url(${termsHero})`,
       }}
     >
-
-      {/* Overlay */}
+      {/* Dark Overlay */}
       <div className="absolute inset-0 bg-[#071b11]/75" />
 
-      {/* Content */}
+      {/* Hero Content */}
       <div className="relative z-10 flex h-full items-center justify-center px-5 text-center">
-
         <div className="max-w-4xl">
 
           {/* Badge */}
@@ -74,12 +73,10 @@ const TermsHero = () => {
 
           </div>
 
-
           {/* Title */}
           <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
             {termsData.hero.title}
           </h1>
-
 
           {/* Description */}
           <p className="mt-5 text-sm leading-6 text-white/90 sm:text-base">
@@ -91,23 +88,20 @@ const TermsHero = () => {
           </p>
 
         </div>
-
       </div>
-
     </section>
   );
 };
 
 
 // ==========================================================
-// SIDEBAR
+// SIDEBAR / TABLE OF CONTENTS
 // ==========================================================
 
 const TermsSidebar = ({
   openSection,
   scrollToSection,
 }) => {
-
   return (
     <aside className="h-fit rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:sticky lg:top-24">
 
@@ -116,12 +110,10 @@ const TermsSidebar = ({
         In This Page
       </h2>
 
-
       {/* Menu */}
       <div className="space-y-1">
 
         {termsData.contents.map((item) => (
-
           <button
             key={item.id}
             onClick={() => scrollToSection(item.id)}
@@ -137,18 +129,15 @@ const TermsSidebar = ({
               {String(item.id).padStart(2, "0")}
             </span>
 
-
             {/* Title */}
             <span className="text-[13px] font-medium text-[#17452e]">
               {item.title}
             </span>
 
           </button>
-
         ))}
 
       </div>
-
     </aside>
   );
 };
@@ -162,9 +151,8 @@ const TermsSections = ({
   openSection,
   toggleSection,
 }) => {
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
 
       {termsData.sections.map((section) => {
 
@@ -174,7 +162,6 @@ const TermsSections = ({
           openSection === section.id;
 
         return (
-
           <div
             key={section.id}
             id={`term-${section.id}`}
@@ -189,81 +176,60 @@ const TermsSections = ({
               }`}
             >
 
-              {/* Header */}
+              {/* Section Header */}
               <button
-                onClick={() =>
-                  toggleSection(section.id)
-                }
+                type="button"
+                onClick={() => toggleSection(section.id)}
                 className="flex w-full items-center gap-5 px-5 py-5 text-left sm:px-6"
               >
 
                 {/* Icon */}
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#eaf7e7] text-[#174b30]">
-
                   <Icon
                     size={26}
                     strokeWidth={1.8}
                   />
-
                 </div>
-
 
                 {/* Text */}
                 <div className="min-w-0 flex-1">
 
                   <h3 className="text-base font-semibold text-[#15462f] sm:text-lg">
-
                     {section.id}. {section.title}
-
                   </h3>
-
 
                   {/* Preview */}
                   {!isOpen && (
-
                     <p className="mt-2 line-clamp-2 text-sm leading-5 text-gray-700">
-
                       {section.content}
-
                     </p>
-
                   )}
 
                 </div>
-
 
                 {/* Arrow */}
                 <ChevronDown
                   size={22}
                   className={`shrink-0 text-[#174b30] transition-transform duration-300 ${
-                    isOpen
-                      ? "rotate-180"
-                      : ""
+                    isOpen ? "rotate-180" : ""
                   }`}
                 />
 
               </button>
 
-
-              {/* Full Content */}
+              {/* Expanded Content */}
               {isOpen && (
-
                 <div className="border-t border-gray-100 px-5 pb-6 sm:px-6">
 
                   <p className="pt-4 text-sm leading-7 text-gray-600">
-
                     {section.content}
-
                   </p>
 
                 </div>
-
               )}
 
             </div>
-
           </div>
-
         );
       })}
 
@@ -277,7 +243,6 @@ const TermsSections = ({
 // ==========================================================
 
 const ImportantNote = () => {
-
   return (
     <div className="mt-6 flex flex-col gap-5 rounded-xl bg-[#f2faef] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
@@ -286,41 +251,33 @@ const ImportantNote = () => {
 
         {/* Icon */}
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#e4f5df] text-[#174b30]">
-
           <ShieldCheck
             size={27}
             strokeWidth={1.8}
           />
-
         </div>
-
 
         {/* Text */}
         <div>
 
           <h3 className="text-base font-semibold text-[#17452e]">
-
             {termsData.importantNote.title}
-
           </h3>
 
           <p className="mt-1 text-sm text-gray-700">
-
             {termsData.importantNote.text}
 
             <br />
 
             {termsData.importantNote.subText}
-
           </p>
 
         </div>
-
       </div>
-
 
       {/* Button */}
       <button
+        type="button"
         onClick={() => {
           window.location.href = "/";
         }}
@@ -339,25 +296,23 @@ const ImportantNote = () => {
 
 
 // ==========================================================
-// MAIN TERMS CONTENT
+// MAIN CONTENT
 // ==========================================================
 
 const TermsContent = () => {
 
   const [openSection, setOpenSection] = useState(null);
 
-
+  // Open / Close Section
   const toggleSection = (id) => {
-
     setOpenSection(
       openSection === id
         ? null
         : id
     );
-
   };
 
-
+  // Scroll to Section
   const scrollToSection = (id) => {
 
     const element = document.getElementById(
@@ -372,11 +327,8 @@ const TermsContent = () => {
       });
 
       setOpenSection(id);
-
     }
-
   };
-
 
   return (
     <section className="bg-white px-5 py-10 sm:px-8 lg:px-12">
@@ -385,15 +337,14 @@ const TermsContent = () => {
 
         <div className="grid grid-cols-1 gap-7 lg:grid-cols-[255px_1fr]">
 
-          {/* Sidebar */}
+          {/* LEFT SIDEBAR */}
 
           <TermsSidebar
             openSection={openSection}
             scrollToSection={scrollToSection}
           />
 
-
-          {/* Right Side */}
+          {/* RIGHT CONTENT */}
 
           <div>
 
@@ -416,16 +367,17 @@ const TermsContent = () => {
 
 
 // ==========================================================
-// MAIN PAGE
+// MAIN TERMS & CONDITIONS PAGE
 // ==========================================================
 
 const TermsConditions = () => {
-
   return (
     <main className="min-h-screen bg-white">
 
+      {/* Hero */}
       <TermsHero />
 
+      {/* Terms Content */}
       <TermsContent />
 
     </main>
