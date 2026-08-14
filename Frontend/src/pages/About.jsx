@@ -39,9 +39,8 @@ import {
 import sofaImage from "../assets/About/mission-vision.png";
 import cityImage from "../assets/About/mission-city.png";
 
-import heroBg from "../assets/About/about-hero-bg.png";
+import heroBg from "../assets/About/about-hero-bg.jpeg";
 import ctaHomeImg from "../assets/About/cta-home.png";
-import {useNavigate} from 'react-router-dom'
 
 
 const heroIcons = {
@@ -82,8 +81,6 @@ const fadeUp = {
 // Hero Section
 
 const Hero = () => {
-
-  const navigate = useNavigate();
   return (
     <div
       className="relative flex min-h-[90vh] items-center bg-cover bg-center"
@@ -101,7 +98,7 @@ const Hero = () => {
           >
             Find Your
             <br />
-            <span className="text-green-700">Perfect Home</span>
+            <span className="text-primary-300">Perfect Home</span>
           </motion.h1>
 
           <motion.p
@@ -148,7 +145,6 @@ const Hero = () => {
             <motion.button
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.96 }}
-              onClick={()=>navigate("/explore")}
               className="flex w-full items-center justify-center gap-3 rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-primary-600 hover:shadow-lg sm:w-auto sm:px-8 sm:py-4 sm:text-base"
             >
               <FaSearch />
@@ -158,7 +154,6 @@ const Hero = () => {
             <motion.button
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.96 }}
-               onClick={()=>navigate("/become-a-host")}
               className="flex w-full items-center justify-center gap-3 rounded-xl border border-white px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-white hover:text-primary-600 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
             >
               <FaHome />
@@ -330,38 +325,89 @@ const Services = () => {
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeUp}
-            whileHover={{ y: -8, scale: 1.03 }}
-            className={`rounded-2xl border p-7 text-center shadow-sm transition-all duration-300 ${
-              index % 2 === 1
-                ? "border-primary-600 bg-primary-600 hover:border-primary-700 hover:shadow-[0_8px_25px_rgba(31,91,59,0.25)]"
-                : "border-primary-100 bg-card hover:border-primary-200 hover:shadow-[0_8px_25px_rgba(31,91,59,0.15)]"
-            }`}
+            whileHover={{
+              y: -10,
+              scale: 1.03,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 18,
+            }}
+            className="
+              group
+              rounded-2xl
+              border border-primary-100
+              bg-white
+              p-7
+              text-center
+              shadow-[0_8px_25px_rgba(31,91,59,0.10)]
+              transition-all
+              duration-300
+              hover:border-primary-500
+              hover:bg-primary-600
+              hover:shadow-[0_18px_40px_rgba(31,91,59,0.28)]
+            "
           >
             {/* Icon */}
             <motion.div
-              whileHover={{ rotate: -8, scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full text-2xl ${
-                index % 2 === 1
-                  ? "bg-white text-primary-600 shadow-sm"
-                  : "bg-primary-100 text-primary-600"
-              }`}
+              whileHover={{
+                rotate: -8,
+                scale: 1.12,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 12,
+              }}
+              className="
+                mx-auto
+                flex
+                h-20
+                w-20
+                items-center
+                justify-center
+                rounded-full
+                bg-primary-100
+                text-2xl
+                text-primary-600
+                shadow-sm
+                transition-all
+                duration-300
+                group-hover:bg-white
+                group-hover:text-primary-600
+                group-hover:shadow-md
+              "
             >
               {serviceIcons[item.icon]}
             </motion.div>
 
             <h3
-              className={`mt-7 text-lg font-semibold ${
-                index % 2 === 1 ? "text-white" : "text-heading"
-              }`}
+              className="
+                mt-7
+                text-lg
+                font-semibold
+                text-heading
+                transition-colors
+                duration-300
+                group-hover:text-white
+              "
             >
               {item.title}
             </h3>
 
+            {/* Description */}
             <p
-              className={`mt-3 text-sm leading-7 ${
-                index % 2 === 1 ? "text-primary-50" : "text-muted"
-              }`}>
+              className="
+                mt-3
+                text-sm
+                leading-7
+                text-muted
+                transition-colors
+                duration-300
+                group-hover:text-primary-50
+              "
+            >
               {item.description}
             </p>
           </motion.div>
@@ -415,7 +461,7 @@ const Stats = () => {
   return (
     <section className="bg-[#faf9f5] px-5 py-10 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
-        
+        <div className="rounded-2xl bg-primary-600 px-6 py-8 shadow-sm sm:px-10 lg:px-14">
         <div className="rounded-2xl bg-primary-600 px-6 py-11 shadow-sm sm:px-10 lg:px-14">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {statsData.map((stat, index) => (
@@ -445,7 +491,7 @@ const Stats = () => {
           </div>
         </div>
       </div>
-     
+      </div>
     </section>
   );
 };
@@ -724,8 +770,6 @@ const Testimonials = () => {
 // Call To Action Section
 
 const CTA = () => {
-
-  const navigate = useNavigate();
   return (
     <section className="mt-20 mb-20 px-4 md:px-8 lg:px-12">
       <motion.div
@@ -760,7 +804,6 @@ const CTA = () => {
                   key={index}
                   whileHover={{ scale: 1.05, y: -3 }}
                   whileTap={{ scale: 0.96 }}
-                   onClick={()=>navigate(btn.link)}
                   className={
                     btn.type === "primary"
                       ? "rounded-xl bg-white px-7 py-3.5 font-semibold text-primary-600 shadow-md transition hover:shadow-xl"
