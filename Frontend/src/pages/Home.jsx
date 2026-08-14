@@ -207,7 +207,7 @@ const navigate = useNavigate();
   useEffect(() => {
     if (isPaused || duplicatedCities.length === 0) return;
 
-    const scrollSpeed = 25.5;
+    const scrollSpeed = 18.5;
     let animationId;
 
     const animateScroll = () => {
