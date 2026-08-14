@@ -6,6 +6,7 @@ import {motion} from 'framer-motion'
 import Swal from 'sweetalert2';
 import { toast } from "react-toastify";
 import {useNavigate} from "react-router-dom"
+import WhiteLogo from '../assets/WhiteLogo.png'
 
 const Login = () => {
 
@@ -158,11 +159,8 @@ if((matchEmail || matchUserName) && matchPassword){
 
           {/* Content */}
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-20">
-              <IoHomeOutline size={38} className="text-green-400" />
-              <h1 className="text-4xl font-serif text-white tracking-widest">
-                NESTESY
-              </h1>
+            <div className="flex items-center justify-center w-35 h-20  mb-20">
+             <img src={WhiteLogo} className="bg-cover bg-center w-full" />
             </div>
 
             <h1 className="text-5xl font-serif text-white leading-tight">

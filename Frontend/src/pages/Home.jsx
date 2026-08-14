@@ -162,11 +162,10 @@ const navigate = useNavigate();
   const counter2 = useCounter("8K+", 2000, 1000);
   const counter3 = useCounter("150+", 2000, 700);
   const counter4 = useCounter("4.9★", 2000, 800);
-
-  // State for continuous scrolling
-  const [scrollPosition, setScrollPosition] = useState(0);
+ 
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef(null);
+  const trackRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const [duplicatedCities, setDuplicatedCities] = useState([]);
 
@@ -204,10 +203,11 @@ const navigate = useNavigate();
   useEffect(() => {
     setDuplicatedCities([...cities, ...cities]);
   }, []); 
+ 
   useEffect(() => {
     if (isPaused || duplicatedCities.length === 0) return;
 
-    const scrollSpeed = 25.5;
+    const scrollSpeed = 18.5;
     let animationId;
 
     const animateScroll = () => {
@@ -220,7 +220,10 @@ const navigate = useNavigate();
         }
       }
 
-      setScrollPosition(scrollPositionRef.current);
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translateX(-${scrollPositionRef.current}px)`;
+      }
+
       animationId = requestAnimationFrame(animateScroll);
     };
 
@@ -639,8 +642,8 @@ const navigate = useNavigate();
             onMouseLeave={() => setIsPaused(false)}
           >
             <div
+              ref={trackRef}
               className="flex transition-none"
-              style={{ transform: `translateX(-${scrollPosition}px)` }}
             >
               {cityCards}
             </div>

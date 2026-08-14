@@ -259,21 +259,20 @@ const Explore = () => {
                         </motion.p>
 
                         {/* Stats */}
-                        <motion.div variants={item} className="mt-10 max-w-2xl hidden md:flex">
+                        <motion.div variants={item} className="mt-10 max-w-2xl hidden md:flex ">
                             <div className="flex rounded-xl  ">
                                 {stats.map(({ icon: Icon, value, label }, i) => (
                                     <div
                                         key={label}
-                                        className={`flex-1 flex items-center gap-3 px-5 py-4 ${i !== stats.length - 1 ? "" : ""
-                                            }`}
+                                        className={`flex-1 flex items-center    py-3  `}
                                     >
-                                        <div className=" p-3 rounded-full bg-white/20 backdrop-blur-2xl  flex items-center justify-center">
+                                        <div className=" p-3 rounded-full   flex items-center justify-center">
                                             <Icon className="text-white" size={30} />
                                         </div>
 
                                         <div>
 
-                                            <p className="text-lg font-semibold text-white mt-1 leading-tight">
+                                            <p className="text-sm font-semibold text-gray-200 mt-1 leading-5">
                                                 {label}
                                             </p>
                                         </div>
@@ -334,6 +333,7 @@ const Explore = () => {
                                         <option value="Apartment">Apartment</option>
                                         <option value="Flat">Flat</option>
                                         <option value="PG">PG</option>
+                                         <option value="Single Room">Single Room</option>
                                         <option value="Independent House">Independent House</option>
                                     </select>
                                 </div>

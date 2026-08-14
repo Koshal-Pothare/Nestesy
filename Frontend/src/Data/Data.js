@@ -207,7 +207,7 @@ export const ctaData = {
     },
     {
       text: "Become a Host",
-      link: "/host",
+      link: "/become-a-host",
       type: "secondary",
     },
   ],
