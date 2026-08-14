@@ -361,7 +361,7 @@ export default function TestimonialsPage() {
                         <h2 className="font-serif font-extrabold text-3xl md:text-4xl text-stone-900 leading-tight mb-4">
                             Loved your stay?
                             <br />
-                            <span className="text-emerald-700">Share your story.</span>
+                            <span className="text-emerald-700">Share your review.</span>
                         </h2>
                         <p className="text-stone-500 leading-relaxed mb-8 max-w-md">
                             Your feedback helps other travelers choose with confidence, and
