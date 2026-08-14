@@ -164,9 +164,15 @@ const navigate = useNavigate();
   const counter4 = useCounter("4.9★", 2000, 800);
 
   // State for continuous scrolling
-  const [scrollPosition, setScrollPosition] = useState(0);
+  // NOTE: scrollPosition is intentionally NOT React state anymore.
+  // Driving it via setState on every animation frame (60x/sec) forced
+  // React to re-render the whole Home tree every frame, which is what
+  // produced the repeated "[Violation] 'message' handler took Nms"
+  // warnings and froze click/navigation handling. We now write the
+  // transform straight to the DOM via trackRef, bypassing React entirely.
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef(null);
+  const trackRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const [duplicatedCities, setDuplicatedCities] = useState([]);
 
@@ -204,6 +210,9 @@ const navigate = useNavigate();
   useEffect(() => {
     setDuplicatedCities([...cities, ...cities]);
   }, []); 
+
+  // Continuous scroll animation — writes directly to the DOM node via
+  // trackRef instead of calling setState every frame.
   useEffect(() => {
     if (isPaused || duplicatedCities.length === 0) return;
 
@@ -220,7 +229,10 @@ const navigate = useNavigate();
         }
       }
 
-      setScrollPosition(scrollPositionRef.current);
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translateX(-${scrollPositionRef.current}px)`;
+      }
+
       animationId = requestAnimationFrame(animateScroll);
     };
 
@@ -639,8 +651,8 @@ const navigate = useNavigate();
             onMouseLeave={() => setIsPaused(false)}
           >
             <div
+              ref={trackRef}
               className="flex transition-none"
-              style={{ transform: `translateX(-${scrollPosition}px)` }}
             >
               {cityCards}
             </div>
