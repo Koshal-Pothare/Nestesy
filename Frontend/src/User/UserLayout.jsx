@@ -10,6 +10,7 @@ import {
    ArrowLeft 
 } from "lucide-react";
 import WishlistSidebar from "../components/WishlistSidebar";
+import Logo from '../assets/Logo.png'
 
 const UserLayout = () => {
 const navigate = useNavigate();
@@ -61,11 +62,11 @@ setUserData(user);
 
         {/* Logo */}
         <div className="mb-10">
-          <h1 className="text-3xl font-serif font-bold text-primary-700">
-            Nestesy
-          </h1>
+          <div className=" w-35 h-20  flex justify-center items-center">
+            <img src={Logo} className="bg-cover bg-center w-full " />
+            </div>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-md text-gray-800 font-semibold  mt-1">
             User Dashboard
           </p>
         </div>

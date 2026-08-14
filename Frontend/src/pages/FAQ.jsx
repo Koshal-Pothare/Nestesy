@@ -3,12 +3,16 @@ import { useState } from 'react';
 import { Search, Plus, SlidersHorizontal, ChevronUp, ChevronDown } from "lucide-react";
 import FAQItem from '../components/FAQItem';
 import { motion, animate, useInView } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+
+
 export default function Help_center() {
   const [activeCat, setActiveCat] = useState("all");
   const [search, setSearch] = useState("");
   const [openKey, setOpenKey] = useState(null);
   const [selected, setSelected] = useState('contact');
   const [showFilters, setShowFilters] = useState(false);
+
 
   const CATEGORIES = [
     { id: "all", label: "All Questions" },
@@ -113,7 +117,7 @@ export default function Help_center() {
 
   const hasResults = visibleGroups.length > 0;
 
-
+const navigate = useNavigate();
 
   return (
     <>
@@ -330,7 +334,13 @@ export default function Help_center() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.7 }}
-                onClick={() => setSelected('contact')}
+                onClick={() => { navigate("/contact");
+                  setSelected('contact')
+                }
+                 
+               
+                }
+
                 className={`cursor-pointer font-bold px-7 py-3.5 rounded-full transition-colors ${selected === 'contact'
                   ? 'bg-white text-emerald-900'
                   : 'border border-white/40 text-white font-semibold'
@@ -344,7 +354,11 @@ export default function Help_center() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.7 }}
-                onClick={() => setSelected('host')}
+                onClick={() => {
+                  setSelected('host');
+                  navigate('/become-a-host')
+                
+                }}
                 className={`cursor-pointer font-bold px-7 py-3.5 rounded-full transition-colors ${selected === 'host'
                   ? 'bg-white text-emerald-900'
                   : 'border border-white/40 text-white font-semibold'
