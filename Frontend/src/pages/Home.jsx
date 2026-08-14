@@ -162,14 +162,7 @@ const navigate = useNavigate();
   const counter2 = useCounter("8K+", 2000, 1000);
   const counter3 = useCounter("150+", 2000, 700);
   const counter4 = useCounter("4.9★", 2000, 800);
-
-  // State for continuous scrolling
-  // NOTE: scrollPosition is intentionally NOT React state anymore.
-  // Driving it via setState on every animation frame (60x/sec) forced
-  // React to re-render the whole Home tree every frame, which is what
-  // produced the repeated "[Violation] 'message' handler took Nms"
-  // warnings and froze click/navigation handling. We now write the
-  // transform straight to the DOM via trackRef, bypassing React entirely.
+ 
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef(null);
   const trackRef = useRef(null);
@@ -210,9 +203,7 @@ const navigate = useNavigate();
   useEffect(() => {
     setDuplicatedCities([...cities, ...cities]);
   }, []); 
-
-  // Continuous scroll animation — writes directly to the DOM node via
-  // trackRef instead of calling setState every frame.
+ 
   useEffect(() => {
     if (isPaused || duplicatedCities.length === 0) return;
 
