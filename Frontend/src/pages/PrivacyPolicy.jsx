@@ -15,6 +15,7 @@ import {
 } from "../data/data";
 
 import privacyBg from "../assets/privacy-bg.jpg";
+import { useNavigate } from "react-router-dom";
 
 // Hero Section
 
@@ -248,6 +249,8 @@ const PrivacyContent = () => {
 // CTA Section
 
 const CTASection = () => {
+
+  const navigate = useNavigate()
   return (
     <motion.div
       initial={{
@@ -296,6 +299,7 @@ const CTASection = () => {
           whileTap={{
             scale: 0.97,
           }}
+          onClick={()=>navigate("/contact")}
           className="flex items-center gap-2 rounded-lg bg-[#195b2b] px-8 py-3 text-sm font-semibold text-white"
         >
           {privacyPolicyCTAData.buttonText}

@@ -41,6 +41,7 @@ import cityImage from "../assets/About/mission-city.png";
 
 import heroBg from "../assets/About/about-hero-bg.png";
 import ctaHomeImg from "../assets/About/cta-home.png";
+import {useNavigate} from 'react-router-dom'
 
 
 const heroIcons = {
@@ -81,6 +82,8 @@ const fadeUp = {
 // Hero Section
 
 const Hero = () => {
+
+  const navigate = useNavigate();
   return (
     <div
       className="relative flex min-h-[90vh] items-center bg-cover bg-center"
@@ -98,7 +101,7 @@ const Hero = () => {
           >
             Find Your
             <br />
-            <span className="text-primary-300">Perfect Home</span>
+            <span className="text-green-700">Perfect Home</span>
           </motion.h1>
 
           <motion.p
@@ -145,6 +148,7 @@ const Hero = () => {
             <motion.button
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.96 }}
+              onClick={()=>navigate("/explore")}
               className="flex w-full items-center justify-center gap-3 rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-primary-600 hover:shadow-lg sm:w-auto sm:px-8 sm:py-4 sm:text-base"
             >
               <FaSearch />
@@ -154,6 +158,7 @@ const Hero = () => {
             <motion.button
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.96 }}
+               onClick={()=>navigate("/become-a-host")}
               className="flex w-full items-center justify-center gap-3 rounded-xl border border-white px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-white hover:text-primary-600 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
             >
               <FaHome />
@@ -410,7 +415,7 @@ const Stats = () => {
   return (
     <section className="bg-[#faf9f5] px-5 py-10 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl">
-        <div className="rounded-2xl bg-primary-600 px-6 py-8 shadow-sm sm:px-10 lg:px-14">
+        
         <div className="rounded-2xl bg-primary-600 px-6 py-11 shadow-sm sm:px-10 lg:px-14">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {statsData.map((stat, index) => (
@@ -440,7 +445,7 @@ const Stats = () => {
           </div>
         </div>
       </div>
-      </div>
+     
     </section>
   );
 };
@@ -719,6 +724,8 @@ const Testimonials = () => {
 // Call To Action Section
 
 const CTA = () => {
+
+  const navigate = useNavigate();
   return (
     <section className="mt-20 mb-20 px-4 md:px-8 lg:px-12">
       <motion.div
@@ -753,6 +760,7 @@ const CTA = () => {
                   key={index}
                   whileHover={{ scale: 1.05, y: -3 }}
                   whileTap={{ scale: 0.96 }}
+                   onClick={()=>navigate(btn.link)}
                   className={
                     btn.type === "primary"
                       ? "rounded-xl bg-white px-7 py-3.5 font-semibold text-primary-600 shadow-md transition hover:shadow-xl"

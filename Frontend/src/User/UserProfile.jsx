@@ -447,7 +447,7 @@ const profileCompletion = Math.round(
             </button>
 
             {/* Privacy */}
-            <button
+            {/* <button
               onClick={() => toast.info("Privacy settings coming soon")}
               className="group flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-primary-100 hover:bg-primary-50"
             >
@@ -471,7 +471,7 @@ const profileCompletion = Math.round(
                 size={17}
                 className="text-gray-400 transition group-hover:text-primary-600"
               />
-            </button>
+            </button> */}
           </div>
         </motion.div>
       </div>
