@@ -7,7 +7,7 @@ import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route, useLocation, } from 'react-router-dom';
 import BecomeHost from './pages/BecomeHost'
 import Login from './auth/Login'
-import About from './pages/AboutUs'
+import About from './pages/About'
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -17,6 +17,7 @@ import Explore from './pages/Explore'
 import Whishlist from './pages/Wishlist'
 import PropertyDetails from './pages/PropertyDetails'
 import ForgotPassword from './auth/ForgotPassword'
+import Review from './pages/Review'
 
 //Admin
 import AdminLayout from '../src/Admin/AdminLout'
@@ -28,8 +29,8 @@ import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
 // Host 
 import HostDashboard from './Host/HostDashboard'
 import HostLayout from './Host/HostLayout' 
-import Faq from './pages/Help_center'
-import Help_center from './pages/Help_center' 
+import Faq from './pages/FAQ'
+import FAQ from './pages/FAQ' 
 import AddProperty from './Host/AddProperty'
 import MyProperties from './Host/MyProperties'
 import HostAnalytics from './Host/HostAnalytics'
@@ -92,14 +93,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path='/admin-register' element={<AdminRegister />} />
         <Route path='/admin-login' element={<AdminLogin />} />
-        <Route path="/help-center" element={<Help_center/>} />
+        <Route path="/faq" element={<FAQ/>} />
 
         <Route path="/property/:id" element={<PropertyDetails />} />
-        <Route path="/" element={<Home/>} />
-        <Route path="/about" element={<About/>} />
-       <Route path="/login" element={<Login/>} />
-        <Route path='/admin-register' element={<AdminRegister />} />
-         <Route path='/admin-login' element={<AdminLogin />} />
+      
+  
 
          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
          <Route path="/terms-conditions" element={<TermsConditions />} />
@@ -115,6 +113,7 @@ function App() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/wishlist" element={<Whishlist />} />
+        <Route path="/reviews" element={<Review/>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>

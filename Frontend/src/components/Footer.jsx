@@ -15,6 +15,7 @@ const Footer = () => {
     { name: 'About', link: '/about' },
     { name: 'Explore', link: '/explore' },
     { name: 'Become Host', link: "/become-a-host" },
+    {name:"Reviews" , link:"/reviews"}
 
 
   ];
@@ -25,7 +26,7 @@ const Footer = () => {
 
          <div className="container max-w-7xl mx-auto">
           <motion.div
-              className="w-full grid grid-cols-1 md:grid-cols-4 gap-4 px-4 space-y-5 md:space-y-0">
+              className="w-full grid grid-cols-1 md:grid-cols-4 gap-4 px-4 py-2 space-y-5 md:space-y-0">
              <div className="md:ml-10">
               <div className="flex items-center gap-2 cursor-pointer">
                 <IoHomeOutline size={27} className="text-xl text-emerald-500" />
@@ -68,10 +69,10 @@ const Footer = () => {
               <h1 className="text-2xl font-semibold">Support</h1>
               <ul className="mt-2 space-y-2">
 
-                <li><Link className="text-gray-400 hover:text-emerald-500  transition duration-300">Help Center</Link></li>
+                <li><Link to='/faq' className="text-gray-400 hover:text-emerald-500  transition duration-300" >FAQ</Link></li>
                 <li>  <Link to="/terms-conditions" className="text-gray-400 hover:text-emerald-500 transition duration-300">Terms & Conditions</Link></li>
                 <li><Link to="/privacy-policy" className="text-gray-400 hover:text-emerald-500 transition duration-300">Privacy Policy</Link></li>
-                  <li><Link to='/help-center' className="text-gray-400 hover:text-emerald-500  transition duration-300" >FAQ</Link></li>
+                 
                  
                 </ul>
                 </div>
@@ -87,13 +88,14 @@ const Footer = () => {
 
            
 
-              <div className="w-full h-px bg-emerald-300 mt-10 " />
-              <p className="text-center mt-3 text-gray-400">All right reserved &copy; 2026 NESTESY</p>
- 
+             
 
        
          
           </motion.div>
+           <div className="w-full h-px bg-emerald-300 mt-10 " />
+              <p className="text-center mt-3 text-gray-400">All right reserved &copy; 2026 NESTESY</p>
+ 
         </div>
         </section>
         </>
