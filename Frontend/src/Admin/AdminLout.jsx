@@ -20,8 +20,7 @@ const navigation = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
   { id: 'properties', name: 'Properties', icon: Building2, path: '/admin/propertyverification' },
   { id: 'users', name: 'Users', icon: Users, path: '/admin/users' },
-  { id: 'bookings', name: 'Bookings', icon: Calendar, path: '/admin/bookings' },
-  { id: 'payments', name: 'Payments', icon: DollarSign, path: '/admin/payments' },
+  { id: 'bookings', name: 'Bookings', icon: Calendar, path: '/admin/bookings' }, 
   { id: 'reviews', name: 'Reviews', icon: Star, path: '/admin/reviews' },
   { id: 'inquiries', name: 'Inquiries', icon: MessageSquare, path: '/admin/inquiries' },
 ];

@@ -327,7 +327,7 @@ const AddProperty = () => {
       bathrooms: parseInt(formData.bathrooms),
       area: parseInt(formData.area),
       status: 'Pending',
-      images: allImages, // Use images array for PropertyCard
+      images: allImages,
       listedDate: new Date().toISOString().split('T')[0],
       inquiries: 0,
       amenities: formData.amenities,
@@ -340,6 +340,7 @@ const AddProperty = () => {
         documents: formData.verificationDocs,
         additionalNotes: formData.additionalNotes,
         verified: false,
+        status: 'pending',
         submittedAt: new Date().toISOString()
       }
     };
@@ -377,9 +378,10 @@ const AddProperty = () => {
       
       setIsSubmitting(false);
       
+      // ✅ FIXED: Navigate to /host/my-properties
       setTimeout(() => {
         resetForm();
-        navigate('/host/properties');
+        navigate('/host/my-properties');
       }, 1500);
       
     } catch (error) {
@@ -443,7 +445,7 @@ const AddProperty = () => {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate('/host/properties')}
+            onClick={() => navigate('/host/my-properties')}  // ✅ FIXED
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
