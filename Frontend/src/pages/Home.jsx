@@ -161,7 +161,7 @@ const navigate = useNavigate();
   const counter1 = useCounter("12K+", 2000, 900);
   const counter2 = useCounter("8K+", 2000, 1000);
   const counter3 = useCounter("150+", 2000, 700);
-  const counter4 = useCounter("4.9★", 2000, 800);
+  const counter4 = useCounter("4.9★", 2000, 800); 
  
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef(null);
