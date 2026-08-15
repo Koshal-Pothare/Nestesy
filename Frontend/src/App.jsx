@@ -46,6 +46,7 @@ import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
 import PrivacyPolicy from '../src/pages/PrivacyPolicy';
 import TermsConditions from '../src/pages/TermsCondition';
+import UserManagement from '../src/pages/UserManagment';
 
 
 
@@ -101,6 +102,7 @@ function App() {
 
          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
          <Route path="/terms-conditions" element={<TermsConditions />} />
+
    
 
 
@@ -118,7 +120,9 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
-          <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
+          <Route path="propertyverification" element={<PropertyVerificationDetail />} />
+                   <Route path="users" element={<UserManagement />}/>
+
         </Route>
 
         {/* // Host Routes */}
