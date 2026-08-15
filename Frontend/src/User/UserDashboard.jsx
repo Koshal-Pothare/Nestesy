@@ -14,6 +14,7 @@ const UserDashboard = () => {
     const[favorite,setFavorite] = useState([]);
     const[visits, setVisits] = useState([]);
     const[activeBookings, setActiveBookings] = useState([]);
+    const[userData,setUserData] = useState([]);
 
 useEffect(() => {
   const loadData = () => {
@@ -29,6 +30,11 @@ useEffect(() => {
     window.removeEventListener("storage", loadData);
   };
 }, []);
+
+useEffect(()=>{
+const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
+setUserData(user);
+},[])
 
 
   const profile=[
@@ -581,13 +587,13 @@ const cardVariants = {
       <div className="relative flex items-center gap-3">
 
         {/* Avatar */}
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-primary-700 shadow-md">
-          KP
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-xl font-bold text-primary-700 shadow-md">
+          {userData.name?.charAt(0).toUpperCase()}
         </div>
 
         <div className="min-w-0">
           <h4 className="truncate text-sm font-semibold">
-            Koshal Pothare
+            {userData.name}
           </h4>
 
           <div className="mt-1 flex items-center gap-1.5 text-[11px] text-primary-100">

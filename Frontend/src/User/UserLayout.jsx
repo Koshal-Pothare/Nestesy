@@ -10,7 +10,7 @@ import {
    ArrowLeft 
 } from "lucide-react";
 import WishlistSidebar from "../components/WishlistSidebar";
-import Logo from '../assets/Logo.png'
+import AthenuraLogo from '../assets/AthenuraLogo.png'
 
 const UserLayout = () => {
 const navigate = useNavigate();
@@ -63,7 +63,7 @@ setUserData(user);
         {/* Logo */}
         <div className="mb-10">
           <div className=" w-35 h-20  flex justify-center items-center">
-            <img src={Logo} className="bg-cover bg-center w-full " />
+            <img src={AthenuraLogo} className="bg-cover bg-center w-full " />
             </div>
 
           <p className="text-md text-gray-800 font-semibold  mt-1">

@@ -60,7 +60,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="font-sans text-5xl font-normal tracking-tight text-[#10251b] sm:text-6xl"
+            className="font-serif text-5xl font-normal tracking-tight text-[#10251b] sm:text-6xl"
           >
             {privacyPolicyHeroData.title}
           </motion.h1>

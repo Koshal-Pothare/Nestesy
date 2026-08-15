@@ -36,13 +36,17 @@ const Footer = () => {
                 <a href="#" className="text-white hover:bg-blue-400 h-10 w-10 rounded-full flex items-center justify-center bg-emerald-600">
                   <FaFacebookF size={20} />
                 </a>
-                <a href="#" className="text-white hover:bg-pink-600 h-10 w-10 rounded-full flex items-center justify-center bg-emerald-600">
+                <a href="https://www.instagram.com/athenura.in?igsh=MXg4MWtrenA2ZHF4Zw=="
+                target="_blank"
+                 className="text-white hover:bg-pink-600 h-10 w-10 rounded-full flex items-center justify-center bg-emerald-600">
                   <FaInstagram size={20} />
                 </a>
-                <a href="#" className="text-white hover:bg-gray-900 h-10 w-10 rounded-full flex items-center justify-center bg-emerald-600">
+                <a href="https://x.com/athenura_in" target="_blank"
+                 className="text-white hover:bg-gray-900 h-10 w-10 rounded-full flex items-center justify-center bg-emerald-600">
                   <FaXTwitter size={20} />
                 </a>
-                <a href="#" className="text-white hover:bg-blue-500 h-10 w-10 rounded-full flex items-center justify-center bg-emerald-600">
+                <a href="https://www.linkedin.com/company/athenura/posts/?feedView=all"
+                target="_blank" className="text-white hover:bg-blue-500 h-10 w-10 rounded-full flex items-center justify-center bg-emerald-600">
                   <FaLinkedin size={20} />
                 </a>
               </div>
@@ -79,9 +83,9 @@ const Footer = () => {
                 <div>
                   <h1 className="text-2xl font-semibold mt-5">Contact Us</h1>
                   <ul className="mt-2 space-y-2">
-                    <li className="text-gray-400 hover:text-emerald-500  transition duration-300 cursor-pointer flex items-center gap-2"><Mail size={15} className="text-emerald-400" /> : info@nestesy.com</li>
-                    <li className="text-gray-400 hover:text-emerald-500  transition duration-300 cursor-pointer flex items-center gap-2"><Phone size={15} className="text-emerald-400" /> : +91 90334 65887</li>
-                    <li className="text-gray-400 hover:text-emerald-500  transition duration-300 cursor-pointer flex items-center gap-2"><MapPin size={15} className="text-emerald-400" /> : Sector 27 Delhi , India</li>
+                    <li className="text-gray-400 hover:text-emerald-500  transition duration-300 cursor-pointer flex items-center gap-2"><Mail size={15} className="text-emerald-400" /> :  official@athenura.in</li>
+                    <li className="text-gray-400 hover:text-emerald-500  transition duration-300 cursor-pointer flex items-center gap-2"><Phone size={15} className="text-emerald-400" /> :    +91 98350 51934</li>
+                    <li className="text-gray-400 hover:text-emerald-500  transition duration-300 cursor-pointer flex items-center gap-2"><MapPin size={15} className="text-emerald-400" /> :  Sector 62, Noida, Uttar Pradesh</li>
                   </ul>
                 </div>
 
@@ -93,7 +97,7 @@ const Footer = () => {
          
           </motion.div>
            <div className="w-full h-px bg-emerald-300 mt-10 " />
-              <p className="text-center mt-3 text-gray-400">All right reserved &copy; 2026 NESTESY</p>
+              <p className="text-center mt-3 text-gray-400">Designed and Developed by <span className="font-semibold text-green-600 font-serif"><a href="https://www.athenura.in/" target="_blank">Athenura</a></span></p>
  
         </div>
         </section>
