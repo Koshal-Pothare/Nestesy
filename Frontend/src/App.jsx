@@ -50,6 +50,7 @@ import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
 import PrivacyPolicy from '../src/pages/PrivacyPolicy';
 import TermsConditions from '../src/pages/TermsCondition';
+import UserManagement from '../src/pages/UserManagment';
 
 
 
@@ -92,8 +93,16 @@ function App() {
 
         <Route path="/property/:id" element={<PropertyDetails />} />
       
+
+  
+
+         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+         <Route path="/terms-conditions" element={<TermsConditions />} />
+
+
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsConditions />} />
+
    
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
@@ -106,10 +115,16 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
+
+          <Route path="propertyverification" element={<PropertyVerificationDetail />} />
+                   <Route path="users" element={<UserManagement />}/>
+
+
           <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
            <Route path="/admin/hosts" element={<HostManagement />} />
            <Route path="/admin/hosts/:id" element={<HostDetails />} />
             <Route path="/admin/bookings" element={<BookingManagement />} />
+
         </Route>
 
         {/* Host Routes */}
