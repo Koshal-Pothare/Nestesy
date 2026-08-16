@@ -311,8 +311,8 @@ const navigate = useNavigate();
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
-          className="max-w-5xl mx-auto px-6 pb-20">
-          <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 to-emerald-800 rounded-3xl px-8 py-14 text-center text-white">
+          className="w-full mx-auto overflow-hidden pb-20">
+          <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 to-emerald-800   py-14 text-center text-white">
             <div className="absolute w-80 h-80 rounded-full bg-white/5 -top-32 -right-24" />
             <motion.h2
                className="relative font-serif font-bold text-3xl mb-3">

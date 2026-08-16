@@ -59,10 +59,10 @@ const HostLayout = () => {
       path: '/host/add-property'
     },
     { 
-      id: 'inquiries', 
-      label: 'Inquiries', 
+      id: 'visits', 
+      label: 'Visits', 
       icon: MessageSquare,
-      path: '/host/inquiries'
+      path: '/host/visits'
     },
     { 
       id: 'analytics', 

@@ -147,33 +147,43 @@ export default function TestimonialsPage() {
     const visible = expanded ? filtered : filtered.slice(0, 6);
 
     return (
-        <div className="min-h-screen bg-[#fbfaf6] font-sans overflow-hidden">
+        <div className="min-h-screen bg-[#fbfaf6] font-sans overflow-hidden items-center">
             {/* Hero Section */}
-            <section className="relative  overflow-hidden">
-               <motion.div
-                           initial={{ opacity: 0, y: 30 }}
-                           whileInView={{ opacity: 1, y: 0 }}
-                           viewport={{ once: true, amount: 0.3 }}
-                           transition={{ duration: 0.7 }}
-                           className="relative h-[420px] md:h-[480px] overflow-hidden bg-cover bg-bottom
-                           "
-                           style={{ backgroundImage: "url(./review.png)" }}
-                         >
-               
-                             <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/20 to-black/50" />
-                    <div className="relative max-w-5xl mx-auto px-6 py-20 text-center">
+            <section className="relative overflow-hidden">
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.7 }}
+                    className="relative h-[600px] md:h-[540px] overflow-hidden bg-cover bg-center
+                   flex items-center justify-center top-[49px]"
+                    style={{ backgroundImage: "url(./review.jpeg)" }}
+                >
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/20 to-black/50" />
+
+                    {/* Content */}
+                    <div className="relative max-w-5xl mx-auto px-6 text-center">
+
+                        {/* Heading */}
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
                             className="font-serif font-extrabold text-4xl md:text-5xl text-white mb-3"
                         >
-                            Guest <span className="text-emerald-400">Stories</span>
+                            Guest <span className="text-emerald-700">Reviews</span>
                         </motion.h1>
+
+                       
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+                            transition={{
+                                duration: 0.6,
+                                delay: 0.15,
+                                ease: "easeOut"
+                            }}
                             className="text-white max-w-xl mx-auto mb-12"
                         >
                             See how guests and hosts across the country experience finding,
@@ -183,26 +193,54 @@ export default function TestimonialsPage() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-                            className="flex flex-wrap justify-center gap-10 md:gap-16"
+                            transition={{
+                                duration: 0.6,
+                                delay: 0.3,
+                                ease: "easeOut"
+                            }}
+                            className="flex flex-wrap justify-center items-center gap-10 md:gap-16"
                         >
+                            {/* Happy Guests */}
                             <div>
-                                <p className="font-serif font-bold text-3xl md:text-4xl text-emerald-400">10K+</p>
-                                <p className="text-white text-xs tracking-wide uppercase mt-1">Happy Guests</p>
+                                <p className="font-bold text-3xl md:text-4xl text-emerald-700">
+                                    10K+
+                                </p>
+
+                                <p className="text-white text-xs tracking-wide uppercase mt-1">
+                                    Happy Guests
+                                </p>
                             </div>
-                            <div className="w-px bg-white/10 hidden md:block" />
+
+                            {/* Divider */}
+                            <div className="w-px h-10 bg-white/30 hidden md:block" />
+
+                          
                             <div>
-                                <p className="font-serif font-bold text-3xl md:text-4xl text-emerald-400">2,500+</p>
-                                <p className="text-white text-xs tracking-wide uppercase mt-1">Verified Hosts</p>
+                                <p className="font-bold text-3xl md:text-4xl text-emerald-700">
+                                    2,500+
+                                </p>
+
+                                <p className="text-white text-xs tracking-wide uppercase mt-1">
+                                    Verified Hosts
+                                </p>
                             </div>
-                            <div className="w-px bg-white/10 hidden md:block" />
+
+                            {/* Divider */}
+                            <div className="w-px h-10 bg-white/30 hidden md:block" />
+
+                            {/* Average Rating */}
                             <div>
-                                <p className="font-serif font-bold text-3xl md:text-4xl text-emerald-400">4.8</p>
-                                <p className="text-white text-xs tracking-wide uppercase mt-1">Average Rating</p>
+                                <p className="font-bold text-3xl md:text-4xl text-emerald-700 whitespace-nowrap">
+                                    4.8
+                                </p>
+
+                                <p className="text-white text-xs tracking-wide uppercase mt-1">
+                                    Average Rating
+                                </p>
                             </div>
                         </motion.div>
-                        </div>
-                    </motion.div>
+                    </div>
+                </motion.div>
             </section>
 
             {/* Reviews Section */}
@@ -243,8 +281,8 @@ export default function TestimonialsPage() {
                                 setExpanded(false);
                             }}
                             className={`shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold border transition-colors whitespace-nowrap ${activeFilter === f.id
-                                    ? "bg-emerald-800 border-emerald-800 text-white"
-                                    : "bg-white border-stone-200 text-stone-500 hover:border-emerald-800 hover:text-emerald-800"
+                                ? "bg-emerald-800 border-emerald-800 text-white"
+                                : "bg-white border-stone-200 text-stone-500 hover:border-emerald-800 hover:text-emerald-800"
                                 }`}
                         >
                             {f.label}
@@ -262,24 +300,32 @@ export default function TestimonialsPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.35, delay: i * 0.04 }}
-                                className="bg-emerald-950 rounded-2xl p-6 relative overflow-hidden"
+                                className="group hover:bg-emerald-950 bg-white shadow-emerald-200 shadow-2xl border-emerald-300 border-[1px] rounded-2xl p-6 relative overflow-hidden text-black group hover:-translate-y-2 transition-transform duration-300"
                             >
-                                <span className="absolute top-4 right-5 text-emerald-800 text-4xl font-serif select-none">
+                                <span className="absolute top-4 right-5 text-emerald-800 group-hover:text-white text-4xl font-serif select-none">
                                     "
                                 </span>
+
                                 <Stars rating={r.rating} />
-                                <p className="text-white/80 text-sm leading-relaxed mt-4 mb-6 relative z-10">
+
+                                <p className="text-black group-hover:text-white text-sm leading-relaxed mt-4 mb-6 relative z-10">
                                     "{r.text}"
                                 </p>
-                                <div className="flex items-center gap-3">
+
+                                <div className="flex items-center gap-3 text-black">
                                     <div
-                                        className={`w-9 h-9 rounded-full ${r.color} text-white flex items-center justify-center font-semibold text-sm shrink-0`}
+                                        className={`w-9 h-9 rounded-full ${r.color} text-black flex items-center justify-center font-semibold text-sm shrink-0`}
                                     >
                                         {r.initial}
                                     </div>
+
                                     <div>
-                                        <p className="text-white font-semibold text-sm">{r.name}</p>
-                                        <p className="text-white/40 text-xs">{r.handle}</p>
+                                        <p className="text-black group-hover:text-white font-semibold text-sm">
+                                            {r.name}
+                                        </p>
+                                        <p className="text-gray-400 text-xs">
+                                            {r.handle}
+                                        </p>
                                     </div>
                                 </div>
                             </motion.div>
@@ -315,7 +361,7 @@ export default function TestimonialsPage() {
                         <h2 className="font-serif font-extrabold text-3xl md:text-4xl text-stone-900 leading-tight mb-4">
                             Loved your stay?
                             <br />
-                            <span className="text-emerald-700">Share your story.</span>
+                            <span className="text-emerald-700">Share your review.</span>
                         </h2>
                         <p className="text-stone-500 leading-relaxed mb-8 max-w-md">
                             Your feedback helps other travelers choose with confidence, and
@@ -372,16 +418,7 @@ export default function TestimonialsPage() {
                                 />
                             </div>
 
-                            <div>
-                                <label className="text-xs font-semibold tracking-wide uppercase text-stone-500">
-                                    Property / Trip
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Sunlit 2BHK, Delhi"
-                                    className="w-full mt-2 border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-800 text-stone-800"
-                                />
-                            </div>
+                           
 
                             <div>
                                 <label className="text-xs font-semibold tracking-wide uppercase text-stone-500">

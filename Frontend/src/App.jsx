@@ -25,6 +25,9 @@ import AdminDashboard from '../src/Admin/AdminDashboard'
 import AdminRegister from './auth/AdminRegister'
 import AdminLogin from './auth/AdminLogin'
 import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
+import HostManagement from './Admin/HostManagement'
+import HostDetails from './Admin/HostDetail'
+import BookingManagement from './Admin/BookingManagement'
 
 // Host 
 import HostDashboard from './Host/HostDashboard'
@@ -34,7 +37,8 @@ import FAQ from './pages/FAQ'
 import AddProperty from './Host/AddProperty'
 import MyProperties from './Host/MyProperties'
 import HostAnalytics from './Host/HostAnalytics'
-
+import HostPropertyDetails from './Host/HostPropertyDetails'
+import VisitManagement from './Host/VisitManagement'
 
 
 //User
@@ -55,15 +59,13 @@ function App() {
   const pathname = location.pathname;
 
   useLayoutEffect(() => {
-    window.scrollTo(0, 0,
-    );
+    window.scrollTo(0, 0);
   }, [pathname]);
 
   const hideRoutes = [
     "/login",
     "/admin",
     "/host",
- 
     "/host/add-property", 
     "/admin-register",
     "/admin-login", 
@@ -71,24 +73,17 @@ function App() {
     "/forgot-password",
     "/host/my-properties",
     "/host/analytics",
-
-   
+    "/host/property",  
   ];
 
   const HideNavbarFooter = hideRoutes.some((route) =>
-  location.pathname.startsWith(route)
-);
-
-
+    location.pathname.startsWith(route)
+  );
 
   return (
-
     <>
-
       {!HideNavbarFooter && <Navbar />}
       <Routes>
-
-
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
@@ -98,18 +93,18 @@ function App() {
 
         <Route path="/property/:id" element={<PropertyDetails />} />
       
+
   
 
          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
          <Route path="/terms-conditions" element={<TermsConditions />} />
 
+
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-conditions" element={<TermsConditions />} />
+
    
-
-
-   <Route path="/forgot-password" element={<ForgotPassword />} />
-
-
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         <Route path="/become-a-host" element={<BecomeHost />} />
         <Route path="/explore" element={<Explore />} />
@@ -120,37 +115,38 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
+
           <Route path="propertyverification" element={<PropertyVerificationDetail />} />
                    <Route path="users" element={<UserManagement />}/>
 
+
+          <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
+           <Route path="/admin/hosts" element={<HostManagement />} />
+           <Route path="/admin/hosts/:id" element={<HostDetails />} />
+            <Route path="/admin/bookings" element={<BookingManagement />} />
+
         </Route>
 
-        {/* // Host Routes */}
+        {/* Host Routes */}
         <Route path="/host" element={<HostLayout />}>
-        <Route index element={<HostDashboard />} />
-        <Route path="/host/add-property" element={<AddProperty />} />
-        <Route path="/host/my-properties" element={<MyProperties />} />
-        <Route path="/host/analytics" element={<HostAnalytics />} />
+          <Route index element={<HostDashboard />} />
+          <Route path="/host/add-property" element={<AddProperty />} />
+          <Route path="/host/my-properties" element={<MyProperties />} />
+          <Route path="/host/analytics" element={<HostAnalytics />} />
+          <Route path="/host/property/:id" element={<HostPropertyDetails />} /> 
+           <Route path="/host/visits" element={<VisitManagement />} /> 
         </Route>
-
-
-
-
-
-
 
         {/* User Routes */}
-        <Route path="/user" element={<UserLayout/>} >
-         <Route index element={<UserDashboard />} />
+        <Route path="/user" element={<UserLayout/>}>
+          <Route index element={<UserDashboard />} />
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="upcoming-visits" element={<UpcomingVisits />} />
-           <Route path="booking-history" element={<BookingHistory />} />
-            <Route path="wishlist" element={<UserWishlist />} />
-             <Route path="profile" element={<UserProfile />} />
-             </Route>
+          <Route path="booking-history" element={<BookingHistory />} />
+          <Route path="wishlist" element={<UserWishlist />} />
+          <Route path="profile" element={<UserProfile />} />
+        </Route>
       </Routes>
-
-
 
       {!HideNavbarFooter && <Footer />}
 
@@ -159,8 +155,8 @@ function App() {
         autoClose={2000}
         theme="light"
       />
-
     </>
   );
 }
+
 export default App;

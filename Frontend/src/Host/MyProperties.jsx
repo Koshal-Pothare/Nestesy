@@ -18,7 +18,8 @@ import {
   Calendar,
   Building2,
   Heart,
-  X
+  X,
+  Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -49,7 +50,6 @@ const MyProperties = () => {
           const parsedProperties = JSON.parse(storedProperties);
           setProperties(parsedProperties);
         } else {
-          // Initialize with empty array if no properties exist
           localStorage.setItem('hostProperties', JSON.stringify([]));
           setProperties([]);
         }
@@ -64,7 +64,6 @@ const MyProperties = () => {
 
     loadProperties();
 
-    // Listen for property added event (from AddProperty component)
     const handlePropertyAdded = (event) => {
       const newProperty = event.detail;
       setProperties(prev => {
@@ -74,7 +73,6 @@ const MyProperties = () => {
       });
     };
 
-    // Listen for storage changes (from other tabs)
     const handleStorageChange = (e) => {
       if (e.key === 'hostProperties') {
         try {
@@ -125,7 +123,7 @@ const MyProperties = () => {
       case 'Pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Inactive':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -153,12 +151,18 @@ const MyProperties = () => {
     setShowDetailModal(true);
   };
 
+  // Navigate to property details page
+  const handlePropertyClick = (propertyId) => {
+    navigate(`/host/property/${propertyId}`);
+  };
+
   const getStats = () => {
     const total = properties.length;
     const active = properties.filter(p => p.status === 'Active').length;
     const pending = properties.filter(p => p.status === 'Pending').length;
+    const rejected = properties.filter(p => p.status === 'Inactive').length;
     const totalInquiries = properties.reduce((sum, p) => sum + (p.inquiries || 0), 0);
-    return { total, active, pending, totalInquiries };
+    return { total, active, pending, rejected, totalInquiries };
   };
 
   const stats = getStats();
@@ -225,10 +229,10 @@ const MyProperties = () => {
             <p className="text-2xl font-bold text-yellow-700">{stats.pending}</p>
             <p className="text-xs text-yellow-500">Approvals</p>
           </div>
-          <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
-            <p className="text-xs text-purple-600">Inquiries</p>
-            <p className="text-2xl font-bold text-purple-700">{stats.totalInquiries}</p>
-            <p className="text-xs text-purple-500">Total</p>
+          <div className="bg-white rounded-xl p-4 border border-red-100 shadow-sm">
+            <p className="text-xs text-red-600">Rejected</p>
+            <p className="text-2xl font-bold text-red-700">{stats.rejected}</p>
+            <p className="text-xs text-red-500">Inactive</p>
           </div>
         </div>
       )}
@@ -349,7 +353,8 @@ const MyProperties = () => {
                 <PropertyCard 
                   key={property.id} 
                   property={property} 
-                  index={index} 
+                  index={index}
+                  onClick={() => handlePropertyClick(property.id)}
                 />
               ))}
             </div>
@@ -361,7 +366,8 @@ const MyProperties = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group"
+                  onClick={() => handlePropertyClick(property.id)}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
                 >
                   <div className="flex flex-col sm:flex-row">
                     <div className="sm:w-64 h-48 sm:h-auto relative overflow-hidden">
@@ -389,7 +395,10 @@ const MyProperties = () => {
                             </div>
                           </div>
                           <button
-                            onClick={() => handleViewDetails(property)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewDetails(property);
+                            }}
                             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           >
                             <Eye className="w-4 h-4 text-gray-500" />
@@ -436,6 +445,7 @@ const MyProperties = () => {
         </>
       )}
 
+      {/* Detail Modal */}
       <AnimatePresence>
         {showDetailModal && selectedProperty && (
           <motion.div
@@ -525,10 +535,20 @@ const MyProperties = () => {
                   </div>
                 )}
 
-                <div className="border-t border-gray-100 pt-4 mt-4 flex items-center justify-between text-sm text-gray-500">
+                <div className="border-t border-gray-100 pt-4 mt-4 flex flex-wrap items-center justify-between text-sm text-gray-500">
                   <div className="flex gap-4">
                     <span>💬 {selectedProperty.inquiries || 0} inquiries</span>
                   </div>
+                  <button
+                    onClick={() => {
+                      setShowDetailModal(false);
+                      navigate(`/host/property/${selectedProperty.id}`);
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Full Details
+                  </button>
                 </div>
               </div>
             </motion.div>

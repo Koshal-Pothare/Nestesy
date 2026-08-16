@@ -1,399 +1,758 @@
-// PropertyVerificationDetail.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Shield,
-  User,
-  Mail,
-  Phone,
-  Building,
-  MapPin,
-  IndianRupee,
-  Bed,
-  Bath,
-  Square,
-  Calendar,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  FileText,
-  Download,
-  Eye,
-  Image as ImageIcon,
-  Home,
-  Sofa,
-  Grid3x3,
-  Camera
+  Shield, CheckCircle, XCircle, Clock, Eye, 
+  Filter, Search, User, Mail, Phone, Building,
+  FileText, AlertCircle, RefreshCw, Trash2
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const PropertyVerificationDetail = ({ property, onApprove, onReject }) => {
-  const [activeTab, setActiveTab] = useState('verification');
+const AdminPropertyVerification = () => {
+  const [properties, setProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    verified: 0,
+    rejected: 0
+  });
+  const [actionLoading, setActionLoading] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectNotes, setRejectNotes] = useState('');
+  const [selectedPropertyId, setSelectedPropertyId] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePropertyId, setDeletePropertyId] = useState(null);
 
-  if (!property) return null;
+  // Load properties from localStorage
+  useEffect(() => {
+    loadProperties();
+  }, []);
 
-  const { verification = {}, amenities = [], description = '' } = property;
-
-  const verificationDocs = [
-    { id: 'aadhar', label: 'Aadhar Card' },
-    { id: 'pan', label: 'PAN Card' },
-    { id: 'propertyTax', label: 'Property Tax Receipt' },
-    { id: 'ownershipDeed', label: 'Ownership Deed' },
-    { id: 'utilityBill', label: 'Utility Bill' }
-  ];
-
-  const renderImageGallery = (images, title) => {
-    if (!images || images.length === 0) {
-      return (
-        <div className="text-center py-8 text-gray-400">
-          <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-          <p>No {title} images uploaded</p>
-        </div>
-      );
+  const loadProperties = () => {
+    setLoading(true);
+    try {
+      const stored = localStorage.getItem('hostProperties');
+      if (stored) {
+        const allProperties = JSON.parse(stored);
+        // Show ALL properties - no filtering
+        setProperties(allProperties);
+        setFilteredProperties(allProperties);
+        updateStats(allProperties);
+      } else {
+        setProperties([]);
+        setFilteredProperties([]);
+        updateStats([]);
+      }
+    } catch (error) {
+      console.error('Error loading properties:', error);
+    } finally {
+      setLoading(false);
     }
-
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {images.slice(0, 6).map((img, index) => (
-          <div key={index} className="relative group">
-            <img 
-              src={img} 
-              alt={`${title} ${index + 1}`}
-              className="w-full h-32 object-cover rounded-lg border border-gray-200"
-            />
-            <button
-              className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <Eye className="w-3 h-3" />
-            </button>
-          </div>
-        ))}
-        {images.length > 6 && (
-          <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-            <span className="text-sm text-gray-500">+{images.length - 6} more</span>
-          </div>
-        )}
-      </div>
-    );
   };
 
+  const updateStats = (props) => {
+    setStats({
+      total: props.length,
+      pending: props.filter(p => p.status === 'Pending').length,
+      verified: props.filter(p => p.status === 'Active' && p.verification?.verified).length,
+      rejected: props.filter(p => p.status === 'Inactive').length
+    });
+  };
+
+  // Filter properties
+  useEffect(() => {
+    let filtered = properties;
+    
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(p => p.status === filterStatus);
+    }
+    
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.title.toLowerCase().includes(term) ||
+        p.location.toLowerCase().includes(term) ||
+        p.verification?.ownerName?.toLowerCase().includes(term) ||
+        p.verification?.ownerEmail?.toLowerCase().includes(term)
+      );
+    }
+    
+    setFilteredProperties(filtered);
+  }, [filterStatus, searchTerm, properties]);
+
+  // Handle verification action - KEEP property after verification
+  const handleVerificationAction = (propertyId, action, notes = '') => {
+    setActionLoading(true);
+    
+    setTimeout(() => {
+      const stored = localStorage.getItem('hostProperties');
+      if (stored) {
+        const allProperties = JSON.parse(stored);
+        const updatedProperties = allProperties.map(p => {
+          if (p.id === propertyId) {
+            if (action === 'verify') {
+              return {
+                ...p,
+                status: 'Active',
+                verification: {
+                  ...p.verification,
+                  verified: true,
+                  verifiedAt: new Date().toISOString(),
+                  adminNotes: notes || 'Property verified by admin',
+                  status: 'approved'
+                },
+                liveDate: new Date().toISOString().split('T')[0]
+              };
+            } else if (action === 'reject') {
+              return {
+                ...p,
+                status: 'Inactive',
+                verification: {
+                  ...p.verification,
+                  verified: false,
+                  verifiedAt: new Date().toISOString(),
+                  adminNotes: notes || 'Property rejected by admin',
+                  status: 'rejected'
+                }
+              };
+            } else if (action === 'delete') {
+              return null; // Only delete if admin explicitly clicks delete
+            }
+          }
+          return p;
+        }).filter(p => p !== null);
+        
+        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
+        loadProperties();
+        
+        // Show success message
+        const message = action === 'verify' ? '✅ Property Verified Successfully!' :
+                       action === 'reject' ? '❌ Property Rejected' :
+                       '🗑️ Property Deleted';
+        alert(message);
+      }
+      setActionLoading(false);
+      setShowDetailModal(false);
+      setShowRejectModal(false);
+      setShowDeleteConfirm(false);
+      setRejectNotes('');
+      setSelectedPropertyId(null);
+      setDeletePropertyId(null);
+    }, 1000);
+  };
+
+  // Handle delete with confirmation
+  const handleDelete = (propertyId) => {
+    if (window.confirm('⚠️ Are you sure you want to permanently delete this property? This action cannot be undone!')) {
+      handleVerificationAction(propertyId, 'delete');
+    }
+  };
+
+  const getStatusBadge = (property) => {
+    const status = property.status;
+    const verification = property.verification;
+    
+    if (status === 'Active' && verification?.verified) {
+      return { 
+        bg: 'bg-green-100', 
+        text: 'text-green-800', 
+        icon: <CheckCircle className="w-4 h-4" />,
+        label: 'Verified ✓'
+      };
+    }
+    if (status === 'Pending') {
+      return { 
+        bg: 'bg-yellow-100', 
+        text: 'text-yellow-800', 
+        icon: <Clock className="w-4 h-4" />,
+        label: 'Pending Review'
+      };
+    }
+    if (status === 'Inactive') {
+      return { 
+        bg: 'bg-red-100', 
+        text: 'text-red-800', 
+        icon: <XCircle className="w-4 h-4" />,
+        label: 'Rejected ✗'
+      };
+    }
+    return { 
+      bg: 'bg-gray-100', 
+      text: 'text-gray-800', 
+      icon: <AlertCircle className="w-4 h-4" />,
+      label: 'Unknown'
+    };
+  };
+
+  // Get verification status for display
+  const getVerificationStatus = (property) => {
+    const v = property.verification;
+    if (!v) return { label: 'Not Submitted', color: 'text-gray-400' };
+    if (v.verified) return { label: 'Verified ✓', color: 'text-green-600' };
+    if (v.status === 'rejected') return { label: 'Rejected ✗', color: 'text-red-600' };
+    return { label: 'Pending ⏳', color: 'text-yellow-600' };
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading verification requests...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Status Banner */}
-      <div className={`rounded-xl p-4 ${
-        property.status === 'Verified' ? 'bg-green-50 border border-green-200' :
-        property.status === 'Rejected' ? 'bg-red-50 border border-red-200' :
-        'bg-yellow-50 border border-yellow-200'
-      }`}>
-        <div className="flex items-center gap-3">
-          {property.status === 'Verified' && <CheckCircle className="w-6 h-6 text-green-600" />}
-          {property.status === 'Rejected' && <XCircle className="w-6 h-6 text-red-600" />}
-          {property.status === 'Pending' && <Clock className="w-6 h-6 text-yellow-600" />}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Shield className="w-8 h-8 text-blue-600" />
+            Property Verification
+          </h1>
+          <p className="text-gray-500 mt-1">Review and verify property listings submitted by hosts</p>
+        </div>
+        <div className="flex gap-3 mt-4 sm:mt-0">
+          <button
+            onClick={loadProperties}
+            className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+          <p className="text-xs text-gray-500">Total</p>
+          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+          <p className="text-xs text-gray-400">All Properties</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-yellow-100 shadow-sm">
+          <p className="text-xs text-yellow-600">Pending</p>
+          <p className="text-2xl font-bold text-yellow-700">{stats.pending}</p>
+          <p className="text-xs text-yellow-500">Need Review</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-green-100 shadow-sm">
+          <p className="text-xs text-green-600">Verified</p>
+          <p className="text-2xl font-bold text-green-700">{stats.verified}</p>
+          <p className="text-xs text-green-500">Approved</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-red-100 shadow-sm">
+          <p className="text-xs text-red-600">Rejected</p>
+          <p className="text-2xl font-bold text-red-700">{stats.rejected}</p>
+          <p className="text-xs text-red-500">Declined</p>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by title, location, or owner..."
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+          </div>
           <div>
-            <h3 className="font-semibold text-gray-800">
-              Status: {property.status}
-              {property.status === 'Verified' && ' ✅'}
-              {property.status === 'Rejected' && ' ❌'}
-              {property.status === 'Pending' && ' ⏳'}
-            </h3>
-            {verification.reviewedAt && (
-              <p className="text-xs text-gray-500">
-                Reviewed on: {new Date(verification.reviewedAt).toLocaleDateString()}
-              </p>
-            )}
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            >
+              <option value="all">All Status</option>
+              <option value="Pending">⏳ Pending</option>
+              <option value="Active">✅ Verified</option>
+              <option value="Inactive">❌ Rejected</option>
+            </select>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-200">
-        <button
-          onClick={() => setActiveTab('verification')}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'verification'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Verification Details
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('property')}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'property'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Home className="w-4 h-4" />
-            Property Details
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('images')}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'images'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Camera className="w-4 h-4" />
-            Images
-          </div>
-        </button>
+      {/* Results Count */}
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-sm text-gray-500">
+          Showing <span className="font-semibold text-gray-700">{filteredProperties.length}</span> properties
+        </p>
       </div>
 
-      {/* Tab Content */}
-      <div className="mt-6">
-        {activeTab === 'verification' && (
-          <div className="space-y-6">
-            {/* Owner Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <User className="w-4 h-4" />
-                  <span className="font-medium">Owner Name</span>
-                </div>
-                <p className="text-gray-800">{verification.ownerName || 'N/A'}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Mail className="w-4 h-4" />
-                  <span className="font-medium">Owner Email</span>
-                </div>
-                <p className="text-gray-800">{verification.ownerEmail || 'N/A'}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Phone className="w-4 h-4" />
-                  <span className="font-medium">Owner Phone</span>
-                </div>
-                <p className="text-gray-800">{verification.ownerPhone || 'N/A'}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Building className="w-4 h-4" />
-                  <span className="font-medium">Property Address</span>
-                </div>
-                <p className="text-gray-800">{verification.propertyAddress || 'N/A'}</p>
-              </div>
-            </div>
+      {/* Property List */}
+      {filteredProperties.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
+          <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600">
+            {properties.length === 0 ? 'No properties found' : 'No properties match your filters'}
+          </h3>
+          <p className="text-gray-400 mt-2">
+            {properties.length === 0 
+              ? 'Add properties to get started' 
+              : 'Try adjusting your filters'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredProperties.map((property) => {
+            const statusBadge = getStatusBadge(property);
+            const verificationStatus = getVerificationStatus(property);
+            
+            return (
+              <motion.div
+                key={property.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-xl transition-all duration-300 ${
+                  property.status === 'Active' ? 'border-green-200' :
+                  property.status === 'Pending' ? 'border-yellow-200' :
+                  property.status === 'Inactive' ? 'border-red-200' :
+                  'border-gray-100'
+                }`}
+              >
+                <div className="flex flex-col md:flex-row">
+                  {/* Property Image */}
+                  <div className="md:w-48 h-48 md:h-auto relative overflow-hidden bg-gray-100">
+                    {property.images?.[0] ? (
+                      <img 
+                        src={property.images[0]} 
+                        alt={property.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <Building className="w-12 h-12 text-gray-300" />
+                      </div>
+                    )}
+                    <div className="absolute top-3 left-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${statusBadge.bg} ${statusBadge.text}`}>
+                        {statusBadge.icon}
+                        {statusBadge.label}
+                      </span>
+                    </div>
+                  </div>
 
-            {/* Verification Documents */}
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Verification Documents</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {verificationDocs.map((doc) => {
-                  const docImage = verification.documents?.[doc.id];
-                  return (
-                    <div key={doc.id} className="border border-gray-200 rounded-xl p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm font-medium text-gray-700">{doc.label}</span>
+                  {/* Property Info */}
+                  <div className="flex-1 p-4 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-800 text-lg">{property.title}</h4>
+                          <p className="text-sm text-gray-500 mt-1">{property.location}</p>
                         </div>
-                        {docImage ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <AlertTriangle className="w-4 h-4 text-red-500" />
+                        <div className="text-right">
+                          <span className="text-lg font-bold text-green-600">
+                            ₹{property.price.toLocaleString()}
+                            <span className="text-sm text-gray-500 font-normal">/mo</span>
+                          </span>
+                          <div className={`text-xs font-medium ${verificationStatus.color}`}>
+                            {verificationStatus.label}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mt-2">
+                        <span>🛏 {property.bedrooms} BHK</span>
+                        <span>🛁 {property.bathrooms} Bath</span>
+                        <span>📐 {property.area} sq.ft</span>
+                        <span className="text-gray-400">
+                          Listed: {new Date(property.listedDate).toLocaleDateString()}
+                        </span>
+                        {property.verification?.verifiedAt && (
+                          <span className="text-green-600 text-xs">
+                            ✓ Verified: {new Date(property.verification.verifiedAt).toLocaleDateString()}
+                          </span>
+                        )}
+                        {property.verification?.status === 'rejected' && property.verification?.verifiedAt && (
+                          <span className="text-red-600 text-xs">
+                            ✗ Rejected: {new Date(property.verification.verifiedAt).toLocaleDateString()}
+                          </span>
                         )}
                       </div>
-                      {docImage ? (
-                        <div className="relative">
-                          <img 
-                            src={docImage} 
-                            alt={doc.label}
-                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                          />
-                          <button className="absolute top-2 right-2 p-1 bg-black/70 text-white rounded-md hover:bg-black/90 transition-colors">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-400">
-                          <ImageIcon className="w-8 h-8 mx-auto mb-1" />
-                          Document not uploaded
+
+                      {/* Owner Info */}
+                      {property.verification && (
+                        <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                          <User className="w-4 h-4 text-gray-400" />
+                          <span>{property.verification.ownerName}</span>
+                          <span className="text-gray-300">|</span>
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <span>{property.verification.ownerEmail}</span>
+                          <span className="text-gray-300">|</span>
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <span>{property.verification.ownerPhone}</span>
                         </div>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
 
-            {/* Additional Notes */}
-            {verification.additionalNotes && (
-              <div className="bg-gray-50 rounded-xl p-4">
-                <h4 className="font-semibold text-gray-800 mb-2">Additional Notes</h4>
-                <p className="text-gray-600">{verification.additionalNotes}</p>
-              </div>
-            )}
-
-            {/* Submission Info */}
-            <div className="bg-blue-50 rounded-xl p-4 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>Submitted for verification on: {new Date(verification.submittedAt).toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'property' && (
-          <div className="space-y-6">
-            {/* Property Info Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Home className="w-4 h-4" />
-                  <span className="font-medium">Type</span>
-                </div>
-                <p className="text-gray-800">{property.type}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Bed className="w-4 h-4" />
-                  <span className="font-medium">BHK</span>
-                </div>
-                <p className="text-gray-800">{property.bedrooms} BHK</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Bath className="w-4 h-4" />
-                  <span className="font-medium">Bathrooms</span>
-                </div>
-                <p className="text-gray-800">{property.bathrooms}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Square className="w-4 h-4" />
-                  <span className="font-medium">Area</span>
-                </div>
-                <p className="text-gray-800">{property.area} sq.ft</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <IndianRupee className="w-4 h-4" />
-                  <span className="font-medium">Price</span>
-                </div>
-                <p className="text-gray-800">₹{property.price.toLocaleString()}/month</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <MapPin className="w-4 h-4" />
-                  <span className="font-medium">Location</span>
-                </div>
-                <p className="text-gray-800 truncate">{property.location}</p>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="bg-gray-50 rounded-xl p-4">
-              <h4 className="font-semibold text-gray-800 mb-2">Description</h4>
-              <p className="text-gray-600">{description || 'No description provided'}</p>
-            </div>
-
-            {/* Amenities */}
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Amenities</h4>
-              <div className="flex flex-wrap gap-2">
-                {amenities && amenities.length > 0 ? (
-                  amenities.map((amenity, index) => (
-                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm">
-                      {amenity}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-gray-400 text-sm">No amenities listed</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'images' && (
-          <div className="space-y-6">
-            {/* We'll use the images from the property */}
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Property Images</h4>
-              {property.images && property.images.length > 0 ? (
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-                  {property.images.map((img, index) => (
-                    <div key={index} className="relative group">
-                      <img 
-                        src={img} 
-                        alt={`Property ${index + 1}`}
-                        className="w-full h-40 object-cover rounded-lg border border-gray-200"
-                      />
-                      <button className="absolute top-2 right-2 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-3 border-t border-gray-100">
+                      <button
+                        onClick={() => {
+                          setSelectedProperty(property);
+                          setShowDetailModal(true);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                      >
                         <Eye className="w-4 h-4" />
+                        View Details
                       </button>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {property.status === 'Pending' && (
+                          <>
+                            <button
+                              onClick={() => handleVerificationAction(property.id, 'verify')}
+                              disabled={actionLoading}
+                              className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                              Verify
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedPropertyId(property.id);
+                                setShowRejectModal(true);
+                              }}
+                              disabled={actionLoading}
+                              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                              <XCircle className="w-4 h-4" />
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        {/* Show Delete button for all properties */}
+                        <button
+                          onClick={() => handleDelete(property.id)}
+                          disabled={actionLoading}
+                          className="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors flex items-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center py-12 text-gray-400">
-                  <ImageIcon className="w-16 h-16 mx-auto mb-3" />
-                  <p>No images uploaded</p>
-                </div>
-              )}
-            </div>
-          </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Reject Modal */}
+      <AnimatePresence>
+        {showRejectModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowRejectModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Reject Property</h3>
+              <p className="text-sm text-gray-500 mb-4">Please provide a reason for rejection:</p>
+              <textarea
+                value={rejectNotes}
+                onChange={(e) => setRejectNotes(e.target.value)}
+                rows="4"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none"
+                placeholder="Enter rejection reason..."
+              />
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    if (selectedPropertyId) {
+                      handleVerificationAction(selectedPropertyId, 'reject', rejectNotes);
+                    }
+                  }}
+                  disabled={actionLoading}
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  {actionLoading ? 'Processing...' : 'Reject Property'}
+                </button>
+                <button
+                  onClick={() => setShowRejectModal(false)}
+                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
 
-      {/* Action Buttons */}
-      {property.status === 'Pending' && (
-        <div className="border-t border-gray-200 pt-4 flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={onApprove}
-            className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/20 flex items-center justify-center gap-2"
+      {/* Detail Modal */}
+      <AnimatePresence>
+        {showDetailModal && selectedProperty && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowDetailModal(false)}
           >
-            <CheckCircle className="w-5 h-5" />
-            Approve Property
-          </button>
-          <button
-            onClick={onReject}
-            className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all duration-200 shadow-lg shadow-red-600/20 flex items-center justify-center gap-2"
-          >
-            <XCircle className="w-5 h-5" />
-            Reject Property
-          </button>
-          <button
-            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200"
-          >
-            Request More Info
-          </button>
-        </div>
-      )}
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold text-gray-800">Verification Details</h2>
+                  <button
+                    onClick={() => setShowDetailModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <XCircle className="w-6 h-6 text-gray-500" />
+                  </button>
+                </div>
 
-      {property.status !== 'Pending' && (
-        <div className="border-t border-gray-200 pt-4 flex items-center gap-3">
-          <div className={`px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 ${
-            property.status === 'Verified' 
-              ? 'bg-green-50 text-green-700 border border-green-200' 
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>
-            {property.status === 'Verified' ? (
-              <>
-                <CheckCircle className="w-4 h-4" />
-                This property has been verified and approved
-              </>
-            ) : (
-              <>
-                <XCircle className="w-4 h-4" />
-                This property has been rejected
-              </>
-            )}
-          </div>
-        </div>
-      )}
+                {/* Property Images Carousel */}
+                {selectedProperty.images && selectedProperty.images.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {selectedProperty.images.slice(0, 6).map((img, idx) => (
+                        <img 
+                          key={idx}
+                          src={img} 
+                          alt={`${selectedProperty.title} ${idx + 1}`}
+                          className="w-32 h-24 object-cover rounded-lg border border-gray-200 flex-shrink-0"
+                        />
+                      ))}
+                      {selectedProperty.images.length > 6 && (
+                        <div className="w-32 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-sm text-gray-500 flex-shrink-0">
+                          +{selectedProperty.images.length - 6} more
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Property Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <p className="text-sm text-gray-500">Title</p>
+                    <p className="font-semibold">{selectedProperty.title}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Location</p>
+                    <p className="font-semibold">{selectedProperty.location}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Price</p>
+                    <p className="font-semibold text-green-600">₹{selectedProperty.price.toLocaleString()}/mo</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Status</p>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusBadge(selectedProperty).bg} ${getStatusBadge(selectedProperty).text} inline-flex`}>
+                      {getStatusBadge(selectedProperty).icon}
+                      {getStatusBadge(selectedProperty).label}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">BHK</p>
+                    <p className="font-semibold">{selectedProperty.bedrooms} BHK</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Area</p>
+                    <p className="font-semibold">{selectedProperty.area} sq.ft</p>
+                  </div>
+                </div>
+
+                {/* Amenities */}
+                {selectedProperty.amenities && selectedProperty.amenities.length > 0 && (
+                  <div className="border-t border-gray-100 pt-4 mt-4">
+                    <h3 className="font-semibold text-gray-800 mb-2">Amenities</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProperty.amenities.map((amenity) => (
+                        <span key={amenity} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Description */}
+                {selectedProperty.description && (
+                  <div className="border-t border-gray-100 pt-4 mt-4">
+                    <h3 className="font-semibold text-gray-800 mb-2">Description</h3>
+                    <p className="text-sm text-gray-600">{selectedProperty.description}</p>
+                  </div>
+                )}
+
+                {/* Owner Details */}
+                {selectedProperty.verification && (
+                  <div className="border-t border-gray-100 pt-4 mt-4">
+                    <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <User className="w-5 h-5 text-blue-600" />
+                      Owner Verification Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-500">Full Name</p>
+                        <p className="font-medium">{selectedProperty.verification.ownerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="font-medium">{selectedProperty.verification.ownerEmail}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Phone</p>
+                        <p className="font-medium">{selectedProperty.verification.ownerPhone}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Property Address</p>
+                        <p className="font-medium">{selectedProperty.verification.propertyAddress}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Submitted At</p>
+                        <p className="font-medium">
+                          {new Date(selectedProperty.verification.submittedAt).toLocaleString()}
+                        </p>
+                      </div>
+                      {selectedProperty.verification.verifiedAt && (
+                        <div>
+                          <p className="text-sm text-gray-500">Verified At</p>
+                          <p className={`font-medium ${
+                            selectedProperty.verification.status === 'approved' ? 'text-green-600' :
+                            selectedProperty.verification.status === 'rejected' ? 'text-red-600' :
+                            'text-gray-600'
+                          }`}>
+                            {new Date(selectedProperty.verification.verifiedAt).toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                      {selectedProperty.verification.status && (
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-gray-500">Verification Status</p>
+                          <p className={`font-medium ${
+                            selectedProperty.verification.status === 'approved' ? 'text-green-600' :
+                            selectedProperty.verification.status === 'rejected' ? 'text-red-600' :
+                            'text-yellow-600'
+                          }`}>
+                            {selectedProperty.verification.status === 'approved' ? '✅ Approved' :
+                             selectedProperty.verification.status === 'rejected' ? '❌ Rejected' :
+                             '⏳ Pending'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Documents */}
+                {selectedProperty.verification?.documents && (
+                  <div className="border-t border-gray-100 pt-4 mt-4">
+                    <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                      Verification Documents
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {Object.entries(selectedProperty.verification.documents).map(([docType, docUrl]) => (
+                        <div key={docType} className="relative group">
+                          <img 
+                            src={docUrl} 
+                            alt={docType}
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => window.open(docUrl, '_blank')}
+                          />
+                          <p className="text-xs text-gray-500 mt-1 text-center capitalize">
+                            {docType.replace(/([A-Z])/g, ' $1').trim()}
+                          </p>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Admin Notes */}
+                {selectedProperty.verification?.adminNotes && (
+                  <div className="border-t border-gray-100 pt-4 mt-4">
+                    <h3 className="font-semibold text-gray-800 mb-2">Admin Notes</h3>
+                    <div className={`p-3 rounded-lg ${
+                      selectedProperty.verification.status === 'approved' ? 'bg-green-50 border border-green-200' :
+                      selectedProperty.verification.status === 'rejected' ? 'bg-red-50 border border-red-200' :
+                      'bg-gray-50 border border-gray-200'
+                    }`}>
+                      <p className="text-sm text-gray-600">{selectedProperty.verification.adminNotes}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="border-t border-gray-100 pt-4 mt-4 flex flex-wrap gap-3">
+                  {selectedProperty.status === 'Pending' && (
+                    <>
+                      <button
+                        onClick={() => handleVerificationAction(selectedProperty.id, 'verify')}
+                        disabled={actionLoading}
+                        className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle className="w-5 h-5" />
+                        Verify & Approve
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedPropertyId(selectedProperty.id);
+                          setShowRejectModal(true);
+                          setShowDetailModal(false);
+                        }}
+                        disabled={actionLoading}
+                        className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <XCircle className="w-5 h-5" />
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  
+                  {/* Delete button always visible */}
+                  <button
+                    onClick={() => {
+                      if (window.confirm('⚠️ Are you sure you want to permanently delete this property? This action cannot be undone!')) {
+                        handleVerificationAction(selectedProperty.id, 'delete');
+                      }
+                    }}
+                    disabled={actionLoading}
+                    className={`${
+                      selectedProperty.status === 'Pending' ? 'w-full mt-2' : 'w-full'
+                    } px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors flex items-center justify-center gap-2`}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                    Delete Property
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-export default PropertyVerificationDetail;
+export default AdminPropertyVerification;

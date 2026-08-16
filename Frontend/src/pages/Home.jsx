@@ -161,7 +161,7 @@ const navigate = useNavigate();
   const counter1 = useCounter("12K+", 2000, 900);
   const counter2 = useCounter("8K+", 2000, 1000);
   const counter3 = useCounter("150+", 2000, 700);
-  const counter4 = useCounter("4.9★", 2000, 800);
+  const counter4 = useCounter("4.9★", 2000, 800); 
  
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef(null);
@@ -517,8 +517,8 @@ const navigate = useNavigate();
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.4 }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-              <div className="relative lg:col-span-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="relative lg:col-span-2">
                 <MapPin
                   size={18}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
@@ -533,7 +533,7 @@ const navigate = useNavigate();
                 </label>
               </div>
 
-              <div className="relative lg:col-span-1">
+              {/* <div className="relative lg:col-span-1">
                 <Calendar
                   size={18}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600"
@@ -559,7 +559,7 @@ const navigate = useNavigate();
                 <label className="absolute -top-2 left-3 px-1 text-xs text-primary-500 bg-white rounded">
                   Move Out
                 </label>
-              </div>
+              </div> */}
 
               <div className="relative lg:col-span-1">
                 <HomeIcon
@@ -711,7 +711,7 @@ const navigate = useNavigate();
           <div className="flex justify-center mt-10">
             <button
               onClick={() => navigate("/explore")}
-              className="px-8 py-4 bg-green-600 text-white rounded-full font-semibold text-lg hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center"
+              className="px-8 py-4 bg-primary-500 text-white rounded-full font-semibold text-lg hover:bg-primary-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center"
             >
               View All Properties
               <i className="fa-solid fa-arrow-right ml-2"></i>
@@ -775,10 +775,7 @@ const navigate = useNavigate();
           </div>
 
           <div className="text-center mt-14">
-            <button className="px-10 py-4 bg-primary-600 text-white rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform">
-              Get Started Now
-              <i className="fa-solid fa-arrow-right ml-2"></i>
-            </button>
+            
             <p className="text-sm text-[#3f4e62] mt-3">
               Join thousands of happy users. No credit card required.
             </p>
