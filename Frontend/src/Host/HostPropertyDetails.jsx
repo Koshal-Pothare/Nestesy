@@ -60,14 +60,13 @@ const HostPropertyDetails = () => {
         console.log('All properties:', allProperties);
         console.log('Looking for property with ID:', id);
         console.log('ID type:', typeof id);
-        
-        // Try multiple ways to find the property
+         
         let foundProperty = null;
         
         // Method 1: String comparison
         foundProperty = allProperties.find(p => String(p.id) === String(id));
         
-        // Method 2: Number comparison (if Method 1 fails)
+        // Method 2: Number comparison 
         if (!foundProperty) {
           console.log('Method 1 failed, trying number comparison');
           foundProperty = allProperties.find(p => Number(p.id) === Number(id));
@@ -80,8 +79,7 @@ const HostPropertyDetails = () => {
         
         console.log('Found property:', foundProperty);
         
-        if (foundProperty) {
-          // Ensure property has a verification object
+        if (foundProperty) { 
           if (!foundProperty.verification) {
             console.warn('Property has no verification object. Adding default.');
             foundProperty.verification = {
@@ -111,7 +109,6 @@ const HostPropertyDetails = () => {
     }
   };
 
-  // Auto-slide images
   useEffect(() => {
     if (!property?.images?.length) return;
     
@@ -146,7 +143,7 @@ const HostPropertyDetails = () => {
     }
   };
 
-  // Handle status update (Active / Rented)
+  // Handle status update (Active or Rented)
   const handleStatusUpdate = (newStatus) => {
     if (window.confirm(`Are you sure you want to mark this property as "${newStatus}"?`)) {
       setUpdatingStatus(true);
@@ -163,8 +160,7 @@ const HostPropertyDetails = () => {
           }
           return p;
         });
-        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
-        // Update the current property state
+        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties)); 
         setProperty(prev => ({
           ...prev,
           status: newStatus,
@@ -189,7 +185,7 @@ const HostPropertyDetails = () => {
         bg: 'bg-blue-100',
         text: 'text-blue-800',
         icon: <Key className="w-5 h-5" />,
-        label: 'Rented 🔑',
+        label: 'Rented ',
         border: 'border-blue-300'
       };
     }
@@ -198,7 +194,7 @@ const HostPropertyDetails = () => {
         bg: 'bg-green-100',
         text: 'text-green-800',
         icon: <CheckCircle className="w-5 h-5" />,
-        label: 'Verified ✓',
+        label: 'Verified ',
         border: 'border-green-300'
       };
     }
@@ -220,7 +216,7 @@ const HostPropertyDetails = () => {
         border: 'border-red-300'
       };
     }
-    // Default fallback - return Pending instead of Unknown
+    // Default fallbac 
     return {
       bg: 'bg-yellow-100',
       text: 'text-yellow-800',
@@ -249,8 +245,7 @@ const HostPropertyDetails = () => {
     }
     return { label: 'Pending Review ⏳', color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' };
   };
-
-  // Debug: Show all properties if not found
+ 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -270,7 +265,7 @@ const HostPropertyDetails = () => {
           <h3 className="text-xl font-semibold text-gray-700">{error || 'Property not found'}</h3>
           <p className="text-gray-400 mt-2">The property you're looking for doesn't exist or has been removed.</p>
           
-          {/* Debug info - show available properties */}
+          {/*  show available properties */}
           {allProperties.length > 0 && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg text-left">
               <p className="text-sm font-semibold text-gray-700">Available Properties ({allProperties.length}):</p>
@@ -443,8 +438,8 @@ const HostPropertyDetails = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">
           {/* Left Content */}
-          <div className="min-w-0">
-            {/* Title & Basic Info */}
+          <div className="min-w-0 mt-20">
+            {/* Title */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -662,13 +657,13 @@ const HostPropertyDetails = () => {
             </section>
           </div>
 
-          {/* Right Sticky Card */}
+          {/* Right Card */}
           <aside className="lg:sticky lg:top-24 h-fit">
             <motion.div
               initial={{ opacity: 0, x: 25 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white rounded-3xl border border-gray-100 shadow-lg p-5 sm:p-6"
+              className="bg-white rounded-3xl border border-gray-100 shadow-lg p-5 sm:p-6 mt-20"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -720,7 +715,7 @@ const HostPropertyDetails = () => {
                 </div>
               </div>
 
-              {/* Status Management Buttons - Only show when verified */}
+              {/* Status Management Buttons */}
               {isVerified && (
                 <div className="mt-6 space-y-3">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Manage Status</p>
@@ -765,7 +760,7 @@ const HostPropertyDetails = () => {
               {!isVerified && (
                 <div className="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
                   <p className="text-xs text-yellow-700 text-center">
-                    ⏳ Status management available after verification
+                     Status management available after verification
                   </p>
                 </div>
               )}
@@ -807,7 +802,7 @@ const HostPropertyDetails = () => {
   );
 };
 
-// Refresh icon component
+// Refresh icon  
 const Refresh = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Heart, 
@@ -14,10 +14,18 @@ import {
   IndianRupee
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toggleFavorite, isFavorite } from "../utils/favorite";
 
-const PropertyCard = ({ property, index, onClick }) => {
+const PropertyCard = ({ property, index, onClick, variant = 'public' }) => {
   const navigate = useNavigate();
   const [favorite, setFavorite] = useState(false);
+
+  // Check if property is favorited on mount
+  useEffect(() => {
+    if (property?.id) {
+      setFavorite(isFavorite(property.id));
+    }
+  }, [property]);
 
   const getStatusBadge = (status, verification) => {
     if (status === 'Active' && verification?.verified) {
@@ -43,6 +51,13 @@ const PropertyCard = ({ property, index, onClick }) => {
           icon: <Clock className="w-3 h-3" />,
           label: 'Pending'
         };
+      case 'Rented':
+        return {
+          bg: 'bg-blue-100',
+          text: 'text-blue-800',
+          icon: <CheckCircle className="w-3 h-3" />,
+          label: 'Rented'
+        };
       case 'Inactive':
         return {
           bg: 'bg-red-100',
@@ -65,8 +80,7 @@ const PropertyCard = ({ property, index, onClick }) => {
     if (onClick) {
       onClick();
     } else {
-      // Fallback: navigate to property details
-      navigate(`/host/property/${property.id}`);
+      navigate(`/property/${property.id}`);
     }
   };
 
@@ -76,14 +90,38 @@ const PropertyCard = ({ property, index, onClick }) => {
     if (onClick) {
       onClick();
     } else {
-      navigate(`/host/property/${property.id}`);
+      navigate(`/property/${property.id}`);
     }
   };
 
   const status = getStatusBadge(property.status, property.verification);
 
-  // Don't show favorite button for host properties
-  const showFavorite = false; // Set to false for host view
+  // Show favorite button only on public view
+  const showFavorite = variant === 'public';
+
+  // Toggle favorite
+  const handleFavorite = (e) => {
+    e.stopPropagation();
+    
+    // Check if user is logged in
+    const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
+    if (!user) {
+      alert("Please login to add properties to wishlist");
+      return;
+    }
+
+    const result = toggleFavorite(property);
+    
+    if (result === null) {
+      alert("Please login to add properties to wishlist");
+      return;
+    }
+
+    setFavorite(result);
+     
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('favoritesUpdated'));
+  };
 
   return (
     <motion.div
@@ -102,14 +140,30 @@ const PropertyCard = ({ property, index, onClick }) => {
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
         />
-
-        {/* Status Badge - Single verification badge */}
+ 
         <div className="absolute top-3 left-3">
           <span className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 ${status.bg} ${status.text}`}>
             {status.icon}
             {status.label}
           </span>
-        </div> 
+        </div>
+
+        {/* Favorite Button */}
+        {showFavorite && (
+          <button
+            onClick={handleFavorite}
+            className={`absolute top-3 right-3 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+              favorite
+                ? "bg-white text-red-500 shadow-md"
+                : "bg-white text-gray-600 hover:bg-primary-600 hover:text-white"
+            }`}
+          >
+            <Heart
+              size={18}
+              fill={favorite ? "currentColor" : "none"}
+            />
+          </button>
+        )}
 
         {/* Quick View Button */}
         <button
@@ -158,7 +212,7 @@ const PropertyCard = ({ property, index, onClick }) => {
             <span className="text-gray-500 text-sm mb-1">/month</span>
           </div>
 
-          {/* Status Indicator - Only show if status is not already shown in badge */}
+          {/* Status Indicator  */}
           {property.status === 'Pending' && !property.verification?.verified && (
             <div className="flex items-center gap-1 text-yellow-600 text-xs bg-yellow-50 px-2 py-1 rounded-full">
               <Clock className="w-3 h-3" />
@@ -169,6 +223,12 @@ const PropertyCard = ({ property, index, onClick }) => {
             <div className="flex items-center gap-1 text-red-600 text-xs bg-red-50 px-2 py-1 rounded-full">
               <AlertCircle className="w-3 h-3" />
               Rejected
+            </div>
+          )}
+          {property.status === 'Rented' && (
+            <div className="flex items-center gap-1 text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded-full">
+              <CheckCircle className="w-3 h-3" />
+              Rented
             </div>
           )}
         </div>

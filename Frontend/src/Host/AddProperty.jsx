@@ -15,7 +15,14 @@ import {
   Image,
   Grid3x3,
   Sofa,
-  Shield
+  Shield,
+  ShieldCheck,
+  Wallet,
+  Users,
+  Briefcase,
+  GraduationCap,
+  PlusCircle,
+  Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -27,21 +34,37 @@ const AddProperty = () => {
   const [notification, setNotification] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const verificationRef = useRef(null);
+  const [customAmenity, setCustomAmenity] = useState('');
 
   // Available amenities list
-  const availableAmenities = [
+  const [availableAmenities, setAvailableAmenities] = useState([
     'Parking', 'Pool', 'Gym', 'Garden', 'Security', 
     'Lift', 'Power Backup', 'Terrace', 'Balcony', 
-    'Furnished', 'AC', 'WiFi', 'Pet Friendly', 'Playground', 'CCTV', 
-  ];
+    'Furnished', 'AC', 'WiFi', 'Pet Friendly', 'Playground', 'CCTV'
+  ]);
 
-  // BHK options (up to 5 BHK)
+  // BHK 
   const bhkOptions = [
     { value: '1', label: '1 BHK' },
     { value: '2', label: '2 BHK' },
     { value: '3', label: '3 BHK' },
     { value: '4', label: '4 BHK' },
     { value: '5', label: '5 BHK' }
+  ];
+
+  // Furnishing options
+  const furnishingOptions = [
+    { value: 'Fully Furnished', label: ' Fully Furnished' },
+    { value: 'Semi Furnished', label: ' Semi Furnished' },
+    { value: 'Unfurnished', label: 'Unfurnished' }
+  ];
+
+  // Ideal For options
+  const idealForOptions = [
+    { value: 'Students', label: ' Students',   },
+    { value: 'Working Professionals ', label: 'Working Professionals',   },
+    { value: 'Families', label: ' Families',  },
+    { value: 'Couples', label: ' Couples',  }
   ];
 
   // Form state
@@ -60,17 +83,19 @@ const AddProperty = () => {
     bathroomImages: [],
     balconyImages: [],
     kitchenImages: [],
-    bedroomImages: [],
-    // Verification fields
+    bedroomImages: [], 
     ownerName: '',
     ownerEmail: '',
     ownerPhone: '',
     propertyAddress: '',
     verificationDocs: {},
-    additionalNotes: ''
+    additionalNotes: '', 
+    securityDeposit: '',
+    maintenance: '',
+    furnishing: '',
+    idealFor: []
   });
-
-  // Handle form input changes
+ 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -83,7 +108,7 @@ const AddProperty = () => {
     }
   };
 
-  // Handle amenities toggle
+  // Handle amenities  
   const toggleAmenity = (amenity) => {
     setFormData(prev => ({
       ...prev,
@@ -93,10 +118,70 @@ const AddProperty = () => {
     }));
   };
 
-  // Handle outer images upload (min 3, max 5)
+  // Remove custom amenity from available list
+  const removeCustomAmenity = (amenityToRemove) => {
+    // Check if amenity is currently selected
+    if (formData.amenities.includes(amenityToRemove)) {
+      // Remove from selected amenities first
+      setFormData(prev => ({
+        ...prev,
+        amenities: prev.amenities.filter(a => a !== amenityToRemove)
+      }));
+    }
+    
+    // Remove from available amenities
+    setAvailableAmenities(prev => prev.filter(a => a !== amenityToRemove));
+    showNotification(`"${amenityToRemove}" removed from amenities`, 'success');
+  };
+
+  // Add custom amenity
+  const handleAddCustomAmenity = () => {
+    if (!customAmenity.trim()) {
+      showNotification('Please enter an amenity name', 'error');
+      return;
+    }
+
+    // Check if amenity already exists
+    if (availableAmenities.some(a => a.toLowerCase() === customAmenity.trim().toLowerCase())) {
+      showNotification('This amenity already exists', 'error');
+      setCustomAmenity('');
+      return;
+    }
+
+    // Add to available amenities
+    setAvailableAmenities(prev => [...prev, customAmenity.trim()]);
+    
+    // Automatically select the newly added amenity
+    setFormData(prev => ({
+      ...prev,
+      amenities: [...prev.amenities, customAmenity.trim()]
+    }));
+
+    setCustomAmenity('');
+    showNotification(`"${customAmenity.trim()}" added to amenities!`, 'success');
+  };
+
+  // Handle Enter key press for custom amenity
+  const handleCustomAmenityKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddCustomAmenity();
+    }
+  };
+ 
+  const toggleIdealFor = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      idealFor: prev.idealFor.includes(value)
+        ? prev.idealFor.filter(item => item !== value)
+        : [...prev.idealFor, value]
+    }));
+  };
+
+  // Handle outer images  
   const handleOuterUpload = (e) => {
     const files = Array.from(e.target.files);
-    const remainingSlots = 5 - formData.outerImages.length;
+    const remainingSlots = 4 - formData.outerImages.length;
     const selectedFiles = files.slice(0, remainingSlots);
     
     const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
@@ -106,7 +191,7 @@ const AddProperty = () => {
     }));
   };
 
-  // Handle living room images upload (min 1, max 2)
+  // Handle living room images  
   const handleLivingRoomUpload = (e) => {
     const files = Array.from(e.target.files);
     const remainingSlots = 2 - formData.livingRoomImages.length;
@@ -119,7 +204,7 @@ const AddProperty = () => {
     }));
   };
 
-  // Handle bathroom images upload (min 1, max 2)
+  // Handle bathroom images 
   const handleBathroomUpload = (e) => {
     const files = Array.from(e.target.files);
     const remainingSlots = 2 - formData.bathroomImages.length;
@@ -132,7 +217,7 @@ const AddProperty = () => {
     }));
   };
 
-  // Handle balcony images upload (min 1, max 2)
+  // Handle balcony images  
   const handleBalconyUpload = (e) => {
     const files = Array.from(e.target.files);
     const remainingSlots = 2 - formData.balconyImages.length;
@@ -145,7 +230,7 @@ const AddProperty = () => {
     }));
   };
 
-  // Handle kitchen images upload (min 1, max 2)
+  // Handle kitchen images  
   const handleKitchenUpload = (e) => {
     const files = Array.from(e.target.files);
     const remainingSlots = 2 - formData.kitchenImages.length;
@@ -158,7 +243,7 @@ const AddProperty = () => {
     }));
   };
 
-  // Handle bedroom images upload (min 1, max 2)
+  // Handle bedroom images  
   const handleBedroomUpload = (e, bedroomIndex) => {
     const files = Array.from(e.target.files);
     const maxImages = 2;
@@ -177,48 +262,42 @@ const AddProperty = () => {
       return { ...prev, bedroomImages: updatedBedroomImages };
     });
   };
-
-  // Remove outer image
+   
+  //remove imgs 
   const removeOuterImage = (index) => {
     setFormData(prev => ({
       ...prev,
       outerImages: prev.outerImages.filter((_, i) => i !== index)
     }));
   };
-
-  // Remove living room image
+ 
   const removeLivingRoomImage = (index) => {
     setFormData(prev => ({
       ...prev,
       livingRoomImages: prev.livingRoomImages.filter((_, i) => i !== index)
     }));
-  };
-
-  // Remove bathroom image
+  }; 
   const removeBathroomImage = (index) => {
     setFormData(prev => ({
       ...prev,
       bathroomImages: prev.bathroomImages.filter((_, i) => i !== index)
     }));
   };
-
-  // Remove balcony image
+ 
   const removeBalconyImage = (index) => {
     setFormData(prev => ({
       ...prev,
       balconyImages: prev.balconyImages.filter((_, i) => i !== index)
     }));
   };
-
-  // Remove kitchen image
+ 
   const removeKitchenImage = (index) => {
     setFormData(prev => ({
       ...prev,
       kitchenImages: prev.kitchenImages.filter((_, i) => i !== index)
     }));
   };
-
-  // Remove bedroom image
+ 
   const removeBedroomImage = (bedroomIndex, imageIndex) => {
     setFormData(prev => {
       const updatedBedroomImages = [...prev.bedroomImages];
@@ -229,8 +308,7 @@ const AddProperty = () => {
       return { ...prev, bedroomImages: updatedBedroomImages };
     });
   };
-
-  // Show notification
+ 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
@@ -240,8 +318,7 @@ const AddProperty = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Validate basic fields
+ 
     if (!formData.title || !formData.location || !formData.price || 
         !formData.bhk || !formData.bathrooms || !formData.area) {
       showNotification('Please fill in all required fields', 'error');
@@ -249,9 +326,14 @@ const AddProperty = () => {
       return;
     }
 
-    // Validate images
-    if (formData.outerImages.length < 3) {
-      showNotification('Please upload at least 3 outer images', 'error');
+    // Validate images  
+    if (formData.outerImages.length < 2) {
+      showNotification('Please upload at least 2 outer images', 'error');
+      setIsSubmitting(false);
+      return;
+    }
+    if (formData.outerImages.length > 4) {
+      showNotification('Maximum 4 outer images allowed', 'error');
       setIsSubmitting(false);
       return;
     }
@@ -295,11 +377,11 @@ const AddProperty = () => {
       }
     }
 
-    // Validate verification section using the ref
+    // Validate verification section 
     if (verificationRef.current) {
       const isValid = verificationRef.current.validate();
       if (!isValid) {
-        showNotification('Please complete all verification fields', 'error');
+        showNotification('Please upload all required verification documents', 'error');
         setIsSubmitting(false);
         return;
       }
@@ -307,7 +389,7 @@ const AddProperty = () => {
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Combine all images into a single array for the property card
+    // Combine all images  
     const allImages = [
       ...formData.outerImages,
       ...formData.livingRoomImages,
@@ -332,6 +414,10 @@ const AddProperty = () => {
       inquiries: 0,
       amenities: formData.amenities,
       description: formData.description,
+      securityDeposit: parseFloat(formData.securityDeposit) || 0,
+      maintenance: parseFloat(formData.maintenance) || 0,
+      furnishing: formData.furnishing || 'Unfurnished',
+      idealFor: formData.idealFor || [],
       verification: {
         ownerName: formData.ownerName,
         ownerEmail: formData.ownerEmail,
@@ -346,27 +432,22 @@ const AddProperty = () => {
     };
 
     // Save to localStorage
-    try {
-      // Get existing properties
+    try { 
       const storedProperties = localStorage.getItem('hostProperties');
       let existingProperties = [];
       
       if (storedProperties) {
         existingProperties = JSON.parse(storedProperties);
       }
-      
-      // Add new property at the beginning
+       
       const updatedProperties = [newProperty, ...existingProperties];
-      
-      // Save back to localStorage
+       
       localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
-      
-      // Dispatch custom event to notify other components
+       
       window.dispatchEvent(new CustomEvent('propertyAdded', { 
         detail: newProperty 
       }));
-      
-      // Dispatch storage event for cross-tab communication
+       
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'hostProperties',
         newValue: JSON.stringify(updatedProperties),
@@ -377,8 +458,7 @@ const AddProperty = () => {
       showNotification('Property submitted for verification successfully!', 'success');
       
       setIsSubmitting(false);
-      
-      // ✅ FIXED: Navigate to /host/my-properties
+       
       setTimeout(() => {
         resetForm();
         navigate('/host/my-properties');
@@ -414,8 +494,19 @@ const AddProperty = () => {
       ownerPhone: '',
       propertyAddress: '',
       verificationDocs: {},
-      additionalNotes: ''
+      additionalNotes: '',
+      securityDeposit: '',
+      maintenance: '',
+      furnishing: '',
+      idealFor: []
     });
+    setCustomAmenity('');
+    // default amenities 
+    setAvailableAmenities([
+      'Parking', 'Pool', 'Gym', 'Garden', 'Security', 
+      'Lift', 'Power Backup', 'Terrace', 'Balcony', 
+      'Furnished', 'AC', 'WiFi', 'Pet Friendly', 'Playground', 'CCTV'
+    ]);
   };
 
   // Property types
@@ -445,7 +536,7 @@ const AddProperty = () => {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate('/host/my-properties')}  // ✅ FIXED
+            onClick={() => navigate('/host/my-properties')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
@@ -613,6 +704,106 @@ const AddProperty = () => {
             </div>
           </div>
 
+          {/* Furnishing */}
+          <div className="border-t border-gray-100 pt-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Sofa className="w-5 h-5 text-orange-600" />
+              Furnishing & Ideal For
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Furnishing Status <span className="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <select
+                  name="furnishing"
+                  value={formData.furnishing}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                >
+                  <option value="">Select Furnishing</option>
+                  {furnishingOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div> 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Ideal For <span className="text-gray-400 text-xs">(Select all that apply)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {idealForOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => toggleIdealFor(option.value)}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                        formData.idealFor.includes(option.value)
+                          ? 'bg-green-600 text-white shadow-md shadow-green-600/20'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {option.icon}
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                {formData.idealFor.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Selected: {formData.idealFor.join(', ')}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Security & Maintenance */}
+          <div className="border-t border-gray-100 pt-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              Security & Maintenance
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Security Deposit <span className="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <IndianRupee className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="number"
+                    name="securityDeposit"
+                    value={formData.securityDeposit}
+                    onChange={handleInputChange}
+                    min="0"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                    placeholder="e.g., 20000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Maintenance (per month) <span className="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <Wallet className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="number"
+                    name="maintenance"
+                    value={formData.maintenance}
+                    onChange={handleInputChange}
+                    min="0"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                    placeholder="e.g., 2000"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Description */}
           <div className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Description</h2>
@@ -634,14 +825,14 @@ const AddProperty = () => {
             </h2>
             
             <div className="space-y-6">
-              {/* Outer Images - Min 3, Max 5 */}
+              {/* Outer Images  */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Outer Images <span className="text-red-500">*</span>
-                  <span className="text-gray-400 text-xs ml-2">(Min 3, Max 5 images)</span>
+                  <span className="text-gray-400 text-xs ml-2">(Min 2, Max 4 images)</span>
                 </label>
                 <div className="space-y-3">
-                  {formData.outerImages.length < 5 && (
+                  {formData.outerImages.length < 4 && (
                     <div
                       className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-500 transition-colors cursor-pointer max-w-md"
                       onClick={() => document.getElementById('outer-upload').click()}
@@ -657,15 +848,15 @@ const AddProperty = () => {
                       <div className="flex items-center justify-center gap-2">
                         <Upload className="w-5 h-5 text-gray-400" />
                         <span className="text-sm text-gray-500">
-                          {formData.outerImages.length < 3 ? (
-                            `Upload ${5 - formData.outerImages.length} more image${5 - formData.outerImages.length > 1 ? 's' : ''} (Min 3 required)`
+                          {formData.outerImages.length < 2 ? (
+                            `Upload ${4 - formData.outerImages.length} more image${4 - formData.outerImages.length > 1 ? 's' : ''} (Min 2 required)`
                           ) : (
-                            `Upload ${5 - formData.outerImages.length} more image${5 - formData.outerImages.length > 1 ? 's' : ''}`
+                            `Upload ${4 - formData.outerImages.length} more image${4 - formData.outerImages.length > 1 ? 's' : ''}`
                           )}
                         </span>
                       </div>
-                      {formData.outerImages.length < 3 && (
-                        <p className="text-xs text-red-400 mt-1">* Minimum 3 images required</p>
+                      {formData.outerImages.length < 2 && (
+                        <p className="text-xs text-red-400 mt-1">* Minimum 2 images required</p>
                       )}
                     </div>
                   )}
@@ -684,7 +875,7 @@ const AddProperty = () => {
                         <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
                           Outer {index + 1}
                         </div>
-                        {index < 3 && (
+                        {index < 2 && (
                           <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
                             Required
                           </div>
@@ -692,7 +883,7 @@ const AddProperty = () => {
                       </div>
                     ))}
 
-                    {Array.from({ length: Math.max(0, 5 - formData.outerImages.length) }).map((_, index) => (
+                    {Array.from({ length: Math.max(0, 4 - formData.outerImages.length) }).map((_, index) => (
                       <div 
                         key={`outer-empty-${index}`}
                         className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
@@ -706,7 +897,7 @@ const AddProperty = () => {
                 </div>
               </div>
 
-              {/* Living Room Images - Min 1, Max 2 */}
+              {/* Living Room Images   */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Living Room Images <span className="text-red-500">*</span>
@@ -778,7 +969,7 @@ const AddProperty = () => {
                 </div>
               </div>
 
-              {/* Bathroom Images - Min 1, Max 2 */}
+              {/* Bathroom Images  */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Bathroom Images <span className="text-red-500">*</span>
@@ -1102,8 +1293,8 @@ const AddProperty = () => {
             {/* Image summary */}
             <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-500">
               <span className="flex items-center gap-1">
-                <CheckCircle className={`w-4 h-4 ${formData.outerImages.length >= 3 ? 'text-green-500' : 'text-red-500'}`} />
-                Outer: {formData.outerImages.length}/5 (Min 3)
+                <CheckCircle className={`w-4 h-4 ${formData.outerImages.length >= 2 ? 'text-green-500' : 'text-red-500'}`} />
+                Outer: {formData.outerImages.length}/4 (Min 2)
               </span>
               <span className="flex items-center gap-1">
                 <CheckCircle className={`w-4 h-4 ${formData.livingRoomImages.length >= 1 ? 'text-green-500' : 'text-red-500'}`} />
@@ -1142,24 +1333,70 @@ const AddProperty = () => {
             setFormData={setFormData}
           />
 
-          {/* Amenities */}
+          {/* Amenities with Add and Remove */}
           <div className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Amenities</h2>
+            
+            {/* Add Custom Amenity */}
+            <div className="flex gap-2 mb-4">
+              <input
+                type="text"
+                value={customAmenity}
+                onChange={(e) => setCustomAmenity(e.target.value)}
+                onKeyPress={handleCustomAmenityKeyPress}
+                placeholder="Type custom amenity..."
+                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomAmenity}
+                className="px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
+              >
+                <PlusCircle className="w-5 h-5" />
+                Add
+              </button>
+            </div>
+
+            {/* Amenities Buttons */}
             <div className="flex flex-wrap gap-2">
-              {availableAmenities.map((amenity) => (
-                <button
-                  key={amenity}
-                  type="button"
-                  onClick={() => toggleAmenity(amenity)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    formData.amenities.includes(amenity)
-                      ? 'bg-green-600 text-white shadow-md shadow-green-600/20'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {amenity}
-                </button>
-              ))}
+              {availableAmenities.map((amenity) => { 
+                const isDefault = ['Parking', 'Pool', 'Gym', 'Garden', 'Security', 
+                  'Lift', 'Power Backup', 'Terrace', 'Balcony', 
+                  'Furnished', 'AC', 'WiFi', 'Pet Friendly', 'Playground', 'CCTV'
+                ].includes(amenity);
+                 
+                const isSelected = formData.amenities.includes(amenity);
+                
+                return (
+                  <div key={amenity} className="relative group inline-flex">
+                    <button
+                      type="button"
+                      onClick={() => toggleAmenity(amenity)}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        isSelected
+                          ? 'bg-green-600 text-white shadow-md shadow-green-600/20'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {amenity}
+                    </button>
+                    {/* Remove button ( only for custom amenities ) */}
+                    {!isDefault && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCustomAmenity(amenity);
+                        }}
+                        className="absolute -top-2 -right-2 p-0.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+                        title="Remove this amenity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {formData.amenities.length > 0 && (
               <p className="text-xs text-gray-500 mt-2">
