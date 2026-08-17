@@ -589,7 +589,6 @@ const BookingHistory = () => {
                       </div>
 
                     </div>
-
                   </div>
 
                 </motion.div>
