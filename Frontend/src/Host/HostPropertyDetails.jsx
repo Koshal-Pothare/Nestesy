@@ -647,7 +647,7 @@ const HostPropertyDetails = () => {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="bg-purple-50 rounded-xl p-4">
                   <p className="text-2xl font-bold text-purple-700">{property.inquiries || 0}</p>
-                  <p className="text-xs text-purple-600">Total Inquiries</p>
+                  <p className="text-xs text-purple-600">Total visits</p>
                 </div>
                 <div className="bg-green-50 rounded-xl p-4">
                   <p className="text-2xl font-bold text-green-700">{property.listedDate}</p>
@@ -771,16 +771,7 @@ const HostPropertyDetails = () => {
                   className="rounded-2xl border border-gray-300 py-3.5 font-semibold text-gray-700 hover:bg-gray-50 transition"
                 >
                   Back to Properties
-                </button>
-
-                <button
-                  onClick={() => navigate(`/host/edit-property/${property.id}`)}
-                  className="rounded-2xl bg-primary-600 py-3.5 font-semibold text-white hover:bg-primary-700 transition shadow-lg shadow-primary-600/20 flex items-center justify-center gap-2"
-                >
-                  <Edit size={18} />
-                  Edit Property
-                </button>
-
+                </button> 
                 <button
                   onClick={handleDelete}
                   className="rounded-2xl bg-red-500 py-3.5 font-semibold text-white hover:bg-red-600 transition flex items-center justify-center gap-2"

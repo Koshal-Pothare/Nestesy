@@ -61,10 +61,10 @@ const AddProperty = () => {
 
   // Ideal For options
   const idealForOptions = [
-    { value: 'Students', label: ' Students',   },
-    { value: 'Working Professionals ', label: 'Working Professionals',   },
-    { value: 'Families', label: ' Families',  },
-    { value: 'Couples', label: ' Couples',  }
+    { value: 'Students', label: ' Students' },
+    { value: 'Working Professionals ', label: 'Working Professionals' },
+    { value: 'Families', label: ' Families' },
+    { value: 'Couples', label: ' Couples' }
   ];
 
   // Form state
@@ -120,16 +120,12 @@ const AddProperty = () => {
 
   // Remove custom amenity from available list
   const removeCustomAmenity = (amenityToRemove) => {
-    // Check if amenity is currently selected
     if (formData.amenities.includes(amenityToRemove)) {
-      // Remove from selected amenities first
       setFormData(prev => ({
         ...prev,
         amenities: prev.amenities.filter(a => a !== amenityToRemove)
       }));
     }
-    
-    // Remove from available amenities
     setAvailableAmenities(prev => prev.filter(a => a !== amenityToRemove));
     showNotification(`"${amenityToRemove}" removed from amenities`, 'success');
   };
@@ -141,17 +137,13 @@ const AddProperty = () => {
       return;
     }
 
-    // Check if amenity already exists
     if (availableAmenities.some(a => a.toLowerCase() === customAmenity.trim().toLowerCase())) {
       showNotification('This amenity already exists', 'error');
       setCustomAmenity('');
       return;
     }
 
-    // Add to available amenities
     setAvailableAmenities(prev => [...prev, customAmenity.trim()]);
-    
-    // Automatically select the newly added amenity
     setFormData(prev => ({
       ...prev,
       amenities: [...prev.amenities, customAmenity.trim()]
@@ -178,17 +170,56 @@ const AddProperty = () => {
     }));
   };
 
+  // Handle image upload with compression/conversion
+  const handleImageUpload = (files, currentImages, setImages) => {
+    const remainingSlots = currentImages.length + files.length;
+    const maxSlots = 4; // For outer images, adjust as needed
+    
+    if (remainingSlots > maxSlots) {
+      showNotification(`Maximum ${maxSlots} images allowed`, 'error');
+      return;
+    }
+
+    const imageUrls = [];
+    const fileReaders = [];
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // Convert to base64 instead of blob URL
+        imageUrls.push(e.target.result);
+        if (imageUrls.length === files.length) {
+          setImages(prev => [...prev, ...imageUrls]);
+        }
+      };
+      fileReaders.push(reader);
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Handle outer images  
   const handleOuterUpload = (e) => {
     const files = Array.from(e.target.files);
     const remainingSlots = 4 - formData.outerImages.length;
     const selectedFiles = files.slice(0, remainingSlots);
     
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      outerImages: [...prev.outerImages, ...imageUrls]
-    }));
+    const imageUrls = [];
+    const fileReaders = [];
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imageUrls.push(event.target.result);
+        if (imageUrls.length === selectedFiles.length) {
+          setFormData(prev => ({
+            ...prev,
+            outerImages: [...prev.outerImages, ...imageUrls]
+          }));
+        }
+      };
+      fileReaders.push(reader);
+      reader.readAsDataURL(file);
+    });
   };
 
   // Handle living room images  
@@ -197,11 +228,23 @@ const AddProperty = () => {
     const remainingSlots = 2 - formData.livingRoomImages.length;
     const selectedFiles = files.slice(0, remainingSlots);
     
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      livingRoomImages: [...prev.livingRoomImages, ...imageUrls]
-    }));
+    const imageUrls = [];
+    const fileReaders = [];
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imageUrls.push(event.target.result);
+        if (imageUrls.length === selectedFiles.length) {
+          setFormData(prev => ({
+            ...prev,
+            livingRoomImages: [...prev.livingRoomImages, ...imageUrls]
+          }));
+        }
+      };
+      fileReaders.push(reader);
+      reader.readAsDataURL(file);
+    });
   };
 
   // Handle bathroom images 
@@ -210,11 +253,23 @@ const AddProperty = () => {
     const remainingSlots = 2 - formData.bathroomImages.length;
     const selectedFiles = files.slice(0, remainingSlots);
     
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      bathroomImages: [...prev.bathroomImages, ...imageUrls]
-    }));
+    const imageUrls = [];
+    const fileReaders = [];
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imageUrls.push(event.target.result);
+        if (imageUrls.length === selectedFiles.length) {
+          setFormData(prev => ({
+            ...prev,
+            bathroomImages: [...prev.bathroomImages, ...imageUrls]
+          }));
+        }
+      };
+      fileReaders.push(reader);
+      reader.readAsDataURL(file);
+    });
   };
 
   // Handle balcony images  
@@ -223,11 +278,23 @@ const AddProperty = () => {
     const remainingSlots = 2 - formData.balconyImages.length;
     const selectedFiles = files.slice(0, remainingSlots);
     
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      balconyImages: [...prev.balconyImages, ...imageUrls]
-    }));
+    const imageUrls = [];
+    const fileReaders = [];
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imageUrls.push(event.target.result);
+        if (imageUrls.length === selectedFiles.length) {
+          setFormData(prev => ({
+            ...prev,
+            balconyImages: [...prev.balconyImages, ...imageUrls]
+          }));
+        }
+      };
+      fileReaders.push(reader);
+      reader.readAsDataURL(file);
+    });
   };
 
   // Handle kitchen images  
@@ -236,11 +303,23 @@ const AddProperty = () => {
     const remainingSlots = 2 - formData.kitchenImages.length;
     const selectedFiles = files.slice(0, remainingSlots);
     
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      kitchenImages: [...prev.kitchenImages, ...imageUrls]
-    }));
+    const imageUrls = [];
+    const fileReaders = [];
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imageUrls.push(event.target.result);
+        if (imageUrls.length === selectedFiles.length) {
+          setFormData(prev => ({
+            ...prev,
+            kitchenImages: [...prev.kitchenImages, ...imageUrls]
+          }));
+        }
+      };
+      fileReaders.push(reader);
+      reader.readAsDataURL(file);
+    });
   };
 
   // Handle bedroom images  
@@ -251,15 +330,26 @@ const AddProperty = () => {
     const remainingSlots = maxImages - currentBedroom.length;
     const selectedFiles = files.slice(0, remainingSlots);
     
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    
-    setFormData(prev => {
-      const updatedBedroomImages = [...prev.bedroomImages];
-      if (!updatedBedroomImages[bedroomIndex]) {
-        updatedBedroomImages[bedroomIndex] = [];
-      }
-      updatedBedroomImages[bedroomIndex] = [...updatedBedroomImages[bedroomIndex], ...imageUrls];
-      return { ...prev, bedroomImages: updatedBedroomImages };
+    const imageUrls = [];
+    const fileReaders = [];
+
+    selectedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imageUrls.push(event.target.result);
+        if (imageUrls.length === selectedFiles.length) {
+          setFormData(prev => {
+            const updatedBedroomImages = [...prev.bedroomImages];
+            if (!updatedBedroomImages[bedroomIndex]) {
+              updatedBedroomImages[bedroomIndex] = [];
+            }
+            updatedBedroomImages[bedroomIndex] = [...updatedBedroomImages[bedroomIndex], ...imageUrls];
+            return { ...prev, bedroomImages: updatedBedroomImages };
+          });
+        }
+      };
+      fileReaders.push(reader);
+      reader.readAsDataURL(file);
     });
   };
    
@@ -501,7 +591,6 @@ const AddProperty = () => {
       idealFor: []
     });
     setCustomAmenity('');
-    // default amenities 
     setAvailableAmenities([
       'Parking', 'Pool', 'Gym', 'Garden', 'Security', 
       'Lift', 'Power Backup', 'Terrace', 'Balcony', 
@@ -739,13 +828,12 @@ const AddProperty = () => {
                       key={option.value}
                       type="button"
                       onClick={() => toggleIdealFor(option.value)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                         formData.idealFor.includes(option.value)
                           ? 'bg-green-600 text-white shadow-md shadow-green-600/20'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
-                      {option.icon}
                       {option.label}
                     </button>
                   ))}
