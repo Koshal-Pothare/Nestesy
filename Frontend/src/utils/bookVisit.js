@@ -1,63 +1,155 @@
-const getVisitKey = () => {
-  const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
+const GLOBAL_VISITS_KEY = "upcomingVisits";
 
-  if (!user) return null;
+const getUserVisitKey = () => {
+    const user = JSON.parse(
+        localStorage.getItem("nestesyLoggedInUser")
+    );
 
-  return `upcomingVisits_${user.email}`;
+    if (!user) return null;
+
+    return `upcomingVisits_${user.email}`;
 };
 
+// Get current user's visits
 export const getVisit = () => {
-  const key = getVisitKey();
+    const key = getUserVisitKey();
 
-  if (!key) return [];
+    if (!key) return [];
 
-  return JSON.parse(localStorage.getItem(key)) || [];
+    return JSON.parse(localStorage.getItem(key)) || [];
 };
 
-export const bookVisit = (property) => {
-  const key = getVisitKey();
-
-  if (!key) return false;
-
-  const visits = getVisit();
-
-  const exists = visits.some(
-    (item) => item.id === property.id
-  );
-
-  if (exists) return false;
-
-  visits.push(property);
-
-  localStorage.setItem(
-    key,
-    JSON.stringify(visits)
-  );
-
-  return true;
+// Get ALL visits - Host/Admin
+export const getAllVisits = () => {
+    return JSON.parse(
+        localStorage.getItem(GLOBAL_VISITS_KEY)
+    ) || [];
 };
 
+export const bookVisit = (visitData) => {
+    const userKey = getUserVisitKey();
+
+    if (!userKey) return false;
+
+   
+    // USER-SPECIFIC VISITS
+  
+
+    const userVisits = getVisit();
+
+    const userExists = userVisits.some(
+        (item) => item.id === visitData.id
+    );
+
+    if (userExists) return false;
+
+    userVisits.push(visitData);
+
+    localStorage.setItem(
+        userKey,
+        JSON.stringify(userVisits)
+    );
+
+
+    // GLOBAL VISITS
+  
+
+    const allVisits = getAllVisits();
+
+    allVisits.push(visitData);
+
+    localStorage.setItem(
+        GLOBAL_VISITS_KEY,
+        JSON.stringify(allVisits)
+    );
+
+    return true;
+};
+
+// Remove user's visit
 export const removeVisitBooking = (id) => {
-  const key = getVisitKey();
+    const userKey = getUserVisitKey();
 
-  if (!key) return;
+    if (!userKey) return;
 
-  const visits = getVisit().filter(
-    (item) => item.id !== id
-  );
+    const userVisits = getVisit().filter(
+        (item) => item.id !== id
+    );
 
-  localStorage.setItem(
-    key,
-    JSON.stringify(visits)
-  );
+    localStorage.setItem(
+        userKey,
+        JSON.stringify(userVisits)
+    );
+
+    // Also remove from global visits
+    const allVisits = getAllVisits().filter(
+        (item) => item.id !== id
+    );
+
+    localStorage.setItem(
+        GLOBAL_VISITS_KEY,
+        JSON.stringify(allVisits)
+    );
 };
 
+// Check if current user already booked this property
 export const isVisitBooked = (id) => {
-  const key = getVisitKey();
+    const userKey = getUserVisitKey();
 
-  if (!key) return false;
+    if (!userKey) return false;
 
-  return getVisit().some(
-    (item) => item.id === id
-  );
+    return getVisit().some(
+        (item) => item.id === id
+    );
+};
+
+// Update visit status
+export const updateVisitStatus = (id, status) => {
+    // Get all visits
+    const allVisits = getAllVisits();
+
+    // Find the visit
+    const visit = allVisits.find(
+        (item) => item.id === id
+    );
+
+    if (!visit) return [];
+
+    // Update global visits
+    const updatedVisits = allVisits.map((item) =>
+        item.id === id
+            ? { ...item, status }
+            : item
+    );
+
+    localStorage.setItem(
+        GLOBAL_VISITS_KEY,
+        JSON.stringify(updatedVisits)
+    );
+
+    // Find the customer who booked this visit
+    const visitorEmail = visit.visitorEmail;
+
+    if (visitorEmail) {
+        const userKey = `upcomingVisits_${visitorEmail}`;
+
+        const userVisits =
+            JSON.parse(
+                localStorage.getItem(userKey)
+            ) || [];
+
+        const updatedUserVisits = userVisits.map(
+            (item) =>
+                item.id === id
+                    ? { ...item, status }
+                    : item
+        );
+
+        localStorage.setItem(
+            userKey,
+            JSON.stringify(updatedUserVisits)
+        );
+    }
+
+    return updatedVisits;
 };

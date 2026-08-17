@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState ,useEffect} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -11,86 +11,32 @@ import {
   CheckCircle2,
   Filter,
 } from "lucide-react";
+import { getAllVisits, updateVisitStatus } from "../utils/bookVisit";
 
 const HostVisitManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const [visits, setVisits] = useState([
-    {
-      id: 1,
-      visitorName: "Rahul Sharma",
-      email: "rahul@gmail.com",
-      phone: "9876543210",
-      propertyName: "Luxury 2 BHK Apartment",
-      location: "Baner, Pune",
-      visitDate: "2026-08-10",
-      visitTime: "10:00 AM - 11:00 AM",
-      status: "pending",
-    },
-    {
-      id: 2,
-      visitorName: "Priya Patil",
-      email: "priya@gmail.com",
-      phone: "9876543211",
-      propertyName: "Modern 3 BHK Villa",
-      location: "Wakad, Pune",
-      visitDate: "2026-08-11",
-      visitTime: "12:00 PM - 01:00 PM",
-      status: "approved",
-    },
-    {
-      id: 3,
-      visitorName: "Amit Joshi",
-      email: "amit@gmail.com",
-      phone: "9876543212",
-      propertyName: "Premium 1 BHK Flat",
-      location: "Kothrud, Pune",
-      visitDate: "2026-08-12",
-      visitTime: "03:00 PM - 04:00 PM",
-      status: "completed",
-    },
-    {
-      id: 4,
-      visitorName: "Sneha Kulkarni",
-      email: "sneha@gmail.com",
-      phone: "9876543213",
-      propertyName: "Spacious 2 BHK Home",
-      location: "Aundh, Pune",
-      visitDate: "2026-08-13",
-      visitTime: "11:00 AM - 12:00 PM",
-      status: "rejected",
-    },
-    {
-      id: 5,
-      visitorName: "Vishal More",
-      email: "vishal@gmail.com",
-      phone: "9876543214",
-      propertyName: "Elegant 3 BHK Apartment",
-      location: "Hinjewadi, Pune",
-      visitDate: "2026-08-14",
-      visitTime: "05:00 PM - 06:00 PM",
-      status: "pending",
-    },
-  ]);
+  const [visits, setVisits] = useState([]);
 
-  const updateVisitStatus = (id, status) => {
-    setVisits((prevVisits) =>
-      prevVisits.map((visit) =>
-        visit.id === id ? { ...visit, status } : visit
-      )
-    );
-  };
+useEffect(() => {
+    setVisits(getAllVisits());
+}, []);
+
+  const handleStatusChange = (id, status) => {
+    const updatedVisits = updateVisitStatus(id, status);
+    setVisits(updatedVisits);
+};
 
   const filteredVisits = useMemo(() => {
     return visits.filter((visit) => {
       const search = searchTerm.toLowerCase().trim();
 
-      const matchesSearch =
-        visit.visitorName.toLowerCase().includes(search) ||
-        visit.email.toLowerCase().includes(search) ||
-        visit.propertyName.toLowerCase().includes(search) ||
-        visit.location.toLowerCase().includes(search);
+ const matchesSearch =
+    visit.visitorName?.toLowerCase().includes(search) ||
+    visit.visitorEmail?.toLowerCase().includes(search) ||
+    visit.propertyName?.toLowerCase().includes(search) ||
+    visit.location?.toLowerCase().includes(search);
 
       const matchesStatus =
         statusFilter === "all" || visit.status === statusFilter;
@@ -414,12 +360,7 @@ const HostVisitManagement = () => {
                           {visit.status === "pending" && (
                             <>
                               <button
-                                onClick={() =>
-                                  updateVisitStatus(
-                                    visit.id,
-                                    "approved"
-                                  )
-                                }
+                                onClick={() => handleStatusChange(visit.id, "approved")}
                                 className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-600"
                               >
                                 <Check size={14} />
@@ -427,12 +368,7 @@ const HostVisitManagement = () => {
                               </button>
 
                               <button
-                                onClick={() =>
-                                  updateVisitStatus(
-                                    visit.id,
-                                    "rejected"
-                                  )
-                                }
+                               onClick={() => handleStatusChange(visit.id, "rejected")}
                                 className="flex items-center gap-1.5 rounded-lg bg-red-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-600"
                               >
                                 <X size={14} />
@@ -443,12 +379,7 @@ const HostVisitManagement = () => {
 
                           {visit.status === "approved" && (
                             <button
-                              onClick={() =>
-                                updateVisitStatus(
-                                  visit.id,
-                                  "completed"
-                                )
-                              }
+                               onClick={() => handleStatusChange(visit.id, "completed")}
                               className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary-600"
                             >
                               <CheckCircle2 size={14} />
@@ -615,12 +546,7 @@ const HostVisitManagement = () => {
                     {visit.status === "pending" && (
                       <>
                         <button
-                          onClick={() =>
-                            updateVisitStatus(
-                              visit.id,
-                              "approved"
-                            )
-                          }
+                        onClick={() => handleStatusChange(visit.id, "approved")}
                           className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-green-500 py-2.5 text-xs font-bold text-white transition hover:bg-green-600"
                         >
                           <Check size={15} />
@@ -628,12 +554,7 @@ const HostVisitManagement = () => {
                         </button>
 
                         <button
-                          onClick={() =>
-                            updateVisitStatus(
-                              visit.id,
-                              "rejected"
-                            )
-                          }
+                         onClick={() => handleStatusChange(visit.id, "rejected")}
                           className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-500 py-2.5 text-xs font-bold text-white transition hover:bg-red-600"
                         >
                           <X size={15} />
@@ -644,12 +565,7 @@ const HostVisitManagement = () => {
 
                     {visit.status === "approved" && (
                       <button
-                        onClick={() =>
-                          updateVisitStatus(
-                            visit.id,
-                            "completed"
-                          )
-                        }
+                       onClick={() => handleStatusChange(visit.id, "completed")}
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 py-2.5 text-xs font-bold text-white transition hover:bg-primary-600"
                       >
                         <CheckCircle2 size={15} />

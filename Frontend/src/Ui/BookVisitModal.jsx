@@ -48,6 +48,10 @@ const BookVisitModal = ({ property, open, onClose }) => {
         visitDate: selectedDate,
         visitTime: property.visitTime,
         bookedAt: new Date().toISOString(),
+        visitorName:loggedInUser.name,
+        visitorEmail:loggedInUser.email,
+
+        status:"pending"
     };
 
     bookVisit(visitData);
