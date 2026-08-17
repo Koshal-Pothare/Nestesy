@@ -28,6 +28,9 @@ import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
 import HostManagement from './Admin/HostManagement'
 import HostDetails from './Admin/HostDetail'
 import BookingOverview from './Admin/BookingOverview'
+import ReviewManagement from './Admin/ReviewManagement'
+import InquiryManagement from './Admin/InquiryManagement'
+
 
 // Host 
 import HostDashboard from './Host/HostDashboard'
@@ -51,7 +54,7 @@ import UserProfile from "./User/UserProfile";
 import PrivacyPolicy from '../src/pages/PrivacyPolicy';
 import TermsConditions from '../src/pages/TermsCondition';
 import UserManagement from '../src/pages/UserManagment';
-import ReviewManagement from './Admin/ReviewManagement'
+
 
 
 
@@ -126,6 +129,7 @@ function App() {
            <Route path="/admin/hosts/:id" element={<HostDetails />} />
             <Route path="/admin/bookings-overview" element={<BookingOverview />} />
            <Route path="/admin/reviews-management" element={<ReviewManagement />} />
+           <Route path="/admin/inquiry-management" element={<InquiryManagement />} />
         </Route>
 
         {/* Host Routes */}
