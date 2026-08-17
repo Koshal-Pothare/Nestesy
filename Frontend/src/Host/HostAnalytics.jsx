@@ -41,172 +41,22 @@ const HostAnalytics = () => {
   });
 
   // Load properties from localStorage
-  useEffect(() => {
-    const loadProperties = () => {
+    useEffect(() => {
+    const fetchAnalytics = async () => {
       try {
-        const storedProperties = localStorage.getItem('hostProperties');
-        if (storedProperties) {
-          const parsedProperties = JSON.parse(storedProperties);
-          setProperties(parsedProperties);
-        } else {
-          // Default properties with analytics data
-          const defaultProperties = [
-            {
-              id: 1,
-              title: "Luxury Villa with Garden",
-              location: "Pune, Maharashtra",
-              price: 65000,
-              type: "Villa",
-              bedrooms: 4,
-              bathrooms: 4,
-              area: 2200,
-              status: "Active",
-              image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400",
-              listedDate: "2026-01-20",
-              views: 1245,
-              inquiries: 12,
-              inquiriesData: [2, 1, 0, 3, 2, 1, 0, 2, 1],
-              viewsData: [45, 67, 89, 56, 78, 90, 67, 89, 78],
-              rating: 4.8,
-              reviews: 23,
-              amenities: ["Parking", "Pool", "Garden", "Security", "Power Backup"],
-              description: "Beautiful luxury villa with modern amenities and spacious garden.",
-              bookings: 8,
-              revenue: 520000,
-              conversionRate: 12.5
-            },
-            {
-              id: 2,
-              title: "Modern 3BHK Apartment",
-              location: "Mumbai, Maharashtra",
-              price: 45000,
-              type: "Apartment",
-              bedrooms: 3,
-              bathrooms: 2,
-              area: 1200,
-              status: "Active",
-              image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400",
-              listedDate: "2026-01-15",
-              views: 890,
-              inquiries: 8,
-              inquiriesData: [1, 0, 2, 1, 0, 2, 1, 0, 1],
-              viewsData: [34, 56, 45, 67, 78, 56, 89, 67, 45],
-              rating: 4.5,
-              reviews: 15,
-              amenities: ["Parking", "Gym", "Security", "Lift"],
-              description: "Modern apartment in prime location with all amenities.",
-              bookings: 5,
-              revenue: 225000,
-              conversionRate: 8.9
-            },
-            {
-              id: 3,
-              title: "Cozy 2BHK Flat",
-              location: "Bangalore, Karnataka",
-              price: 28000,
-              type: "Flat",
-              bedrooms: 2,
-              bathrooms: 2,
-              area: 850,
-              status: "Pending",
-              image: "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400",
-              listedDate: "2026-01-18",
-              views: 345,
-              inquiries: 3,
-              inquiriesData: [0, 0, 1, 0, 0, 1, 0, 1, 0],
-              viewsData: [23, 34, 45, 23, 34, 56, 34, 23, 45],
-              rating: 0,
-              reviews: 0,
-              amenities: ["Parking", "Security", "Lift"],
-              description: "Cozy flat perfect for small families.",
-              bookings: 0,
-              revenue: 0,
-              conversionRate: 0
-            },
-            {
-              id: 4,
-              title: "Premium Penthouse",
-              location: "Delhi, Delhi",
-              price: 85000,
-              type: "Penthouse",
-              bedrooms: 5,
-              bathrooms: 4,
-              area: 3200,
-              status: "Inactive",
-              image: "https://images.unsplash.com/photo-1618220179428-22790b461013?w=400",
-              listedDate: "2026-01-10",
-              views: 1567,
-              inquiries: 18,
-              inquiriesData: [3, 2, 1, 2, 3, 2, 1, 2, 2],
-              viewsData: [78, 89, 67, 90, 78, 89, 67, 90, 78],
-              rating: 4.9,
-              reviews: 31,
-              amenities: ["Parking", "Pool", "Gym", "Garden", "Security", "Terrace"],
-              description: "Luxurious penthouse with panoramic city views.",
-              bookings: 12,
-              revenue: 1020000,
-              conversionRate: 15.2
-            },
-            {
-              id: 5,
-              title: "Beachside Studio",
-              location: "Goa, India",
-              price: 35000,
-              type: "Studio",
-              bedrooms: 1,
-              bathrooms: 1,
-              area: 450,
-              status: "Active",
-              image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400",
-              listedDate: "2026-01-25",
-              views: 678,
-              inquiries: 9,
-              inquiriesData: [1, 1, 0, 2, 1, 0, 2, 1, 1],
-              viewsData: [45, 56, 34, 67, 45, 56, 78, 56, 45],
-              rating: 4.2,
-              reviews: 11,
-              amenities: ["WiFi", "AC", "Beach Access", "Parking"],
-              description: "Beautiful studio apartment just steps away from the beach.",
-              bookings: 4,
-              revenue: 140000,
-              conversionRate: 6.7
-            },
-            {
-              id: 6,
-              title: "Luxury Farmhouse",
-              location: "Jaipur, Rajasthan",
-              price: 75000,
-              type: "Villa",
-              bedrooms: 6,
-              bathrooms: 5,
-              area: 4500,
-              status: "Pending",
-              image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=400",
-              listedDate: "2026-01-28",
-              views: 456,
-              inquiries: 5,
-              inquiriesData: [0, 1, 0, 1, 0, 1, 0, 1, 1],
-              viewsData: [34, 45, 23, 56, 34, 45, 67, 45, 34],
-              rating: 0,
-              reviews: 0,
-              amenities: ["Pool", "Garden", "Parking", "Security", "Playground"],
-              description: "Spacious farmhouse with lush green surroundings.",
-              bookings: 0,
-              revenue: 0,
-              conversionRate: 0
-            }
-          ];
-          setProperties(defaultProperties);
-          localStorage.setItem('hostProperties', JSON.stringify(defaultProperties));
-        }
+        const token = localStorage.getItem('ownerToken');
+        const res = await fetch('http://localhost:5000/api/owners/analytics', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setProperties(data.properties || []); 
       } catch (error) {
-        console.error('Error loading properties:', error);
+        console.error('Error fetching analytics:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    loadProperties();
+    fetchAnalytics();
   }, []);
 
   // Get unique property types for filter

@@ -1,10 +1,9 @@
 const jwt = require('jsonwebtoken');
-
 const { error } = require('../utils/response');
 
 const Admin = require('../../admin/models/Admin');
 const Owner = require('../../owner/models/Owner');
-const Tenant = require('../../tenant/models/Tenant');
+const Tenant = require('../../User/models/Tenant');
 
 const modelByRole = {
   admin: Admin,
@@ -12,6 +11,7 @@ const modelByRole = {
   tenant: Tenant,
 };
 
+// Get JWT from Authorization header
 const getTokenFromHeader = (req) => {
   const authHeader = req.headers.authorization;
 
@@ -22,19 +22,10 @@ const getTokenFromHeader = (req) => {
   return authHeader.split(' ')[1];
 };
 
-/**
- * Generic authentication middleware.
- *
- * Verifies:
- * 1. JWT exists
- * 2. JWT is valid
- * 3. Role exists
- * 4. User still exists
- *
- * Adds:
- * req.user
- * req.role
- */
+// ======================================================
+// GENERIC PROTECT
+// ======================================================
+
 const protect = async (req, res, next) => {
   try {
     const token = getTokenFromHeader(req);
@@ -80,14 +71,10 @@ const protect = async (req, res, next) => {
   }
 };
 
-/**
- * Role authorization middleware.
- *
- * Example:
- * authorize('owner')
- * authorize('admin')
- * authorize('admin', 'owner')
- */
+// ======================================================
+// ROLE AUTHORIZATION
+// ======================================================
+
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.role) {
@@ -106,18 +93,16 @@ const authorize = (...roles) => {
   };
 };
 
-/**
- * Owner approval middleware.
- *
- * IMPORTANT:
- * Owner must be approved by admin before accessing
- * owner dashboard/property/room/booking APIs.
- */
+// ======================================================
+// APPROVED OWNER
+// ======================================================
+
 const requireApprovedOwner = (req, res, next) => {
   if (req.role !== 'owner') {
     return error(res, 403, 'Owner access required');
   }
 
+  // Pending
   if (req.user.status === 'pending') {
     return error(
       res,
@@ -126,6 +111,7 @@ const requireApprovedOwner = (req, res, next) => {
     );
   }
 
+  // Rejected
   if (req.user.status === 'rejected') {
     return error(
       res,
@@ -136,6 +122,7 @@ const requireApprovedOwner = (req, res, next) => {
     );
   }
 
+  // Suspended
   if (req.user.status === 'suspended') {
     return error(
       res,
@@ -144,6 +131,16 @@ const requireApprovedOwner = (req, res, next) => {
     );
   }
 
+  // Inactive
+  if (req.user.isActive === false) {
+    return error(
+      res,
+      403,
+      'Your owner account is inactive'
+    );
+  }
+
+  // Approved check
   if (req.user.status !== 'approved') {
     return error(
       res,
@@ -155,16 +152,17 @@ const requireApprovedOwner = (req, res, next) => {
   next();
 };
 
-/**
- * Optional admin status middleware.
- */
+// ======================================================
+// ACTIVE ADMIN
+// ======================================================
+
 const requireActiveAdmin = (req, res, next) => {
   if (req.role !== 'admin') {
     return error(res, 403, 'Admin access required');
   }
 
-  if (req.user.status && req.user.status !== 'active') {
-    return error(res, 403, 'Admin account is not active');
+  if (req.user.isActive === false) {
+    return error(res, 403, 'Admin account is inactive');
   }
 
   next();

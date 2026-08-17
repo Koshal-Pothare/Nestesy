@@ -5,8 +5,8 @@ import { motion,AnimatePresence } from "framer-motion";
 import BecomeHostHeroImage from '../assets/BecomeHost/BecomeHost2.png'
 import Host from '../assets/BecomeHost/Host.png'
 import formImage from '../assets/BecomeHost/formImage.png'
-import HostLogin from '../auth/HostLogin.jsx'
-import HostRegister from '../auth/HostRegister.jsx';
+import HostLogin from '../Host/HostLogin.jsx'
+import HostRegister from '../Host/HostRegister.jsx';
 
 const BecomeHost = () => {
 

@@ -1,0 +1,45 @@
+OwnerProfile.jsx
+
+
+Fetching Profile Data: 
+ const fetchProfile = async () => {
+  const token = localStorage.getItem('ownerToken');
+  const response = await fetch('http://localhost:5000/api/owners/profile', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await response.json();
+  
+  // Set form data for both Owner and Profile fields
+  setFormData({
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    profilePicture: data.profilePicture,
+    bio: data.bio,
+    companyName: data.companyName,
+    address: data.address,
+    city: data.city,
+    state: data.state,
+    pincode: data.pincode,
+    socialLinks: data.socialLinks
+  });
+};
+
+
+
+Updating Profile Data: 
+const handleUpdateProfile = async (e) => {
+  e.preventDefault();
+  const token = localStorage.getItem('ownerToken');
+  
+  await fetch('http://localhost:5000/api/owners/profile', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(formData) // formData contains all fields
+  });
+  
+  alert('Profile updated successfully!');
+};

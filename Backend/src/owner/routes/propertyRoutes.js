@@ -4,13 +4,12 @@ const {
   createProperty, 
   getMyProperties, 
   getPropertyById, 
-  deleteProperty 
+  deleteProperty, 
+  updatePropertyStatus 
 } = require('../controllers/propertyController');
 const { protect, requireApprovedOwner } = require('../../common/middleware/authMiddleware');
 
-// All routes require the owner to be logged in AND approved
-router.use(protect);
-router.use(requireApprovedOwner);
+router.use(protect, requireApprovedOwner);
 
 router.route('/')
   .post(createProperty)
@@ -19,5 +18,8 @@ router.route('/')
 router.route('/:id')
   .get(getPropertyById)
   .delete(deleteProperty);
+
+router.route('/:id/status')
+  .put(updatePropertyStatus);
 
 module.exports = router;

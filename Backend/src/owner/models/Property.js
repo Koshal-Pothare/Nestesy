@@ -5,29 +5,31 @@ const propertySchema = new mongoose.Schema({
   title: { type: String, required: true },
   location: { type: String, required: true },
   price: { type: Number, required: true },
-  type: { type: String, required: true }, // Apartment, Villa, etc.
+  type: { type: String, required: true },
   bedrooms: { type: Number, required: true },
   bathrooms: { type: Number, required: true },
   area: { type: Number, required: true },
   description: { type: String },
   amenities: [{ type: String }],
   
-  // Property Status (Admin approval flow)
+  // Supports both Admin verification status and Host Active/Rented status
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected', 'inactive'],
+    enum: ['pending', 'approved', 'rejected', 'inactive', 'rented', 'Active', 'Inactive', 'Pending', 'Rented'],
     default: 'pending',
   },
+  statusUpdatedAt: { type: Date },
   
-  // Images (Cloudinary URLs)
+  // Images (URLs from Cloudinary/Uploads)
+  images: [{ type: String }],
   outerImages: [{ type: String }],
   livingRoomImages: [{ type: String }],
   bathroomImages: [{ type: String }],
   balconyImages: [{ type: String }],
   kitchenImages: [{ type: String }],
-  bedroomImages: [[{ type: String }]], // Array of arrays because BHK varies
+  bedroomImages: [[{ type: String }]],
   
-  // Verification Details
+  // Verification Details mapped from frontend
   verification: {
     ownerName: { type: String, required: true },
     ownerEmail: { type: String, required: true },
@@ -49,6 +51,7 @@ const propertySchema = new mongoose.Schema({
   // Analytics
   views: { type: Number, default: 0 },
   inquiries: { type: Number, default: 0 },
+  listedDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Property', propertySchema);
