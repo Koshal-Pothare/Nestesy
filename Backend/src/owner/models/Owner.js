@@ -1,43 +1,37 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-const ownerSchema = new mongoose.Schema(
+const ownerSchema = mongoose.Schema(
   {
-    name: {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String, required: true },
+    password: { type: String, required: true },
+    role: { type: String, default: 'owner' },
+    status: {
       type: String,
-      required: true,
-      trim: true,
+      enum: ['pending', 'approved', 'rejected', 'suspended'],
+      default: 'pending',
     },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
-      select: false,
-    },
-    phone: {
-      type: String,
-      trim: true,
-    },
-    role: {
-      type: String,
-      default: 'owner',
-      immutable: true,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    rejectionReason: { type: String, default: null },
+    approvedAt: { type: Date, default: null },
+    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', default: null },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
+
+// Hash password before saving
+ownerSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Compare password
+ownerSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 module.exports = mongoose.model('Owner', ownerSchema);

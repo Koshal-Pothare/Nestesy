@@ -1,41 +1,30 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const morgan = require('morgan');
+const connectDB = require('./config/database');
 
-const { notFound, errorHandler } = require('./common/middleware/errorMiddleware');
-
-// Admin routes
-const adminAuthRoutes = require('./admin/routes/adminAuthRoutes');
-
-// Owner routes
+// Import Routes
 const ownerAuthRoutes = require('./owner/routes/ownerAuthRoutes');
-
-// Tenant routes
-const tenantAuthRoutes = require('./tenant/routes/tenantAuthRoutes');
+const propertyRoutes = require('./owner/routes/propertyRoutes');
+const ownerDashboardRoutes = require('./owner/routes/ownerDashboardRoutes');
 
 const app = express();
 
-// --- Core middleware ---
-app.use(cors());
+// Connect to Database
+connectDB();
+
+// Middlewares
+app.use(cors({
+  origin: 'http://localhost:3000', // Your frontend URL
+  credentials: true, // Important for cookies
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));
-}
-
-// --- Health check ---
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ success: true, message: 'Nestesy API is running' });
-});
-
-// --- Role-based routes ---
-app.use('/api/admin/auth', adminAuthRoutes);
-app.use('/api/owner/auth', ownerAuthRoutes);
-app.use('/api/tenant/auth', tenantAuthRoutes);
-
-// --- Error handling (must be last) ---
-app.use(notFound);
-app.use(errorHandler);
+// Mount Routers
+app.use('/api/owners', ownerAuthRoutes);
+app.use('/api/owners/properties', propertyRoutes);
+app.use('/api/owners/dashboard', ownerDashboardRoutes);
 
 module.exports = app;

@@ -17,7 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { termsData } from "../data/data";
+import { termsData } from "../Data/Data";
 import termsHero from "../assets/terms-hero.png";
 
 
