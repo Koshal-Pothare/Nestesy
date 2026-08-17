@@ -1,3 +1,5 @@
+// utils/bookVisit.js
+
 const GLOBAL_VISITS_KEY = "upcomingVisits";
 
 const getUserVisitKey = () => {
@@ -26,22 +28,26 @@ export const getAllVisits = () => {
     ) || [];
 };
 
+// Get visits for a specific property
+export const getVisitsForProperty = (propertyId) => {
+    const allVisits = getAllVisits();
+    return allVisits.filter(visit => {
+        const visitPropertyId = visit.propertyId || visit.property?.id;
+        return String(visitPropertyId) === String(propertyId);
+    });
+};
+
 export const bookVisit = (visitData) => {
     const userKey = getUserVisitKey();
 
     if (!userKey) return false;
 
-   
     // USER-SPECIFIC VISITS
-  
-
     const userVisits = getVisit();
 
-   const userExists = userVisits.some(
-    (item) =>
-        item.id === visitData.id &&
-        item.visitDate === visitData.visitDate
-);
+    const userExists = userVisits.some(
+        (item) => String(item.propertyId) === String(visitData.propertyId)
+    );
 
     if (userExists) return false;
 
@@ -52,10 +58,7 @@ export const bookVisit = (visitData) => {
         JSON.stringify(userVisits)
     );
 
-
     // GLOBAL VISITS
-  
-
     const allVisits = getAllVisits();
 
     allVisits.push(visitData);
@@ -64,6 +67,10 @@ export const bookVisit = (visitData) => {
         GLOBAL_VISITS_KEY,
         JSON.stringify(allVisits)
     );
+
+    // Dispatch events
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('visitAdded', { detail: visitData }));
 
     return true;
 };
@@ -95,15 +102,13 @@ export const removeVisitBooking = (id) => {
 };
 
 // Check if current user already booked this property
-export const isVisitBooked = (id, visitDate) => {
+export const isVisitBooked = (propertyId) => {
     const userKey = getUserVisitKey();
 
     if (!userKey) return false;
 
     return getVisit().some(
-        (item) =>
-            item.id === id &&
-            item.visitDate === visitDate
+        (item) => String(item.propertyId) === String(propertyId)
     );
 };
 
@@ -122,7 +127,7 @@ export const updateVisitStatus = (id, status) => {
     // Update global visits
     const updatedVisits = allVisits.map((item) =>
         item.id === id
-            ? { ...item, status }
+            ? { ...item, status, updatedAt: new Date().toISOString() }
             : item
     );
 
@@ -132,7 +137,7 @@ export const updateVisitStatus = (id, status) => {
     );
 
     // Find the customer who booked this visit
-    const visitorEmail = visit.visitorEmail;
+    const visitorEmail = visit.visitorEmail || visit.email;
 
     if (visitorEmail) {
         const userKey = `upcomingVisits_${visitorEmail}`;
@@ -145,7 +150,7 @@ export const updateVisitStatus = (id, status) => {
         const updatedUserVisits = userVisits.map(
             (item) =>
                 item.id === id
-                    ? { ...item, status }
+                    ? { ...item, status, updatedAt: new Date().toISOString() }
                     : item
         );
 
@@ -154,6 +159,10 @@ export const updateVisitStatus = (id, status) => {
             JSON.stringify(updatedUserVisits)
         );
     }
+
+    // Dispatch events
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('visitUpdated', { detail: { id, status } }));
 
     return updatedVisits;
 };

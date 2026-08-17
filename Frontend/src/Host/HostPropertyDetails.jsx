@@ -28,8 +28,11 @@ import {
   Building2,
   Trash2,
   Key,
-  Check
+  Check,
+  Users,
+  CalendarDays
 } from 'lucide-react';
+import { getAllVisits, updateVisitStatus } from '../utils/bookVisit';
 
 const HostPropertyDetails = () => {
   const { id } = useParams();
@@ -40,9 +43,13 @@ const HostPropertyDetails = () => {
   const [error, setError] = useState(null);
   const [allProperties, setAllProperties] = useState([]);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [visitors, setVisitors] = useState([]);
+  const [showAllVisitors, setShowAllVisitors] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     loadProperty();
+    loadVisitors();
   }, [id]);
 
   const loadProperty = () => {
@@ -50,38 +57,20 @@ const HostPropertyDetails = () => {
     setError(null);
     try {
       const stored = localStorage.getItem('hostProperties');
-      console.log('=== DEBUG: PROPERTY DETAILS ===');
-      console.log('Raw stored data:', stored);
       
       if (stored) {
         const allProperties = JSON.parse(stored);
         setAllProperties(allProperties);
-        console.log('All properties count:', allProperties.length);
-        console.log('All properties:', allProperties);
-        console.log('Looking for property with ID:', id);
-        console.log('ID type:', typeof id);
-         
-        let foundProperty = null;
         
-        // Method 1: String comparison
+        let foundProperty = null;
         foundProperty = allProperties.find(p => String(p.id) === String(id));
         
-        // Method 2: Number comparison 
         if (!foundProperty) {
-          console.log('Method 1 failed, trying number comparison');
           foundProperty = allProperties.find(p => Number(p.id) === Number(id));
         }
         
-        // Method 3: Check if property exists in the list
-        if (!foundProperty) {
-          console.log('Property not found. Available IDs:', allProperties.map(p => ({ id: p.id, title: p.title })));
-        }
-        
-        console.log('Found property:', foundProperty);
-        
         if (foundProperty) { 
           if (!foundProperty.verification) {
-            console.warn('Property has no verification object. Adding default.');
             foundProperty.verification = {
               ownerName: 'Not provided',
               ownerEmail: 'Not provided',
@@ -94,18 +83,53 @@ const HostPropertyDetails = () => {
           }
           setProperty(foundProperty);
         } else {
-          setError(`Property with ID "${id}" not found. Please check the property ID.`);
-          console.error('Property with ID', id, 'not found.');
+          setError(`Property with ID "${id}" not found.`);
         }
       } else {
         setError('No properties found. Please add a property first.');
-        console.error('No properties in localStorage');
       }
     } catch (error) {
       console.error('Error loading property:', error);
       setError('Failed to load property details: ' + error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Load visitors for  property
+  const loadVisitors = () => {
+    try {
+      const allVisits = getAllVisits();
+      // Filter visits for specific property
+      const propertyVisits = allVisits.filter(
+        visit => String(visit.propertyId) === String(id)
+      );
+      setVisitors(propertyVisits);
+    } catch (error) {
+      console.error('Error loading visitors:', error);
+      setVisitors([]);
+    }
+  };
+
+  // Handle visitor status update (Rented or Rejected)
+  const handleVisitorAction = (visitId, action) => {
+    setActionLoading(true);
+    try {
+      const status = action === 'rented' ? 'rented' : 'rejected';
+      const updatedVisits = updateVisitStatus(visitId, status);
+      
+      if (updatedVisits) {
+        // Refresh visitors list
+        loadVisitors();
+        alert(`Visitor ${action === 'rented' ? 'marked as rented' : 'rejected'} successfully!`);
+      } else {
+        alert('Failed to update visitor status');
+      }
+    } catch (error) {
+      console.error('Error updating visitor:', error);
+      alert('Failed to update visitor status');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -143,7 +167,7 @@ const HostPropertyDetails = () => {
     }
   };
 
-  // Handle status update (Active or Rented)
+  // Handle property status update (Active or Rented)
   const handleStatusUpdate = (newStatus) => {
     if (window.confirm(`Are you sure you want to mark this property as "${newStatus}"?`)) {
       setUpdatingStatus(true);
@@ -185,7 +209,7 @@ const HostPropertyDetails = () => {
         bg: 'bg-blue-100',
         text: 'text-blue-800',
         icon: <Key className="w-5 h-5" />,
-        label: 'Rented ',
+        label: 'Rented',
         border: 'border-blue-300'
       };
     }
@@ -194,7 +218,7 @@ const HostPropertyDetails = () => {
         bg: 'bg-green-100',
         text: 'text-green-800',
         icon: <CheckCircle className="w-5 h-5" />,
-        label: 'Verified ',
+        label: 'Verified',
         border: 'border-green-300'
       };
     }
@@ -216,7 +240,6 @@ const HostPropertyDetails = () => {
         border: 'border-red-300'
       };
     }
-    // Default fallbac 
     return {
       bg: 'bg-yellow-100',
       text: 'text-yellow-800',
@@ -245,6 +268,37 @@ const HostPropertyDetails = () => {
     }
     return { label: 'Pending Review ⏳', color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' };
   };
+
+  // Get visitor status style
+  const getVisitorStatusStyle = (status) => {
+    switch (status) {
+      case 'pending':
+        return { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200', icon: '⏳', label: 'Pending' };
+      case 'rented':
+        return { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', icon: '🔑', label: 'Rented' };
+      case 'rejected':
+        return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', icon: '❌', label: 'Rejected' };
+      default:
+        return { bg: 'bg-gray-50', text: 'text-gray-600', border: 'border-gray-200', icon: '❓', label: 'Unknown' };
+    }
+  };
+
+  const formatVisitorStatus = (status) => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  // Get visitor stats
+  const getVisitorStats = () => {
+    const pending = visitors.filter(v => v.status === 'pending').length;
+    const rented = visitors.filter(v => v.status === 'rented').length;
+    const rejected = visitors.filter(v => v.status === 'rejected').length;
+    return { pending, rented, rejected, total: visitors.length };
+  };
+
+  const visitorStats = getVisitorStats();
+
+  // Show only first 3 visitors initially
+  const displayedVisitors = showAllVisitors ? visitors : visitors.slice(0, 3);
  
   if (loading) {
     return (
@@ -265,7 +319,6 @@ const HostPropertyDetails = () => {
           <h3 className="text-xl font-semibold text-gray-700">{error || 'Property not found'}</h3>
           <p className="text-gray-400 mt-2">The property you're looking for doesn't exist or has been removed.</p>
           
-          {/*  show available properties */}
           {allProperties.length > 0 && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg text-left">
               <p className="text-sm font-semibold text-gray-700">Available Properties ({allProperties.length}):</p>
@@ -438,7 +491,7 @@ const HostPropertyDetails = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">
           {/* Left Content */}
-          <div className="min-w-0 mt-20">
+          <div className="min-w-0">
             {/* Title */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
@@ -655,6 +708,103 @@ const HostPropertyDetails = () => {
                 </div>
               </div>
             </section>
+
+            {/* Visitors List */}
+            <section className="mt-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Users className="text-blue-600" size={24} />
+                  Visitors ({visitors.length})
+                </h2>
+                {visitors.length > 3 && (
+                  <button
+                    onClick={() => setShowAllVisitors(!showAllVisitors)}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    {showAllVisitors ? 'Show Less' : 'View All'}
+                  </button>
+                )}
+              </div>
+
+              {/* Visitor Stats */}
+              {visitors.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="bg-amber-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-amber-600">Pending</p>
+                    <p className="font-bold text-amber-700">{visitorStats.pending}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-blue-600">Rented</p>
+                    <p className="font-bold text-blue-700">{visitorStats.rented}</p>
+                  </div>
+                  <div className="bg-red-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-red-600">Rejected</p>
+                    <p className="font-bold text-red-700">{visitorStats.rejected}</p>
+                  </div>
+                </div>
+              )}
+
+              {visitors.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <p>No visitors yet</p>
+                  <p className="text-xs text-gray-400">When someone books a visit, they'll appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {displayedVisitors.map((visitor) => {
+                    const statusStyle = getVisitorStatusStyle(visitor.status);
+                    return (
+                      <div key={visitor.id} className="border border-gray-100 rounded-xl p-3 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4 text-gray-400" />
+                              <span className="font-medium text-gray-800">{visitor.visitorName || visitor.name || 'Guest'}</span>
+                            </div>
+                            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <CalendarDays className="w-3 h-3" />
+                                {visitor.visitDate || 'N/A'}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {visitor.visitTime || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
+                              {statusStyle.icon} {statusStyle.label}
+                            </span>
+                            {visitor.status === 'pending' && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => handleVisitorAction(visitor.id, 'rented')}
+                                  disabled={actionLoading}
+                                  className="p-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+                                  title="Mark as Rented"
+                                >
+                                  <Key className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleVisitorAction(visitor.id, 'reject')}
+                                  disabled={actionLoading}
+                                  className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+                                  title="Reject"
+                                >
+                                  <XCircle className="w-3 h-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </div>
 
           {/* Right Card */}
@@ -663,7 +813,7 @@ const HostPropertyDetails = () => {
               initial={{ opacity: 0, x: 25 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white rounded-3xl border border-gray-100 shadow-lg p-5 sm:p-6 mt-20"
+              className="bg-white rounded-3xl border border-gray-100 shadow-lg p-5 sm:p-6"
             >
               <div className="flex items-center justify-between">
                 <div>
