@@ -37,9 +37,11 @@ export const bookVisit = (visitData) => {
 
     const userVisits = getVisit();
 
-    const userExists = userVisits.some(
-        (item) => item.id === visitData.id
-    );
+   const userExists = userVisits.some(
+    (item) =>
+        item.id === visitData.id &&
+        item.visitDate === visitData.visitDate
+);
 
     if (userExists) return false;
 
@@ -93,13 +95,15 @@ export const removeVisitBooking = (id) => {
 };
 
 // Check if current user already booked this property
-export const isVisitBooked = (id) => {
+export const isVisitBooked = (id, visitDate) => {
     const userKey = getUserVisitKey();
 
     if (!userKey) return false;
 
     return getVisit().some(
-        (item) => item.id === id
+        (item) =>
+            item.id === id &&
+            item.visitDate === visitDate
     );
 };
 

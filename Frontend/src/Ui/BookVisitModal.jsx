@@ -38,10 +38,10 @@ const BookVisitModal = ({ property, open, onClose }) => {
         return;
     }
 
-    if (isVisitBooked(property.id)) {
-        toast.info("You have already booked a visit for this property");
-        return;
-    }
+  if (isVisitBooked(property.id, selectedDate)) {
+    toast.info("You have already booked a visit for this property on this date");
+    return;
+}
 
     const visitData = {
         ...property,

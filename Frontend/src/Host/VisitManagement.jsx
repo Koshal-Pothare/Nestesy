@@ -278,7 +278,7 @@ useEffect(() => {
                 <AnimatePresence>
                   {filteredVisits.map((visit) => (
                     <motion.tr
-                      key={visit.id}
+                      key={`${visit.id}-${visit.visitDate}-${visit.visitorEmail}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
