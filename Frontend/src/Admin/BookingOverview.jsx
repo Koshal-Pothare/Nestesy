@@ -12,7 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const BookingManagement = () => {
+const BookingOverview = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -215,7 +215,7 @@ const BookingManagement = () => {
          
 
           <h1 className="mt-1 text-2xl font-bold text-gray-900 sm:text-3xl">
-            Booking Management
+            Booking Overview
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
@@ -625,4 +625,4 @@ const BookingManagement = () => {
   );
 };
 
-export default BookingManagement;
+export default BookingOverview;
