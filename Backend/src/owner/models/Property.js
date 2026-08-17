@@ -89,8 +89,16 @@ const propertySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
+      enum: ['pending', 'approved', 'rejected', 'Active', 'Pending', 'Inactive'],
       default: 'pending',
+    },
+    rejectionReason: {
+      type: String,
+      default: '',
+    },
+    adminNotes: {
+      type: String,
+      default: '',
     },
     views: {
       type: Number,

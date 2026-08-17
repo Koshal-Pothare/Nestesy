@@ -7,6 +7,13 @@ const ownerSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -23,6 +30,19 @@ const ownerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    city: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    profileImage: {
+      type: String,
+      default: '',
+    },
+    bio: {
+      type: String,
+      default: '',
+    },
     role: {
       type: String,
       default: 'owner',
@@ -31,6 +51,10 @@ const ownerSchema = new mongoose.Schema(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    verificationNotes: {
+      type: String,
+      default: '',
     },
     isActive: {
       type: Boolean,
@@ -41,3 +65,4 @@ const ownerSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Owner', ownerSchema);
+

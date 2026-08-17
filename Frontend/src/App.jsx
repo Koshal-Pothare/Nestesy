@@ -25,6 +25,12 @@ import AdminDashboard from '../src/Admin/AdminDashboard'
 import AdminRegister from './auth/AdminRegister'
 import AdminLogin from './auth/AdminLogin'
 import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
+import HostManagement from './Admin/HostManagement'
+import HostDetails from './Admin/HostDetail'
+import BookingOverview from './Admin/BookingOverview'
+import ReviewManagement from './Admin/ReviewManagement'
+import InquiryManagement from './Admin/InquiryManagement'
+
 
 // Host 
 import HostDashboard from './Host/HostDashboard'
@@ -35,6 +41,8 @@ import AddProperty from './Host/AddProperty'
 import MyProperties from './Host/MyProperties'
 import HostAnalytics from './Host/HostAnalytics'
 import HostPropertyDetails from './Host/HostPropertyDetails'
+import VisitManagement from './Host/VisitManagement'
+
 
 //User
 import UserLayout from "./User/UserLayout";
@@ -45,6 +53,10 @@ import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
 import PrivacyPolicy from '../src/pages/PrivacyPolicy';
 import TermsConditions from '../src/pages/TermsCondition';
+import UserManagement from '../src/pages/UserManagment';
+
+
+
 
 function App() {
   const location = useLocation();
@@ -85,8 +97,16 @@ function App() {
 
         <Route path="/property/:id" element={<PropertyDetails />} />
       
+
+  
+
+         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+         <Route path="/terms-conditions" element={<TermsConditions />} />
+
+
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsConditions />} />
+
    
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
@@ -99,7 +119,17 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
+
+          <Route path="propertyverification" element={<PropertyVerificationDetail />} />
+                   <Route path="users" element={<UserManagement />}/>
+
+
           <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
+           <Route path="/admin/hosts" element={<HostManagement />} />
+           <Route path="/admin/hosts/:id" element={<HostDetails />} />
+            <Route path="/admin/bookings-overview" element={<BookingOverview />} />
+           <Route path="/admin/reviews-management" element={<ReviewManagement />} />
+           <Route path="/admin/inquiry-management" element={<InquiryManagement />} />
         </Route>
 
         {/* Host Routes */}
@@ -109,6 +139,7 @@ function App() {
           <Route path="/host/my-properties" element={<MyProperties />} />
           <Route path="/host/analytics" element={<HostAnalytics />} />
           <Route path="/host/property/:id" element={<HostPropertyDetails />} /> 
+           <Route path="/host/visits" element={<VisitManagement />} /> 
         </Route>
 
         {/* User Routes */}

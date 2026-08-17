@@ -7,6 +7,13 @@ const tenantSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -23,6 +30,15 @@ const tenantSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    city: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    profileImage: {
+      type: String,
+      default: '',
+    },
     role: {
       type: String,
       default: 'tenant',
@@ -37,3 +53,4 @@ const tenantSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Tenant', tenantSchema);
+

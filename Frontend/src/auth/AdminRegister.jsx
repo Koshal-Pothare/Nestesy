@@ -64,7 +64,43 @@ const AdminRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    alert("admin register")
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    setRegisterError('');
+    setSuccessMessage('');
+
+    try {
+      const res = await fetch('/api/admin/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          username: formData.username || formData.email.split('@')[0],
+          email: formData.email,
+          password: formData.password,
+          setupKey: formData.adminKey,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setRegisterError(data.message || 'Registration failed');
+        setIsLoading(false);
+        return;
+      }
+
+      setSuccessMessage('Admin registered successfully! Redirecting to login...');
+      setTimeout(() => {
+        navigate('/admin-login');
+      }, 1500);
+    } catch (error) {
+      console.error('Registration error:', error);
+      setRegisterError('Unable to reach the server. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

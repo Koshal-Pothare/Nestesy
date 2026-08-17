@@ -4,6 +4,52 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 const HostLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginIdentifier, setLoginIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!loginIdentifier || !password) {
+      setErrorMsg("Please enter email/username and password.");
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    try {
+      const res = await fetch("/api/owner/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: loginIdentifier, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.message || "Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("hostSession", JSON.stringify(data.owner));
+      setSuccessMsg("Login successful! Redirecting...");
+
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch (err) {
+      console.error("Host Login Error:", err);
+      setErrorMsg("Unable to connect to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <motion.div
@@ -24,7 +70,19 @@ const HostLogin = () => {
         </p>
       </div>
 
-      <form className="mt-8 space-y-5">
+      {errorMsg && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+          {errorMsg}
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-600 text-sm">
+          {successMsg}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         {/* Email / Username */}
         <div>
           <label className="block font-semibold mb-2">
@@ -37,6 +95,8 @@ const HostLogin = () => {
             <input
               type="text"
               placeholder="Enter email or username"
+              value={loginIdentifier}
+              onChange={(e) => setLoginIdentifier(e.target.value)}
               className="w-full px-3 outline-none bg-transparent"
             />
           </div>
@@ -54,6 +114,8 @@ const HostLogin = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 outline-none bg-transparent"
             />
 
@@ -85,13 +147,15 @@ const HostLogin = () => {
           </button>
         </div>
 
-        {/* Login */}
+        {/* Login Button */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          className="w-full h-14 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-lg shadow-lg"
+          type="submit"
+          disabled={loading}
+          className="w-full h-14 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-lg shadow-lg disabled:opacity-50"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </motion.button>
 
         {/* Divider */}
@@ -123,9 +187,6 @@ const HostLogin = () => {
           </span>
         </motion.button>
       </form>
-
-      {/* Footer */}
-      
     </motion.div>
   );
 };
