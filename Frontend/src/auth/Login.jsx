@@ -43,106 +43,107 @@ const Login = () => {
 
         
 
-        const handleSignUp= async(e)=>{
-           e.preventDefault();
+        const handleSignUp = async (e) => {
+          e.preventDefault();
+          const { email, password, username, cnfpassword } = signupData;
 
-           const{email,password,username,cnfpassword} = signupData;
+          if (!email || !password || !username) {
+            toast.error("Please fill in all required fields");
+            return;
+          }
 
-           if(password !== cnfpassword) {
+          if (password !== cnfpassword) {
             toast.error("Password not matched");
             return;
-           }
+          }
 
-        const exsistingUser = JSON.parse(localStorage.getItem("nestesyUsers"));
+          try {
+            const res = await fetch("/api/tenant/auth/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: username,
+                username,
+                email,
+                password,
+              }),
+            });
 
-        if(exsistingUser){
-          if(
+            const data = await res.json();
 
-          exsistingUser.email.toLowerCase() === email.toLowerCase() ||
-          exsistingUser.password.toLowerCase() === password.toLowerCase()
-          ){
-            toast.error("User already exists");
-            return;
-          } 
-        }
+            if (!res.ok || !data.success) {
+              toast.error(data.message || "Signup failed");
+              return;
+            }
 
-        const user = {
-          id: Date.now(),
-          username,
-          email,
-          password,
-           createdAt: new Date().toISOString(),
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("nestesyUser", JSON.stringify(data.tenant));
 
+            await Swal.fire({
+              title: "Signup Successful!",
+              text: "Please login to continue",
+              icon: "success",
+              confirmButtonColor: "#1e3a5f",
+            });
+
+            setSignupData({
+              email: "",
+              username: "",
+              password: "",
+              cnfpassword: "",
+            });
+
+            setSignUpForm(false);
+          } catch (error) {
+            console.error("Signup error:", error);
+            toast.error("Unable to connect to server");
+          }
         };
 
-        localStorage.setItem("nestesyUser" , JSON.stringify(user));
+        const handleLogin = async (e) => {
+          e.preventDefault();
 
-        await Swal.fire({
-          title: "Signup Successful!",
-          text: "Please login to continue",
-          icon: "success",
-          confirmButtonColor: "#1e3a5f",
-        });
-     
-        
-  setSignupData({
-    email: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-  });
+          if (!loginData.email || !loginData.password) {
+            toast.error("Email/Username and Password are required");
+            return;
+          }
 
-  setSignUpForm(false);
+          try {
+            const res = await fetch("/api/tenant/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: loginData.email,
+                password: loginData.password,
+              }),
+            });
 
-        }
+            const data = await res.json();
 
+            if (!res.ok || !data.success) {
+              toast.error(data.message || "Invalid credentials");
+              return;
+            }
 
-        const handleLogin= async(e)=>{
-         e.preventDefault();
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("nestesyLoggedInUser", JSON.stringify(data.tenant));
+            localStorage.setItem("nestesyUser", JSON.stringify(data.tenant));
 
-const savedUser = JSON.parse(localStorage.getItem("nestesyUser"));
-       
-if(!savedUser){
-  toast.error("User not found . Plz signUp first");
-  return;
-}
+            await Swal.fire({
+              title: "Login Successful!",
+              text: "Welcome back to Nestesy",
+              icon: "success",
+              confirmButtonColor: "#1e3a5f",
+            });
 
-const enteredNameEmail = loginData.email.trim().toLowerCase();
-
-const matchEmail = savedUser.email.toLowerCase()=== enteredNameEmail ;
-
-const matchUserName = savedUser.username.toLowerCase() === enteredNameEmail ;
-
-const matchPassword = savedUser.password=== loginData.password;
-
-if((matchEmail || matchUserName) && matchPassword){
-  const loggedInUser ={
-    id: savedUser.id,
-    name:savedUser.username,
-    email:savedUser.email,
-    createdAt:savedUser.createdAt
-  }
-
-  localStorage.setItem("nestesyLoggedInUser",JSON.stringify(loggedInUser));
-
-
-    await Swal.fire({
-          title: "Signup Successful!",
-          text: "Please login to continue",
-          icon: "success",
-          confirmButtonColor: "#1e3a5f",
-        });
-       
-
-
-  setTimeout(() => {
-      navigate("/");
-    }, 500);
-  }
-  else {
-    toast.error("Invalid email/username or password");
-  }
-}
+            setTimeout(() => {
+              navigate("/");
+            }, 500);
+          } catch (error) {
+            console.error("Login error:", error);
+            toast.error("Unable to connect to server");
+          }
+        };
         
 
 

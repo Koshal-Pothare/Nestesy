@@ -32,13 +32,37 @@ const AdminPropertyVerification = () => {
     loadProperties();
   }, []);
 
-  const loadProperties = () => {
+  const loadProperties = async () => {
     setLoading(true);
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      try {
+        const res = await fetch('/api/admin/properties', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success && data.properties && data.properties.length > 0) {
+          setProperties(data.properties);
+          setFilteredProperties(data.properties);
+          if (data.stats) {
+            setStats(data.stats);
+          } else {
+            updateStats(data.properties);
+          }
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.log('API loadProperties failed, using fallback:', err);
+      }
+    }
+
     try {
       const stored = localStorage.getItem('hostProperties');
       if (stored) {
         const allProperties = JSON.parse(stored);
-        // Show ALL properties - no filtering
         setProperties(allProperties);
         setFilteredProperties(allProperties);
         updateStats(allProperties);
@@ -57,9 +81,9 @@ const AdminPropertyVerification = () => {
   const updateStats = (props) => {
     setStats({
       total: props.length,
-      pending: props.filter(p => p.status === 'Pending').length,
-      verified: props.filter(p => p.status === 'Active' && p.verification?.verified).length,
-      rejected: props.filter(p => p.status === 'Inactive').length
+      pending: props.filter(p => p.status === 'pending' || p.status === 'Pending').length,
+      verified: props.filter(p => p.status === 'approved' || p.status === 'Active' || p.verification?.verified).length,
+      rejected: props.filter(p => p.status === 'rejected' || p.status === 'Inactive').length
     });
   };
 
@@ -156,15 +180,15 @@ const AdminPropertyVerification = () => {
     const status = property.status;
     const verification = property.verification;
     
-    if (status === 'Active' && verification?.verified) {
+    if (status === 'approved' || status === 'Active' || verification?.verified) {
       return { 
         bg: 'bg-green-100', 
         text: 'text-green-800', 
         icon: <CheckCircle className="w-4 h-4" />,
-        label: 'Verified ✓'
+        label: 'Approved ✓'
       };
     }
-    if (status === 'Pending') {
+    if (status === 'pending' || status === 'Pending') {
       return { 
         bg: 'bg-yellow-100', 
         text: 'text-yellow-800', 
@@ -172,19 +196,11 @@ const AdminPropertyVerification = () => {
         label: 'Pending Review'
       };
     }
-    if (status === 'Inactive') {
-      return { 
-        bg: 'bg-red-100', 
-        text: 'text-red-800', 
-        icon: <XCircle className="w-4 h-4" />,
-        label: 'Rejected ✗'
-      };
-    }
     return { 
-      bg: 'bg-gray-100', 
-      text: 'text-gray-800', 
-      icon: <AlertCircle className="w-4 h-4" />,
-      label: 'Unknown'
+      bg: 'bg-red-100', 
+      text: 'text-red-800', 
+      icon: <XCircle className="w-4 h-4" />,
+      label: 'Rejected ✗'
     };
   };
 
@@ -352,7 +368,7 @@ const AdminPropertyVerification = () => {
                         </div>
                         <div className="text-right">
                           <span className="text-lg font-bold text-green-600">
-                            ₹{property.price.toLocaleString()}
+                            ₹{(property.price !== undefined ? property.price : property.rent || 0).toLocaleString()}
                             <span className="text-sm text-gray-500 font-normal">/mo</span>
                           </span>
                           <div className={`text-xs font-medium ${verificationStatus.color}`}>
@@ -562,7 +578,7 @@ const AdminPropertyVerification = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Price</p>
-                    <p className="font-semibold text-green-600">₹{selectedProperty.price.toLocaleString()}/mo</p>
+                    <p className="font-semibold text-green-600">₹{(selectedProperty.price !== undefined ? selectedProperty.price : selectedProperty.rent || 0).toLocaleString()}/mo</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Status</p>
@@ -613,48 +629,48 @@ const AdminPropertyVerification = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-gray-500">Full Name</p>
-                        <p className="font-medium">{selectedProperty.verification.ownerName}</p>
+                        <p className="font-medium">{selectedProperty.verification?.ownerName || selectedProperty.owner?.name || 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Email</p>
-                        <p className="font-medium">{selectedProperty.verification.ownerEmail}</p>
+                        <p className="font-medium">{selectedProperty.verification?.ownerEmail || selectedProperty.owner?.email || 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Phone</p>
-                        <p className="font-medium">{selectedProperty.verification.ownerPhone}</p>
+                        <p className="font-medium">{selectedProperty.verification?.ownerPhone || selectedProperty.owner?.phone || 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Property Address</p>
-                        <p className="font-medium">{selectedProperty.verification.propertyAddress}</p>
+                        <p className="font-medium">{selectedProperty.verification?.propertyAddress || selectedProperty.address || selectedProperty.location || 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Submitted At</p>
                         <p className="font-medium">
-                          {new Date(selectedProperty.verification.submittedAt).toLocaleString()}
+                          {selectedProperty.verification?.submittedAt ? new Date(selectedProperty.verification.submittedAt).toLocaleString() : selectedProperty.createdAt ? new Date(selectedProperty.createdAt).toLocaleString() : 'N/A'}
                         </p>
                       </div>
-                      {selectedProperty.verification.verifiedAt && (
+                      {selectedProperty.verification?.verifiedAt && (
                         <div>
                           <p className="text-sm text-gray-500">Verified At</p>
                           <p className={`font-medium ${
-                            selectedProperty.verification.status === 'approved' ? 'text-green-600' :
-                            selectedProperty.verification.status === 'rejected' ? 'text-red-600' :
+                            selectedProperty.verification?.status === 'approved' ? 'text-green-600' :
+                            selectedProperty.verification?.status === 'rejected' ? 'text-red-600' :
                             'text-gray-600'
                           }`}>
-                            {new Date(selectedProperty.verification.verifiedAt).toLocaleString()}
+                            {selectedProperty.verification?.verifiedAt ? new Date(selectedProperty.verification.verifiedAt).toLocaleString() : 'N/A'}
                           </p>
                         </div>
                       )}
-                      {selectedProperty.verification.status && (
+                      {(selectedProperty.verification?.status || selectedProperty.status) && (
                         <div className="md:col-span-2">
                           <p className="text-sm text-gray-500">Verification Status</p>
                           <p className={`font-medium ${
-                            selectedProperty.verification.status === 'approved' ? 'text-green-600' :
-                            selectedProperty.verification.status === 'rejected' ? 'text-red-600' :
+                            (selectedProperty.verification?.status || selectedProperty.status) === 'approved' || (selectedProperty.verification?.status || selectedProperty.status) === 'Active' ? 'text-green-600' :
+                            (selectedProperty.verification?.status || selectedProperty.status) === 'rejected' || (selectedProperty.verification?.status || selectedProperty.status) === 'Inactive' ? 'text-red-600' :
                             'text-yellow-600'
                           }`}>
-                            {selectedProperty.verification.status === 'approved' ? '✅ Approved' :
-                             selectedProperty.verification.status === 'rejected' ? '❌ Rejected' :
+                            {(selectedProperty.verification?.status || selectedProperty.status) === 'approved' || (selectedProperty.verification?.status || selectedProperty.status) === 'Active' ? '✅ Approved' :
+                             (selectedProperty.verification?.status || selectedProperty.status) === 'rejected' || (selectedProperty.verification?.status || selectedProperty.status) === 'Inactive' ? '❌ Rejected' :
                              '⏳ Pending'}
                           </p>
                         </div>

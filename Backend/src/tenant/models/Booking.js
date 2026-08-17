@@ -27,11 +27,15 @@ const bookingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'rescheduled'],
+      enum: ['pending', 'accepted', 'confirmed', 'completed', 'rejected', 'rescheduled', 'cancelled'],
       default: 'pending',
     },
     rescheduleReason: {
       type: String,
+    },
+    adminNotes: {
+      type: String,
+      default: '',
     },
   },
   { timestamps: true, collection: 'bookings' }

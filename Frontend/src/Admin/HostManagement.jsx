@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Eye, Users, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -155,16 +155,33 @@ const HostManagement = () => {
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [hostsList, setHostsList] = useState(mockHosts);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    fetch('/api/admin/owners', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.hosts && data.hosts.length > 0) {
+          setHostsList(data.hosts);
+        }
+      })
+      .catch((err) => console.log('Host fetch fallback to default:', err));
+  }, []);
 
   const hostsPerPage = 5;
 
-  const filteredHosts = mockHosts.filter((host) => {
+  const filteredHosts = hostsList.filter((host) => {
     const value = search.toLowerCase();
 
     return (
       host.name.toLowerCase().includes(value) ||
       host.email.toLowerCase().includes(value) ||
-      host.phone.includes(value)
+      (host.phone && host.phone.includes(value))
     );
   });
 

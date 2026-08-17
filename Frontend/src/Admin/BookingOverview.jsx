@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   CalendarDays,
   CheckCircle2,
@@ -16,11 +16,28 @@ const BookingOverview = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [bookingList, setBookingList] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    fetch('/api/admin/bookings', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.bookings && data.bookings.length > 0) {
+          setBookingList(data.bookings);
+        }
+      })
+      .catch((err) => console.log('Booking fetch fallback to default:', err));
+  }, []);
 
   const bookingsPerPage = 5;
 
-  // Mock booking data
-  const bookings = [
+  // Mock booking data fallback
+  const defaultBookings = [
     {
       id: 1,
       user: "Rahul Sharma",
@@ -103,21 +120,23 @@ const BookingOverview = () => {
     },
   ];
 
+  const activeBookings = bookingList || defaultBookings;
+
   // Rented properties count
   const rentedProperties = 12;
 
   // Stats
-  const totalVisits = bookings.length;
+  const totalVisits = activeBookings.length;
 
-  const visitConfirmed = bookings.filter(
+  const visitConfirmed = activeBookings.filter(
     (booking) => booking.status === "confirmed"
   ).length;
 
-  const visitPending = bookings.filter(
+  const visitPending = activeBookings.filter(
     (booking) => booking.status === "pending"
   ).length;
 
-  const visitCompleted = bookings.filter(
+  const visitCompleted = activeBookings.filter(
     (booking) => booking.status === "completed"
   ).length;
 
@@ -128,7 +147,7 @@ const BookingOverview = () => {
 
   // Search + Filter
   const filteredBookings = useMemo(() => {
-    return bookings.filter((booking) => {
+    return activeBookings.filter((booking) => {
       const searchValue = search.toLowerCase();
 
       const matchesSearch =
@@ -142,7 +161,7 @@ const BookingOverview = () => {
 
       return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter]);
+  }, [search, statusFilter, activeBookings]);
 
   // Pagination
   const totalPages = Math.ceil(
