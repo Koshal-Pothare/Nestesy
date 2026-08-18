@@ -454,7 +454,7 @@ const navigate = useNavigate();
             </motion.h1>
 
             <motion.p
-              className="mt-7 text-gray-300 text-base sm:text-lg max-w-2xl font-[Roboto]"
+              className="mt-7 text-gray-100 text-base sm:text-lg max-w-2xl font-[Roboto] "
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1 }}
@@ -477,7 +477,7 @@ const navigate = useNavigate();
                   {counter1.count}
                   {counter1.suffix}
                 </span>
-                <span className="text-gray-400 text-sm">Properties</span>
+                <span className="text-gray-100 text-sm font-semibold">Properties</span>
               </div>
 
               <div ref={counter2.ref} className="flex items-center gap-2">
@@ -485,7 +485,7 @@ const navigate = useNavigate();
                   {counter2.count}
                   {counter2.suffix}
                 </span>
-                <span className="text-gray-400 text-sm">Happy Clients</span>
+                <span className="text-gray-100 text-sm font-semibold">Happy Clients</span>
               </div>
 
               <div ref={counter3.ref} className="flex items-center gap-2">
@@ -493,7 +493,7 @@ const navigate = useNavigate();
                   {counter3.count}
                   {counter3.suffix}
                 </span>
-                <span className="text-gray-400 text-sm">Cities</span>
+                <span className="text-gray-100 text-sm font-semibold">Cities</span>
               </div>
 
               <div ref={counter4.ref} className="flex items-center gap-2">
@@ -501,7 +501,7 @@ const navigate = useNavigate();
                   {counter4.count}
                   {counter4.suffix}
                 </span>
-                <span className="text-gray-400 text-sm">Rating</span>
+                <span className="text-gray-100 text-sm font-semibold">Rating</span>
               </div>
             </motion.div>
           </div>
