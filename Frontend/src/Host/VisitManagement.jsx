@@ -623,8 +623,8 @@ const HostVisitManagement = () => {
                         </td>
 
                       </motion.tr>
-                    );
-                  })}
+                    )
+                  )};
                 </AnimatePresence>
 
               </tbody>

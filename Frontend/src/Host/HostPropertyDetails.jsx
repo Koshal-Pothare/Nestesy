@@ -1,14 +1,6 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
   ChevronRight,
@@ -36,21 +28,28 @@ import {
   Building2,
   Trash2,
   Key,
-  Check
+  Check,
+  Users,
+  CalendarDays
 } from 'lucide-react';
+import { getAllVisits, updateVisitStatus } from '../utils/bookVisit';
 
-const PropertyDetails = () => {
+const HostPropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [property, setProperty] = useState(null);
+  const [currentImage, setCurrentImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [allProperties, setAllProperties] = useState([]);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [visitors, setVisitors] = useState([]);
+  const [showAllVisitors, setShowAllVisitors] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     loadProperty();
+    loadVisitors();
   }, [id]);
 
   const loadProperty = () => {
@@ -58,40 +57,20 @@ const PropertyDetails = () => {
     setError(null);
     try {
       const stored = localStorage.getItem('hostProperties');
-      console.log('=== DEBUG: PROPERTY DETAILS ===');
-      console.log('Raw stored data:', stored);
       
       if (stored) {
         const allProperties = JSON.parse(stored);
         setAllProperties(allProperties);
-        console.log('All properties count:', allProperties.length);
-        console.log('All properties:', allProperties);
-        console.log('Looking for property with ID:', id);
-        console.log('ID type:', typeof id);
         
-        // Try multiple ways to find the property
         let foundProperty = null;
-        
-        // Method 1: String comparison
         foundProperty = allProperties.find(p => String(p.id) === String(id));
         
-        // Method 2: Number comparison (if Method 1 fails)
         if (!foundProperty) {
-          console.log('Method 1 failed, trying number comparison');
           foundProperty = allProperties.find(p => Number(p.id) === Number(id));
         }
         
-        // Method 3: Check if property exists in the list
-        if (!foundProperty) {
-          console.log('Property not found. Available IDs:', allProperties.map(p => ({ id: p.id, title: p.title })));
-        }
-        
-        console.log('Found property:', foundProperty);
-        
-        if (foundProperty) {
-          // Ensure property has a verification object
+        if (foundProperty) { 
           if (!foundProperty.verification) {
-            console.warn('Property has no verification object. Adding default.');
             foundProperty.verification = {
               ownerName: 'Not provided',
               ownerEmail: 'Not provided',
@@ -104,12 +83,10 @@ const PropertyDetails = () => {
           }
           setProperty(foundProperty);
         } else {
-          setError(`Property with ID "${id}" not found. Please check the property ID.`);
-          console.error('Property with ID', id, 'not found.');
+          setError(`Property with ID "${id}" not found.`);
         }
       } else {
         setError('No properties found. Please add a property first.');
-        console.error('No properties in localStorage');
       }
     } catch (error) {
       console.error('Error loading property:', error);
@@ -117,49 +94,80 @@ const PropertyDetails = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, navigate]);
+  };
 
-  // Auto-slide images
-  useEffect(() => {
-    loadProperty();
-  }, [loadProperty]);
-
-  const handleDelete = async () => {
-    if (deleting) return;
-
-    const confirmed = window.confirm(
-      "Are you sure you want to permanently delete this property?"
-    );
-
-    if (!confirmed) return;
-
+  // Load visitors for  property
+  const loadVisitors = () => {
     try {
-      setDeleting(true);
-      setError("");
-
-      await deleteProperty(id);
-
-      alert("Property deleted successfully.");
-
-      navigate("/host/my-properties", {
-        replace: true,
-      });
-    } catch (err) {
-      console.error(
-        "Error deleting property:",
-        err.response?.data || err
+      const allVisits = getAllVisits();
+      // Filter visits for specific property
+      const propertyVisits = allVisits.filter(
+        visit => String(visit.propertyId) === String(id)
       );
+      setVisitors(propertyVisits);
+    } catch (error) {
+      console.error('Error loading visitors:', error);
+      setVisitors([]);
+    }
+  };
 
-      if (
-        err.response?.status === 401 ||
-        err.response?.status === 403
-      ) {
-        localStorage.removeItem("ownerToken");
-        navigate("/login");
-        return;
+  // Handle visitor status update (Rented or Rejected)
+  const handleVisitorAction = (visitId, action) => {
+    setActionLoading(true);
+    try {
+      const status = action === 'rented' ? 'rented' : 'rejected';
+      const updatedVisits = updateVisitStatus(visitId, status);
+      
+      if (updatedVisits) {
+        // Refresh visitors list
+        loadVisitors();
+        alert(`Visitor ${action === 'rented' ? 'marked as rented' : 'rejected'} successfully!`);
+      } else {
+        alert('Failed to update visitor status');
       }
+    } catch (error) {
+      console.error('Error updating visitor:', error);
+      alert('Failed to update visitor status');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
-  // Handle status update (Active / Rented)
+  useEffect(() => {
+    if (!property?.images?.length) return;
+    
+    const timer = setInterval(() => {
+      setCurrentImage(prev => (prev + 1) % property.images.length);
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [property]);
+
+  useEffect(() => {
+    setCurrentImage(0);
+  }, [id]);
+
+  const nextImage = () => {
+    setCurrentImage(prev => (prev + 1) % property.images.length);
+  };
+
+  const previousImage = () => {
+    setCurrentImage(prev => prev === 0 ? property.images.length - 1 : prev - 1);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm('⚠️ Are you sure you want to permanently delete this property? This action cannot be undone!')) {
+      const stored = localStorage.getItem('hostProperties');
+      if (stored) {
+        const allProperties = JSON.parse(stored);
+        const updatedProperties = allProperties.filter(p => String(p.id) !== String(id));
+        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
+        navigate('/host/my-properties');
+      }
+    }
+  };
+
+  // Handle property status update (Active or Rented)
   const handleStatusUpdate = (newStatus) => {
     if (window.confirm(`Are you sure you want to mark this property as "${newStatus}"?`)) {
       setUpdatingStatus(true);
@@ -176,8 +184,7 @@ const PropertyDetails = () => {
           }
           return p;
         });
-        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
-        // Update the current property state
+        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties)); 
         setProperty(prev => ({
           ...prev,
           status: newStatus,
@@ -202,7 +209,7 @@ const PropertyDetails = () => {
         bg: 'bg-blue-100',
         text: 'text-blue-800',
         icon: <Key className="w-5 h-5" />,
-        label: 'Rented 🔑',
+        label: 'Rented',
         border: 'border-blue-300'
       };
     }
@@ -211,7 +218,7 @@ const PropertyDetails = () => {
         bg: 'bg-green-100',
         text: 'text-green-800',
         icon: <CheckCircle className="w-5 h-5" />,
-        label: 'Verified ✓',
+        label: 'Verified',
         border: 'border-green-300'
       };
     }
@@ -233,7 +240,6 @@ const PropertyDetails = () => {
         border: 'border-red-300'
       };
     }
-    // Default fallback - return Pending instead of Unknown
     return {
       bg: 'bg-yellow-100',
       text: 'text-yellow-800',
@@ -263,22 +269,49 @@ const PropertyDetails = () => {
     return { label: 'Pending Review ⏳', color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' };
   };
 
-  // Debug: Show all properties if not found
+  // Get visitor status style
+  const getVisitorStatusStyle = (status) => {
+    switch (status) {
+      case 'pending':
+        return { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200', icon: '⏳', label: 'Pending' };
+      case 'rented':
+        return { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', icon: '🔑', label: 'Rented' };
+      case 'rejected':
+        return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', icon: '❌', label: 'Rejected' };
+      default:
+        return { bg: 'bg-gray-50', text: 'text-gray-600', border: 'border-gray-200', icon: '❓', label: 'Unknown' };
+    }
+  };
+
+  const formatVisitorStatus = (status) => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  // Get visitor stats
+  const getVisitorStats = () => {
+    const pending = visitors.filter(v => v.status === 'pending').length;
+    const rented = visitors.filter(v => v.status === 'rented').length;
+    const rejected = visitors.filter(v => v.status === 'rejected').length;
+    return { pending, rented, rejected, total: visitors.length };
+  };
+
+  const visitorStats = getVisitorStats();
+
+  // Show only first 3 visitors initially
+  const displayedVisitors = showAllVisitors ? visitors : visitors.slice(0, 3);
+ 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-green-600" />
-
-          <p className="mt-4 text-sm text-gray-500">
-            Loading property details...
-          </p>
+          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading property details...</p>
         </div>
       </div>
     );
   }
 
-  if (error && !property) {
+  if (error || !property) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center bg-white rounded-2xl p-8 shadow-sm border border-gray-100 max-w-2xl">
@@ -286,7 +319,6 @@ const PropertyDetails = () => {
           <h3 className="text-xl font-semibold text-gray-700">{error || 'Property not found'}</h3>
           <p className="text-gray-400 mt-2">The property you're looking for doesn't exist or has been removed.</p>
           
-          {/* Debug info - show available properties */}
           {allProperties.length > 0 && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg text-left">
               <p className="text-sm font-semibold text-gray-700">Available Properties ({allProperties.length}):</p>
@@ -310,119 +342,127 @@ const PropertyDetails = () => {
           
           <div className="mt-4 flex flex-col gap-2">
             <button
-              type="button"
-              onClick={loadProperty}
-              className="rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
+              onClick={() => navigate('/host/my-properties')}
+              className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 mx-auto"
             >
-              Try Again
+              <ArrowLeft className="w-4 h-4" />
+              Back to My Properties
+            </button>
+            <button
+              onClick={loadProperty}
+              className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+            >
+              <Refresh className="w-4 h-4" />
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const statusBadge = getStatusBadge();
+  const verificationStatus = getVerificationStatus();
+  const isVerified = property.verification?.verified || false;
+  const currentStatus = property.status || 'Pending';
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-20">
+      {/* Back Button */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <button
+          onClick={() => navigate('/host/my-properties')}
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to My Properties
+        </button>
+      </div>
+
+      {/* Verification Status Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
+        <div className={`rounded-2xl p-4 border ${statusBadge.border} ${statusBadge.bg}`}>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              {statusBadge.icon}
+              <span className={`font-semibold ${statusBadge.text}`}>
+                Status: {statusBadge.label}
+              </span>
+            </div>
+            {property.verification?.verifiedAt && (
+              <span className="text-sm text-gray-600">
+                • {property.verification.status === 'approved' ? 'Verified' : 'Reviewed'} on: {new Date(property.verification.verifiedAt).toLocaleDateString()}
+              </span>
+            )}
+            {property.verification?.status === 'rejected' && property.verification?.adminNotes && (
+              <span className="text-sm text-red-600">
+                • Reason: {property.verification.adminNotes}
+              </span>
+            )}
+            {!property.verification?.verified && property.status !== 'Inactive' && property.status !== 'Rented' && (
+              <span className="text-sm text-yellow-600">
+                • Awaiting admin verification
+              </span>
+            )}
+            {property.status === 'Rented' && (
+              <span className="text-sm text-blue-600">
+                • This property has been rented out
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Hero / Image Gallery */}
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-auto lg:h-[420px]"
+        >
+          {/* Main Carousel */}
+          <div className="relative h-[320px] sm:h-[320px] lg:h-full overflow-hidden rounded-3xl group">
+            <motion.img
+              key={currentImage}
+              src={property.images?.[currentImage] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800'}
+              alt={property.title}
+              initial={{ opacity: 0, scale: 1.03 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
+
+            <button
+              onClick={previousImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+            >
+              <ChevronLeft size={20} />
             </button>
 
             <button
-              type="button"
-              onClick={() =>
-                navigate("/host/my-properties")
-              }
-              className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              onClick={nextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
             >
-              Back
+              <ChevronRight size={20} />
             </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
-  if (!property) {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-6">
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-800">
-            Property not found
-          </h2>
-
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/host/my-properties")
-            }
-            className="mt-5 rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white"
-          >
-            Back to My Properties
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const images =
-    Array.isArray(property.outerImages)
-      ? property.outerImages
-      : Array.isArray(property.images)
-      ? property.images
-      : [];
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              {property.title ||
-                property.name ||
-                "Property Details"}
-            </h1>
-
-            <p className="mt-1 text-sm text-gray-500">
-              {property.location ||
-                property.address ||
-                "Location not available"}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/host/my-properties")
-            }
-            className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-          >
-            Back to Properties
-          </button>
-        </div>
-
-        {error && property && (
-          <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          {images.length > 0 ? (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {images.slice(0, 4).map((image, index) => {
-                const imageUrl =
-                  typeof image === "string"
-                    ? image
-                    : image?.url ||
-                      image?.secure_url;
-
-                if (!imageUrl) return null;
-
-                return (
-                  <img
-                    key={index}
-                    src={imageUrl}
-                    alt={`${property.title || "Property"} ${
-                      index + 1
-                    }`}
-                    className="h-64 w-full object-cover"
-                  />
-                );
-              })}
+            <div className="absolute bottom-5 left-5 flex gap-2">
+              {property.images?.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImage(index)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    currentImage === index ? 'w-7 bg-white' : 'w-2 bg-white/60'
+                  }`}
+                />
+              ))}
             </div>
-          ) : (
-            <div className="flex h-64 items-center justify-center bg-gray-100 text-gray-400">
-              No property images available
+
+            <div className="absolute top-5 left-5 rounded-full bg-black/40 backdrop-blur-md px-4 py-2 text-sm text-white">
+              {currentImage + 1} / {property.images?.length || 0}
             </div>
           </div>
 
@@ -452,7 +492,7 @@ const PropertyDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">
           {/* Left Content */}
           <div className="min-w-0">
-            {/* Title & Basic Info */}
+            {/* Title */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -660,7 +700,7 @@ const PropertyDetails = () => {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="bg-purple-50 rounded-xl p-4">
                   <p className="text-2xl font-bold text-purple-700">{property.inquiries || 0}</p>
-                  <p className="text-xs text-purple-600">Total Inquiries</p>
+                  <p className="text-xs text-purple-600">Total visits</p>
                 </div>
                 <div className="bg-green-50 rounded-xl p-4">
                   <p className="text-2xl font-bold text-green-700">{property.listedDate}</p>
@@ -668,9 +708,106 @@ const PropertyDetails = () => {
                 </div>
               </div>
             </section>
+
+            {/* Visitors List */}
+            <section className="mt-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Users className="text-blue-600" size={24} />
+                  Visitors ({visitors.length})
+                </h2>
+                {visitors.length > 3 && (
+                  <button
+                    onClick={() => setShowAllVisitors(!showAllVisitors)}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    {showAllVisitors ? 'Show Less' : 'View All'}
+                  </button>
+                )}
+              </div>
+
+              {/* Visitor Stats */}
+              {visitors.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="bg-amber-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-amber-600">Pending</p>
+                    <p className="font-bold text-amber-700">{visitorStats.pending}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-blue-600">Rented</p>
+                    <p className="font-bold text-blue-700">{visitorStats.rented}</p>
+                  </div>
+                  <div className="bg-red-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-red-600">Rejected</p>
+                    <p className="font-bold text-red-700">{visitorStats.rejected}</p>
+                  </div>
+                </div>
+              )}
+
+              {visitors.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <p>No visitors yet</p>
+                  <p className="text-xs text-gray-400">When someone books a visit, they'll appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {displayedVisitors.map((visitor) => {
+                    const statusStyle = getVisitorStatusStyle(visitor.status);
+                    return (
+                      <div key={visitor.id} className="border border-gray-100 rounded-xl p-3 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4 text-gray-400" />
+                              <span className="font-medium text-gray-800">{visitor.visitorName || visitor.name || 'Guest'}</span>
+                            </div>
+                            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <CalendarDays className="w-3 h-3" />
+                                {visitor.visitDate || 'N/A'}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {visitor.visitTime || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
+                              {statusStyle.icon} {statusStyle.label}
+                            </span>
+                            {visitor.status === 'pending' && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => handleVisitorAction(visitor.id, 'rented')}
+                                  disabled={actionLoading}
+                                  className="p-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+                                  title="Mark as Rented"
+                                >
+                                  <Key className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleVisitorAction(visitor.id, 'reject')}
+                                  disabled={actionLoading}
+                                  className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+                                  title="Reject"
+                                >
+                                  <XCircle className="w-3 h-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </div>
 
-          {/* Right Sticky Card */}
+          {/* Right Card */}
           <aside className="lg:sticky lg:top-24 h-fit">
             <motion.div
               initial={{ opacity: 0, x: 25 }}
@@ -691,18 +828,44 @@ const PropertyDetails = () => {
                 </div>
               </div>
 
-              <div>
-                <p className="text-xs text-gray-400">
-                  Bathrooms
-                </p>
+              <div className="mt-5 rounded-2xl bg-gray-50 p-4">
+                <div className="flex items-center gap-3">
+                  <Calendar className="text-primary-600" size={20} />
+                  <div>
+                    <p className="text-xs text-gray-500">Listed Date</p>
+                    <p className="font-semibold text-gray-800">{property.listedDate}</p>
+                  </div>
+                </div>
 
-                <p className="mt-1 font-bold text-gray-800">
-                  {property.bathrooms ?? 0}
-                </p>
+                <div className="mt-4 flex items-center gap-3">
+                  <Clock className="text-primary-600" size={20} />
+                  <div>
+                    <p className="text-xs text-gray-500">Property ID</p>
+                    <p className="font-semibold text-gray-800">#{property.id}</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-              {/* Status Management Buttons - Only show when verified */}
+              <div className="mt-5 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Bedrooms</span>
+                  <span className="font-semibold">{property.bedrooms}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Bathrooms</span>
+                  <span className="font-semibold">{property.bathrooms}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Area</span>
+                  <span className="font-semibold">{property.area} sq.ft</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Type</span>
+                  <span className="font-semibold">{property.type || property.propertyType || 'N/A'}</span>
+                </div>
+              </div>
+
+              {/* Status Management Buttons */}
               {isVerified && (
                 <div className="mt-6 space-y-3">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Manage Status</p>
@@ -747,7 +910,7 @@ const PropertyDetails = () => {
               {!isVerified && (
                 <div className="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
                   <p className="text-xs text-yellow-700 text-center">
-                    ⏳ Status management available after verification
+                     Status management available after verification
                   </p>
                 </div>
               )}
@@ -758,16 +921,7 @@ const PropertyDetails = () => {
                   className="rounded-2xl border border-gray-300 py-3.5 font-semibold text-gray-700 hover:bg-gray-50 transition"
                 >
                   Back to Properties
-                </button>
-
-                <button
-                  onClick={() => navigate(`/host/edit-property/${property.id}`)}
-                  className="rounded-2xl bg-primary-600 py-3.5 font-semibold text-white hover:bg-primary-700 transition shadow-lg shadow-primary-600/20 flex items-center justify-center gap-2"
-                >
-                  <Edit size={18} />
-                  Edit Property
-                </button>
-
+                </button> 
                 <button
                   onClick={handleDelete}
                   className="rounded-2xl bg-red-500 py-3.5 font-semibold text-white hover:bg-red-600 transition flex items-center justify-center gap-2"
@@ -784,12 +938,12 @@ const PropertyDetails = () => {
             </motion.div>
           </aside>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-// Refresh icon component
+// Refresh icon  
 const Refresh = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

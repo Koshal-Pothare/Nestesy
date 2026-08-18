@@ -2,16 +2,17 @@ import { useLayoutEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import "./App.css";
-
+import Navbar from "./components/Navbar"
+import Footer from './components/Footer'
 import Home from "./pages/Home";
 import About from "./pages/About";
 import BecomeHost from "./pages/BecomeHost";
 import Login from "./auth/Login";
-import ForgotPassword from "./auth/ForgotPassword";
+
 import Contact from "./pages/Contact";
 
 import Explore from './pages/Explore'
-import Whishlist from './pages/Wishlist'
+import Wishlist from './pages/Wishlist'
 import PropertyDetails from './pages/PropertyDetails'
 import ForgotPassword from './auth/ForgotPassword'
 import Review from './pages/Review'
@@ -24,7 +25,7 @@ import AdminLogin from './auth/AdminLogin'
 import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
 import HostManagement from './Admin/HostManagement'
 import HostDetails from './Admin/HostDetail'
-import BookingManagement from './Admin/BookingManagement'
+import BookingOverview from './Admin/BookingOverview'
 
 // Host 
 import HostDashboard from './Host/HostDashboard'
@@ -36,6 +37,8 @@ import MyProperties from './Host/MyProperties'
 import HostAnalytics from './Host/HostAnalytics'
 import HostPropertyDetails from './Host/HostPropertyDetails'
 import VisitManagement from './Host/VisitManagement'
+import HostLogin from './Host/HostLogin'
+import HostRegister from "./Host/HostRegister";
 
 
 //User
@@ -128,7 +131,7 @@ function App() {
           <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
            <Route path="/admin/hosts" element={<HostManagement />} />
            <Route path="/admin/hosts/:id" element={<HostDetails />} />
-            <Route path="/admin/bookings" element={<BookingManagement />} />
+            <Route path="/admin/bookings" element={<BookingOverview />} />
 
         </Route>
 
