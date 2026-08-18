@@ -1,7 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import {
   Home,
-  Plus,
   X,
   Upload,
   MapPin,
@@ -12,121 +18,166 @@ import {
   CheckCircle,
   AlertCircle,
   ChevronLeft,
-  Image,
+  Image as ImageIcon,
   Grid3x3,
   Sofa,
   Shield,
   ShieldCheck,
   Wallet,
 } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PropertyVerification from "./PropertyVerification";
 
+const AVAILABLE_AMENITIES = [
+  "Parking",
+  "Pool",
+  "Gym",
+  "Garden",
+  "Security",
+  "Lift",
+  "Power Backup",
+  "Terrace",
+  "Balcony",
+  "Furnished",
+  "AC",
+  "WiFi",
+  "Pet Friendly",
+  "Playground",
+  "CCTV",
+];
+
+const BHK_OPTIONS = [
+  { value: "1", label: "1 BHK" },
+  { value: "2", label: "2 BHK" },
+  { value: "3", label: "3 BHK" },
+  { value: "4", label: "4 BHK" },
+  { value: "5", label: "5 BHK" },
+];
+
+const FURNISHING_OPTIONS = [
+  "Fully Furnished",
+  "Semi Furnished",
+  "Unfurnished",
+];
+
+const IDEAL_FOR_OPTIONS = [
+  "Students",
+  "Working Professionals",
+  "Families",
+  "Couples",
+];
+
+const PROPERTY_TYPES = [
+  "Apartment",
+  "Flat",
+  "Penthouse",
+  "House",
+  "Studio",
+  "Duplex",
+  "Farmhouse",
+];
+
+const createInitialFormData = () => ({
+  title: "",
+  location: "",
+  price: "",
+  type: "Apartment",
+  bhk: "",
+  bathrooms: "",
+  area: "",
+  furnishing: "",
+  idealFor: [],
+  securityDeposit: "",
+  maintenance: "",
+  description: "",
+  amenities: [],
+  outerImages: [],
+  livingRoomImages: [],
+  bathroomImages: [],
+  balconyImages: [],
+  kitchenImages: [],
+  bedroomImages: [],
+  ownerName: "",
+  ownerEmail: "",
+  ownerPhone: "",
+  propertyAddress: "",
+  verificationDocs: {},
+  additionalNotes: "",
+});
+
+const ImagePreview = ({ file, alt = "Property preview" }) => {
+  const [src, setSrc] = useState("");
+
+  useEffect(() => {
+    if (!file) {
+      setSrc("");
+      return undefined;
+    }
+
+    if (typeof file === "string") {
+      setSrc(file);
+      return undefined;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setSrc(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [file]);
+
+  if (!src) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+        <ImageIcon className="w-8 h-8 text-gray-300" />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-full h-full object-cover"
+    />
+  );
+};
+
 const AddProperty = () => {
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-  const [notification, setNotification] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const verificationRef = useRef(null);
 
-  // Available amenities list
-  const availableAmenities = [
-    'Parking', 'Pool', 'Gym', 'Garden', 'Security', 
-    'Lift', 'Power Backup', 'Terrace', 'Balcony', 
-    'Furnished', 'AC', 'WiFi', 'Pet Friendly', 'Playground', 'CCTV', 
-  ];
+  const [formData, setFormData] = useState(createInitialFormData);
+  const [notification, setNotification] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // BHK options (up to 5 BHK)
-  const bhkOptions = [
-    { value: "1", label: "1 BHK" },
-    { value: "2", label: "2 BHK" },
-    { value: "3", label: "3 BHK" },
-    { value: "4", label: "4 BHK" },
-    { value: "5", label: "5 BHK" },
-  ];
+  const showNotification = useCallback(
+    (message, type = "success") => {
+      setNotification({
+        message,
+        type,
+      });
 
-  const furnishingOptions = [
-    {
-      value: "Fully Furnished",
-      label: "Fully Furnished",
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
     },
-    {
-      value: "Semi Furnished",
-      label: "Semi Furnished",
-    },
-    {
-      value: "Unfurnished",
-      label: "Unfurnished",
-    },
-  ];
+    []
+  );
 
-  const idealForOptions = [
-    {
-      value: "Students",
-      label: "Students",
-    },
-    {
-      value: "Working Professionals",
-      label: "Working Professionals",
-    },
-    {
-      value: "Families",
-      label: "Families",
-    },
-    {
-      value: "Couples",
-      label: "Couples",
-    },
-  ];
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
 
-  const propertyTypes = [
-    'Apartment',
-    'Flat',
-    'Penthouse',
-    'House',
-    'Studio',
-    'Duplex',
-    'Farmhouse'
-  ];
-
-  const initialFormData = {
-    title: '',
-    location: '',
-    price: '',
-    type: 'Apartment',
-    bhk: '',
-    bathrooms: '',
-    area: '',
-    description: '',
-    amenities: [],
-
-    outerImages: [],
-    livingRoomImages: [],
-    bathroomImages: [],
-    balconyImages: [],
-    kitchenImages: [],
-    bedroomImages: [],
-    // Verification fields
-    ownerName: '',
-    ownerEmail: '',
-    ownerPhone: '',
-    propertyAddress: '',
-    verificationDocs: {},
-    additionalNotes: ''
-  });
-
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => {
+    setFormData((previous) => {
       const updated = {
-        ...prev,
-        [name]: value
+        ...previous,
+        [name]: value,
       };
 
-      if (name === 'bhk') {
+      if (name === "bhk") {
         updated.bedroomImages = [];
       }
 
@@ -134,266 +185,272 @@ const AddProperty = () => {
     });
   };
 
-  // Handle amenities toggle
   const toggleAmenity = (amenity) => {
-    setFormData(prev => ({
-      ...prev,
-      amenities: prev.amenities.includes(amenity)
-        ? prev.amenities.filter((item) => item !== amenity)
-        : [...prev.amenities, amenity]
+    setFormData((previous) => ({
+      ...previous,
+      amenities: previous.amenities.includes(amenity)
+        ? previous.amenities.filter((item) => item !== amenity)
+        : [...previous.amenities, amenity],
     }));
   };
 
-  // Handle outer images upload (min 3, max 5)
-  const handleOuterUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const remainingSlots = 5 - formData.outerImages.length;
-    const selectedFiles = files.slice(0, remainingSlots);
-    
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      outerImages: [...prev.outerImages, ...imageUrls]
+  const toggleIdealFor = (value) => {
+    setFormData((previous) => ({
+      ...previous,
+      idealFor: previous.idealFor.includes(value)
+        ? previous.idealFor.filter((item) => item !== value)
+        : [...previous.idealFor, value],
     }));
   };
 
-  // Handle living room images upload (min 1, max 2)
-  const handleLivingRoomUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const remainingSlots = 2 - formData.livingRoomImages.length;
-    const selectedFiles = files.slice(0, remainingSlots);
-    
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      livingRoomImages: [...prev.livingRoomImages, ...imageUrls]
-    }));
-  };
+  const addImages = (field, files, maxImages) => {
+    const selectedFiles = Array.from(files || []).filter((file) =>
+      file.type.startsWith("image/")
+    );
 
-  // Handle bathroom images upload (min 1, max 2)
-  const handleBathroomUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const remainingSlots = 2 - formData.bathroomImages.length;
-    const selectedFiles = files.slice(0, remainingSlots);
-    
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      bathroomImages: [...prev.bathroomImages, ...imageUrls]
-    }));
-  };
+    if (selectedFiles.length === 0) {
+      return;
+    }
 
-  // Handle balcony images upload (min 1, max 2)
-  const handleBalconyUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const remainingSlots = 2 - formData.balconyImages.length;
-    const selectedFiles = files.slice(0, remainingSlots);
-    
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      balconyImages: [...prev.balconyImages, ...imageUrls]
-    }));
-  };
+    setFormData((previous) => {
+      const currentImages = previous[field] || [];
+      const remainingSlots = maxImages - currentImages.length;
 
-  // Handle kitchen images upload (min 1, max 2)
-  const handleKitchenUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const remainingSlots = 2 - formData.kitchenImages.length;
-    const selectedFiles = files.slice(0, remainingSlots);
-    
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    setFormData(prev => ({
-      ...prev,
-      kitchenImages: [...prev.kitchenImages, ...imageUrls]
-    }));
-  };
-
-  // Handle bedroom images upload (min 1, max 2)
-  const handleBedroomUpload = (e, bedroomIndex) => {
-    const files = Array.from(e.target.files);
-    const maxImages = 2;
-    const currentBedroom = formData.bedroomImages[bedroomIndex] || [];
-    const remainingSlots = maxImages - currentBedroom.length;
-    const selectedFiles = files.slice(0, remainingSlots);
-    
-    const imageUrls = selectedFiles.map(file => URL.createObjectURL(file));
-    
-    setFormData(prev => {
-      const updatedBedroomImages = [...prev.bedroomImages];
-      if (!updatedBedroomImages[bedroomIndex]) {
-        updatedBedroomImages[bedroomIndex] = [];
-      }
-      updatedBedroomImages[bedroomIndex] = [...updatedBedroomImages[bedroomIndex], ...imageUrls];
-      return { ...prev, bedroomImages: updatedBedroomImages };
-    });
-  };
-
-  // Remove outer image
-  const removeOuterImage = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      outerImages: prev.outerImages.filter((_, i) => i !== index)
-    }));
-  };
-
-  // Remove living room image
-  const removeLivingRoomImage = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      livingRoomImages: prev.livingRoomImages.filter((_, i) => i !== index)
-    }));
-  };
-
-  // Remove bathroom image
-  const removeBathroomImage = (index) => {
-    removeImage('bathroomImages', index);
-  };
-
-  // Remove balcony image
-  const removeBalconyImage = (index) => {
-    removeImage('balconyImages', index);
-  };
-
-  // Remove kitchen image
-  const removeKitchenImage = (index) => {
-    removeImage('kitchenImages', index);
-  };
-
-  // Remove bedroom image
-  const removeBedroomImage = (bedroomIndex, imageIndex) => {
-    setFormData(prev => {
-      const updatedBedroomImages = [...prev.bedroomImages];
-
-      if (!updatedBedroomImages[bedroomIndex]) {
-        return prev;
+      if (remainingSlots <= 0) {
+        return previous;
       }
 
-      const images = [
-        ...updatedBedroomImages[bedroomIndex]
-      ];
-
-      const removedImage = images[imageIndex];
-
-      revokeImageUrl(removedImage);
-
-      images.splice(imageIndex, 1);
-
-      updatedBedroomImages[bedroomIndex] =
-        images;
+      const selected = selectedFiles.slice(0, remainingSlots);
 
       return {
-        ...prev,
-        bedroomImages: updatedBedroomImages
+        ...previous,
+        [field]: [...currentImages, ...selected],
       };
     });
   };
 
-  // Show notification
-  const showNotification = (message, type = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 5000);
+  const handleOuterUpload = (event) => {
+    addImages("outerImages", event.target.files, 5);
+    event.target.value = "";
   };
 
-  // Handle form submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleLivingRoomUpload = (event) => {
+    addImages("livingRoomImages", event.target.files, 2);
+    event.target.value = "";
+  };
 
-    // Validate basic fields
-    if (!formData.title || !formData.location || !formData.price || 
-        !formData.bhk || !formData.bathrooms || !formData.area) {
-      showNotification('Please fill in all required fields', 'error');
-      setIsSubmitting(false);
+  const handleBathroomUpload = (event) => {
+    addImages("bathroomImages", event.target.files, 2);
+    event.target.value = "";
+  };
+
+  const handleBalconyUpload = (event) => {
+    addImages("balconyImages", event.target.files, 2);
+    event.target.value = "";
+  };
+
+  const handleKitchenUpload = (event) => {
+    addImages("kitchenImages", event.target.files, 2);
+    event.target.value = "";
+  };
+
+  const handleBedroomUpload = (event, bedroomIndex) => {
+    const files = Array.from(event.target.files || []).filter((file) =>
+      file.type.startsWith("image/")
+    );
+
+    if (files.length === 0) {
       return;
     }
 
-    // Validate images
-    if (formData.outerImages.length < 3) {
-      showNotification('Please upload at least 3 outer images', 'error');
-      setIsSubmitting(false);
-      return;
-    }
+    setFormData((previous) => {
+      const bedroomImages = [...previous.bedroomImages];
+      const currentImages = bedroomImages[bedroomIndex] || [];
+      const remainingSlots = 2 - currentImages.length;
 
-    if (formData.kitchenImages.length < 1) {
+      if (remainingSlots <= 0) {
+        return previous;
+      }
+
+      const selectedFiles = files.slice(0, remainingSlots);
+
+      bedroomImages[bedroomIndex] = [
+        ...currentImages,
+        ...selectedFiles,
+      ];
+
+      return {
+        ...previous,
+        bedroomImages,
+      };
+    });
+
+    event.target.value = "";
+  };
+
+  const removeImage = (field, index) => {
+    setFormData((previous) => {
+      const images = [...(previous[field] || [])];
+
+      images.splice(index, 1);
+
+      return {
+        ...previous,
+        [field]: images,
+      };
+    });
+  };
+
+  const removeBedroomImage = (bedroomIndex, imageIndex) => {
+    setFormData((previous) => {
+      const bedroomImages = [...previous.bedroomImages];
+
+      if (!bedroomImages[bedroomIndex]) {
+        return previous;
+      }
+
+      const images = [...bedroomImages[bedroomIndex]];
+
+      images.splice(imageIndex, 1);
+
+      bedroomImages[bedroomIndex] = images;
+
+      return {
+        ...previous,
+        bedroomImages,
+      };
+    });
+  };
+
+  const validateBasicFields = () => {
+    const requiredFields = [
+      "title",
+      "location",
+      "price",
+      "bhk",
+      "bathrooms",
+      "area",
+    ];
+
+    const hasEmptyField = requiredFields.some(
+      (field) => !String(formData[field] ?? "").trim()
+    );
+
+    if (hasEmptyField) {
       showNotification(
-        'Please upload at least one kitchen image',
-        'error'
+        "Please fill in all required fields.",
+        "error"
       );
+
       return false;
     }
 
-    const bhkCount = Number(formData.bhk);
+    const price = Number(formData.price);
+    const bathrooms = Number(formData.bathrooms);
+    const area = Number(formData.area);
 
-    for (let i = 0; i < bhkCount; i++) {
-      const bedroomImages =
-        formData.bedroomImages[i] || [];
+    if (!Number.isFinite(price) || price < 1000) {
+      showNotification(
+        "Price must be at least ₹1,000.",
+        "error"
+      );
 
-      if (bedroomImages.length < 1) {
-        showNotification(
-          `Please upload at least 1 image for Bedroom ${i + 1}`,
-          'error'
-        );
-        return false;
-      }
+      return false;
+    }
 
-      if (bedroomImages.length > 2) {
-        showNotification(
-          `Maximum 2 images allowed for Bedroom ${i + 1}`,
-          'error'
-        );
-        return false;
-      }
+    if (!Number.isFinite(bathrooms) || bathrooms < 1) {
+      showNotification(
+        "At least 1 bathroom is required.",
+        "error"
+      );
+
+      return false;
+    }
+
+    if (!Number.isFinite(area) || area < 100) {
+      showNotification(
+        "Area must be at least 100 sq.ft.",
+        "error"
+      );
+
+      return false;
     }
 
     return true;
   };
 
-  const validateBasicFields = () => {
-    const requiredFields = [
-      'title',
-      'location',
-      'price',
-      'bhk',
-      'bathrooms',
-      'area'
-    ];
-
-    const hasEmptyField = requiredFields.some(
-      (field) =>
-        !String(formData[field] || '').trim()
-    );
-
-    if (hasEmptyField) {
+  const validateImages = () => {
+    if (formData.outerImages.length < 3) {
       showNotification(
-        'Please fill in all required fields',
-        'error'
+        "Please upload at least 3 outer images.",
+        "error"
       );
+
       return false;
     }
 
-    if (Number(formData.price) < 1000) {
+    if (formData.livingRoomImages.length < 1) {
       showNotification(
-        'Price must be at least ₹1,000',
-        'error'
+        "Please upload at least 1 living room image.",
+        "error"
       );
+
       return false;
     }
 
-    if (Number(formData.bathrooms) < 1) {
+    if (formData.bathroomImages.length < 1) {
       showNotification(
-        'At least 1 bathroom is required',
-        'error'
+        "Please upload at least 1 bathroom image.",
+        "error"
       );
+
       return false;
     }
 
-    if (Number(formData.area) < 100) {
+    if (formData.balconyImages.length < 1) {
       showNotification(
-        'Area must be at least 100 sq.ft',
-        'error'
+        "Please upload at least 1 balcony image.",
+        "error"
       );
+
       return false;
+    }
+
+    if (formData.kitchenImages.length < 1) {
+      showNotification(
+        "Please upload at least 1 kitchen image.",
+        "error"
+      );
+
+      return false;
+    }
+
+    const bhkCount = Number(formData.bhk);
+
+    for (let index = 0; index < bhkCount; index += 1) {
+      const images = formData.bedroomImages[index] || [];
+
+      if (images.length < 1) {
+        showNotification(
+          `Please upload at least 1 image for Bedroom ${
+            index + 1
+          }.`,
+          "error"
+        );
+
+        return false;
+      }
+
+      if (images.length > 2) {
+        showNotification(
+          `Maximum 2 images are allowed for Bedroom ${
+            index + 1
+          }.`,
+          "error"
+        );
+
+        return false;
+      }
     }
 
     return true;
@@ -402,7 +459,7 @@ const AddProperty = () => {
   const validateVerification = () => {
     if (
       verificationRef.current &&
-      typeof verificationRef.current.validate === 'function'
+      typeof verificationRef.current.validate === "function"
     ) {
       return verificationRef.current.validate();
     }
@@ -410,60 +467,14 @@ const AddProperty = () => {
     return true;
   };
 
-  const getStoredProperties = () => {
-    try {
-      const storedProperties =
-        localStorage.getItem('hostProperties');
-
-      if (!storedProperties) {
-        return [];
-      }
-
-      const parsed =
-        JSON.parse(storedProperties);
-
-      return Array.isArray(parsed)
-        ? parsed
-        : [];
-    } catch (error) {
-      console.error(
-        'Error reading hostProperties:',
-        error
-      );
-
-      return [];
+  const appendValue = (target, key, value) => {
+    if (value !== undefined && value !== null) {
+      target.append(key, String(value));
     }
   };
 
-  const saveProperty = (newProperty) => {
-    const existingProperties =
-      getStoredProperties();
-
-    const updatedProperties = [
-      newProperty,
-      ...existingProperties
-    ];
-
-    localStorage.setItem(
-      'hostProperties',
-      JSON.stringify(updatedProperties)
-    );
-
-    window.dispatchEvent(
-      new CustomEvent('propertyAdded', {
-        detail: newProperty
-      })
-    );
-
-    window.dispatchEvent(
-      new Event('hostPropertiesUpdated')
-    );
-
-    return updatedProperties;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     if (isSubmitting) {
       return;
@@ -479,107 +490,206 @@ const AddProperty = () => {
       if (!validateImages()) {
         return;
       }
-    }
 
-    // Validate verification section using the ref
-    if (verificationRef.current) {
-      const isValid = verificationRef.current.validate();
-      if (!isValid) {
-        showNotification('Please complete all verification fields', 'error');
-        setIsSubmitting(false);
+      if (!validateVerification()) {
+        showNotification(
+          "Please complete all verification fields.",
+          "error"
+        );
+
         return;
       }
-    }
 
-      await new Promise((resolve) =>
-        setTimeout(resolve, 500)
+      const formDataToSend = new FormData();
+
+      appendValue(formDataToSend, "title", formData.title.trim());
+      appendValue(
+        formDataToSend,
+        "location",
+        formData.location.trim()
+      );
+      appendValue(formDataToSend, "price", formData.price);
+      appendValue(formDataToSend, "type", formData.type);
+      appendValue(formDataToSend, "bhk", formData.bhk);
+      appendValue(
+        formDataToSend,
+        "bathrooms",
+        formData.bathrooms
+      );
+      appendValue(formDataToSend, "area", formData.area);
+      appendValue(
+        formDataToSend,
+        "description",
+        formData.description.trim()
+      );
+      appendValue(
+        formDataToSend,
+        "furnishing",
+        formData.furnishing
+      );
+      appendValue(
+        formDataToSend,
+        "deposit",
+        formData.securityDeposit || 0
+      );
+      appendValue(
+        formDataToSend,
+        "securityDeposit",
+        formData.securityDeposit || 0
+      );
+      appendValue(
+        formDataToSend,
+        "maintenance",
+        formData.maintenance || 0
       );
 
-    // Combine all images into a single array for the property card
-    const allImages = [
-      ...formData.outerImages,
-      ...formData.livingRoomImages,
-      ...formData.bathroomImages,
-      ...formData.balconyImages,
-      ...formData.kitchenImages,
-      ...formData.bedroomImages.flat()
-    ];
-
-    const newProperty = {
-      id: Date.now(),
-      title: formData.title,
-      location: formData.location,
-      price: parseFloat(formData.price),
-      type: formData.type,
-      bedrooms: parseInt(formData.bhk),  
-      bathrooms: parseInt(formData.bathrooms),
-      area: parseInt(formData.area),
-      status: 'Pending',
-      images: allImages,
-      listedDate: new Date().toISOString().split('T')[0],
-      inquiries: 0,
-      amenities: formData.amenities,
-      description: formData.description,
-      verification: {
-        ownerName: formData.ownerName,
-        ownerEmail: formData.ownerEmail,
-        ownerPhone: formData.ownerPhone,
-        propertyAddress: formData.propertyAddress,
-        documents: formData.verificationDocs,
-        additionalNotes: formData.additionalNotes,
-        verified: false,
-        status: 'pending',
-        submittedAt: new Date().toISOString()
-      }
-    };
-
-    // Save to localStorage
-    try {
-      // Get existing properties
-      const storedProperties = localStorage.getItem('hostProperties');
-      let existingProperties = [];
-      
-      if (storedProperties) {
-        existingProperties = JSON.parse(storedProperties);
-      }
-      
-      // Add new property at the beginning
-      const updatedProperties = [newProperty, ...existingProperties];
-      
-      // Save back to localStorage
-      localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
-      
-      // Dispatch custom event to notify other components
-      window.dispatchEvent(new CustomEvent('propertyAdded', { 
-        detail: newProperty 
-      }));
-      
-      // Dispatch storage event for cross-tab communication
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'hostProperties',
-        newValue: JSON.stringify(updatedProperties),
-        oldValue: storedProperties,
-      }));
-      
-      console.log('Property submitted for verification:', newProperty);
-      showNotification('Property submitted for verification successfully!', 'success');
-      
-      setIsSubmitting(false);
-      
-      // ✅ FIXED: Navigate to /host/my-properties
-      setTimeout(() => {
-        resetForm();
-        navigate('/host/my-properties');
-      }, 1200);
-    } catch (error) {
-      console.error(
-        'Error submitting property:',
-        error
+      formDataToSend.append(
+        "amenities",
+        JSON.stringify(formData.amenities)
       );
+
+      formDataToSend.append(
+        "idealFor",
+        JSON.stringify(formData.idealFor)
+      );
+
+      appendValue(
+        formDataToSend,
+        "ownerName",
+        formData.ownerName
+      );
+
+      appendValue(
+        formDataToSend,
+        "ownerEmail",
+        formData.ownerEmail
+      );
+
+      appendValue(
+        formDataToSend,
+        "ownerPhone",
+        formData.ownerPhone
+      );
+
+      appendValue(
+        formDataToSend,
+        "propertyAddress",
+        formData.propertyAddress
+      );
+
+      appendValue(
+        formDataToSend,
+        "additionalNotes",
+        formData.additionalNotes
+      );
+
+      if (
+        formData.verificationDocs &&
+        Object.keys(formData.verificationDocs).length > 0
+      ) {
+        formDataToSend.append(
+          "verificationDocs",
+          JSON.stringify(formData.verificationDocs)
+        );
+      }
+
+      formData.outerImages.forEach((file) => {
+        if (file instanceof File) {
+          formDataToSend.append("outerImages", file);
+        }
+      });
+
+      formData.livingRoomImages.forEach((file) => {
+        if (file instanceof File) {
+          formDataToSend.append("livingRoomImages", file);
+        }
+      });
+
+      formData.bathroomImages.forEach((file) => {
+        if (file instanceof File) {
+          formDataToSend.append("bathroomImages", file);
+        }
+      });
+
+      formData.balconyImages.forEach((file) => {
+        if (file instanceof File) {
+          formDataToSend.append("balconyImages", file);
+        }
+      });
+
+      formData.kitchenImages.forEach((file) => {
+        if (file instanceof File) {
+          formDataToSend.append("kitchenImages", file);
+        }
+      });
+
+      formData.bedroomImages.forEach((files, index) => {
+        if (!Array.isArray(files)) {
+          return;
+        }
+
+        files.forEach((file) => {
+          if (file instanceof File) {
+            formDataToSend.append(
+              `bedroomImages_${index}`,
+              file
+            );
+          }
+        });
+      });
+
+      const token =
+        localStorage.getItem("ownerToken") ||
+        localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error(
+          "Owner authentication token not found. Please login again."
+        );
+      }
+
+      const response = await fetch(
+        "http://localhost:5000/api/owners/properties",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formDataToSend,
+        }
+      );
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            `Failed to submit property. Server returned ${response.status}.`
+        );
+      }
 
       showNotification(
-        'Failed to save property. Please try again.',
-        'error'
+        "Property submitted for verification successfully!",
+        "success"
+      );
+
+      setTimeout(() => {
+        resetForm();
+        navigate("/host/my-properties");
+      }, 1200);
+    } catch (error) {
+      console.error("Error submitting property:", error);
+
+      showNotification(
+        error?.message ||
+          "Failed to save property. Please try again.",
+        "error"
       );
     } finally {
       setIsSubmitting(false);
@@ -587,43 +697,7 @@ const AddProperty = () => {
   };
 
   const resetForm = () => {
-    Object.values(formData).forEach((value) => {
-      if (Array.isArray(value)) {
-        if (
-          value.every(
-            (item) => typeof item === 'string'
-          )
-        ) {
-          value.forEach(revokeImageUrl);
-        }
-
-        if (
-          value.some(Array.isArray)
-        ) {
-          value
-            .filter(Array.isArray)
-            .flat()
-            .forEach(revokeImageUrl);
-        }
-      }
-    });
-
-    setFormData({
-      ...initialFormData,
-      amenities: [],
-      outerImages: [],
-      livingRoomImages: [],
-      bathroomImages: [],
-      balconyImages: [],
-      kitchenImages: [],
-      bedroomImages: [],
-      ownerName: '',
-      ownerEmail: '',
-      ownerPhone: '',
-      propertyAddress: '',
-      verificationDocs: {},
-      additionalNotes: ''
-    });
+    setFormData(createInitialFormData());
   };
 
   const renderUploadBox = ({
@@ -632,48 +706,45 @@ const AddProperty = () => {
     icon,
     text,
     requiredText,
-    disabled
-  }) => {
-    return (
-      <div
-        className={`border-2 border-dashed border-gray-300 rounded-xl p-4 text-center transition-colors max-w-md ${
-          disabled
-            ? 'opacity-50 cursor-not-allowed'
-            : 'hover:border-green-500 cursor-pointer'
-        }`}
-        onClick={() => {
-          if (!disabled) {
-            document
-              .getElementById(id)
-              ?.click();
-          }
-        }}
-      >
-        <input
-          type="file"
-          id={id}
-          onChange={onChange}
-          multiple
-          accept="image/*"
-          className="hidden"
-          disabled={disabled}
-        />
+    disabled = false,
+  }) => (
+    <div
+      className={`border-2 border-dashed border-gray-300 rounded-xl p-4 text-center max-w-md transition-colors ${
+        disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:border-green-500 cursor-pointer"
+      }`}
+      onClick={() => {
+        if (!disabled) {
+          document.getElementById(id)?.click();
+        }
+      }}
+    >
+      <input
+        id={id}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={onChange}
+        disabled={disabled}
+        className="hidden"
+      />
 
-        <div className="flex items-center justify-center gap-2">
-          {icon}
-          <span className="text-sm text-gray-500">
-            {text}
-          </span>
-        </div>
+      <div className="flex items-center justify-center gap-2">
+        {icon}
 
-        {requiredText && (
-          <p className="text-xs text-red-400 mt-1">
-            {requiredText}
-          </p>
-        )}
+        <span className="text-sm text-gray-500">
+          {text}
+        </span>
       </div>
-    );
-  };
+
+      {requiredText && (
+        <p className="text-xs text-red-400 mt-1">
+          {requiredText}
+        </p>
+      )}
+    </div>
+  );
 
   const renderImageGrid = ({
     images,
@@ -681,61 +752,53 @@ const AddProperty = () => {
     onRemove,
     label,
     shortLabel,
-    borderClass = 'border-gray-200'
-  }) => {
-    return (
-      <div className="flex flex-wrap gap-3">
-        {images.map((image, index) => (
-          <div
-            key={`${label}-${index}`}
-            className={`relative w-32 h-32 rounded-lg overflow-hidden border-2 ${borderClass} group`}
+    borderClass = "border-gray-200",
+  }) => (
+    <div className="flex flex-wrap gap-3">
+      {images.map((image, index) => (
+        <div
+          key={`${label}-${index}`}
+          className={`relative w-32 h-32 rounded-lg overflow-hidden border-2 ${borderClass} group`}
+        >
+          <ImagePreview
+            file={image}
+            alt={`${label} ${index + 1}`}
+          />
+
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
           >
-            <img
-              src={image}
-              alt={`${label} ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
+            <X className="w-3 h-3" />
+          </button>
 
-            <button
-              type="button"
-              onClick={() =>
-                onRemove(index)
-              }
-              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-            >
-              <X className="w-3 h-3" />
-            </button>
+          <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
+            {shortLabel} {index + 1}
+          </div>
 
-            <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-              {shortLabel} {index + 1}
+          {index === 0 && (
+            <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
+              Required
             </div>
+          )}
+        </div>
+      ))}
 
-            {index === 0 && (
-              <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
-                Required
-              </div>
-            )}
-          </div>
-        ))}
-
-        {Array.from({
-          length: Math.max(
-            0,
-            maxImages - images.length
-          )
-        }).map((_, index) => (
-          <div
-            key={`${label}-empty-${index}`}
-            className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
-          >
-            <span className="text-xs text-red-400 text-center px-2">
-              Slot {images.length + index + 1}
-            </span>
-          </div>
-        ))}
-      </div>
-    );
-  };
+      {Array.from({
+        length: Math.max(0, maxImages - images.length),
+      }).map((_, index) => (
+        <div
+          key={`${label}-empty-${index}`}
+          className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
+        >
+          <span className="text-xs text-red-400 text-center px-2">
+            Slot {images.length + index + 1}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 
   const renderImageSection = ({
     title,
@@ -747,90 +810,70 @@ const AddProperty = () => {
     removeHandler,
     icon,
     shortLabel,
-    borderClass
-  }) => {
-    const remaining =
-      maxImages - images.length;
+    borderClass,
+  }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {title} <span className="text-red-500">*</span>
 
-    return (
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {title}{' '}
-          <span className="text-red-500">
-            *
-          </span>
-          <span className="text-gray-400 text-xs ml-2">
-            (Min {minImages}, Max {maxImages}{' '}
-            images)
-          </span>
-        </label>
+        <span className="text-gray-400 text-xs ml-2">
+          (Min {minImages}, Max {maxImages} images)
+        </span>
+      </label>
 
-        <div className="space-y-3">
-          {images.length < maxImages &&
-            renderUploadBox({
-              id: uploadId,
-              onChange: uploadHandler,
-              icon,
-              text:
-                images.length === 0
-                  ? `Upload ${remaining} image${
-                      remaining > 1
-                        ? 's'
-                        : ''
-                    } for ${title}`
-                  : `Upload 1 more image for ${title}`,
-              requiredText:
-                images.length < minImages
-                  ? `* Minimum ${minImages} image${
-                      minImages > 1
-                        ? 's'
-                        : ''
-                    } required`
-                  : null,
-              disabled:
-                images.length >= maxImages
-            })}
-
-          {renderImageGrid({
-            images,
-            maxImages,
-            onRemove: removeHandler,
-            label: title,
-            shortLabel,
-            borderClass
+      <div className="space-y-3">
+        {images.length < maxImages &&
+          renderUploadBox({
+            id: uploadId,
+            onChange: uploadHandler,
+            icon,
+            text:
+              images.length === 0
+                ? `Upload ${maxImages} images for ${title}`
+                : `Upload ${
+                    maxImages - images.length
+                  } more image${
+                    maxImages - images.length > 1
+                      ? "s"
+                      : ""
+                  }`,
+            requiredText:
+              images.length < minImages
+                ? `* Minimum ${minImages} image${
+                    minImages > 1 ? "s" : ""
+                  } required`
+                : null,
           })}
-        </div>
+
+        {renderImageGrid({
+          images,
+          maxImages,
+          onRemove: removeHandler,
+          label: title,
+          shortLabel,
+          borderClass,
+        })}
       </div>
-    );
-  };
+    </div>
+  );
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Notification */}
+    <div className="max-w-4xl mx-auto pb-10">
       <AnimatePresence>
         {notification && (
           <motion.div
-            initial={{
-              opacity: 0,
-              y: -50
-            }}
-            animate={{
-              opacity: 1,
-              y: 0
-            }}
-            exit={{
-              opacity: 0,
-              y: -50
-            }}
-            className={`fixed top-24 right-4 z-50 px-6 py-4 rounded-xl shadow-xl flex items-center gap-3 ${
-              notification.type === 'success'
-                ? 'bg-green-500'
-                : notification.type === 'error'
-                ? 'bg-red-500'
-                : 'bg-blue-500'
-            } text-white`}
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className={`fixed top-24 right-4 z-50 px-6 py-4 rounded-xl shadow-xl flex items-center gap-3 text-white ${
+              notification.type === "success"
+                ? "bg-green-500"
+                : notification.type === "error"
+                ? "bg-red-500"
+                : "bg-blue-500"
+            }`}
           >
-            {notification.type === 'success' ? (
+            {notification.type === "success" ? (
               <CheckCircle className="w-5 h-5" />
             ) : (
               <AlertCircle className="w-5 h-5" />
@@ -843,15 +886,18 @@ const AddProperty = () => {
         )}
       </AnimatePresence>
 
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate('/host/my-properties')}  // ✅ FIXED
+            type="button"
+            onClick={() =>
+              navigate("/host/my-properties")
+            }
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
           </button>
+
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
               Add New Property
@@ -862,12 +908,11 @@ const AddProperty = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full flex items-center gap-1">
-            <Shield className="w-3 h-3" />
-            Verification Required
-          </span>
-        </div>
+
+        <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full flex items-center gap-1">
+          <Shield className="w-3 h-3" />
+          Verification Required
+        </span>
       </div>
 
       <form
@@ -875,316 +920,254 @@ const AddProperty = () => {
         className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
       >
         <div className="space-y-6">
-          <div>
+          <section>
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Home className="w-5 h-5 text-green-600" />
               Basic Information
             </h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Title */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Property Title{' '}
-                  <span className="text-red-500">
-                    *
-                  </span>
+                  Property Title{" "}
+                  <span className="text-red-500">*</span>
                 </label>
+
                 <input
                   type="text"
                   name="title"
                   value={formData.title}
-                  onChange={
-                    handleInputChange
-                  }
+                  onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                  placeholder="e.g., Luxury Villa with Garden"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="e.g. Luxury Villa with Garden"
                 />
               </div>
 
-              {/* Location */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Location{' '}
-                  <span className="text-red-500">
-                    *
-                  </span>
+                  Location{" "}
+                  <span className="text-red-500">*</span>
                 </label>
+
                 <div className="relative">
                   <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+
                   <input
                     type="text"
                     name="location"
-                    value={
-                      formData.location
-                    }
-                    onChange={
-                      handleInputChange
-                    }
+                    value={formData.location}
+                    onChange={handleInputChange}
                     required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                    placeholder="e.g., Pune, Maharashtra"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                    placeholder="e.g. Pune, Maharashtra"
                   />
                 </div>
               </div>
 
-              {/* Price */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Price (per month){' '}
-                  <span className="text-red-500">
-                    *
-                  </span>
+                  Price (per month){" "}
+                  <span className="text-red-500">*</span>
                 </label>
+
                 <div className="relative">
                   <IndianRupee className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+
                   <input
                     type="number"
                     name="price"
                     value={formData.price}
-                    onChange={
-                      handleInputChange
-                    }
+                    onChange={handleInputChange}
                     required
                     min="1000"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                    placeholder="e.g., 25000"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                    placeholder="25000"
                   />
                 </div>
               </div>
 
-              {/* Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Property Type{' '}
-                  <span className="text-red-500">
-                    *
-                  </span>
+                  Property Type{" "}
+                  <span className="text-red-500">*</span>
                 </label>
+
                 <select
                   name="type"
                   value={formData.type}
-                  onChange={
-                    handleInputChange
-                  }
-                  required
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
                 >
-                  {propertyTypes.map((type) => (
-                    <option key={type} value={type}>{type}</option>
+                  {PROPERTY_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="border-t border-gray-100 pt-6">
+          <section className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Home className="w-5 h-5 text-blue-600" />
               Property Details
             </h2>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* BHK */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  BHK{' '}
-                  <span className="text-red-500">
-                    *
-                  </span>
+                  BHK{" "}
+                  <span className="text-red-500">*</span>
                 </label>
+
                 <div className="relative">
                   <Bed className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+
                   <select
                     name="bhk"
                     value={formData.bhk}
-                    onChange={
-                      handleInputChange
-                    }
+                    onChange={handleInputChange}
                     required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
                   >
                     <option value="">
                       Select BHK
                     </option>
 
-                    {bhkOptions.map(
-                      (option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                        >
-                          {option.label}
-                        </option>
-                      )
-                    )}
+                    {BHK_OPTIONS.map((option) => (
+                      <option
+                        key={option.value}
+                        value={option.value}
+                      >
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
-              {/* Bathrooms */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Bathrooms{' '}
-                  <span className="text-red-500">
-                    *
-                  </span>
+                  Bathrooms{" "}
+                  <span className="text-red-500">*</span>
                 </label>
+
                 <div className="relative">
                   <Bath className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+
                   <input
                     type="number"
                     name="bathrooms"
-                    value={
-                      formData.bathrooms
-                    }
-                    onChange={
-                      handleInputChange
-                    }
-                    required
+                    value={formData.bathrooms}
+                    onChange={handleInputChange}
                     min="1"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                    placeholder="e.g., 2"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                    placeholder="2"
                   />
                 </div>
               </div>
 
-              {/* Area */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Area (sq.ft){' '}
-                  <span className="text-red-500">
-                    *
-                  </span>
+                  Area (sq.ft){" "}
+                  <span className="text-red-500">*</span>
                 </label>
+
                 <div className="relative">
                   <Square className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+
                   <input
                     type="number"
                     name="area"
                     value={formData.area}
-                    onChange={
-                      handleInputChange
-                    }
-                    required
+                    onChange={handleInputChange}
                     min="100"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                    placeholder="e.g., 1200"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                    placeholder="1200"
                   />
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* FURNISHING */}
-          <div className="border-t border-gray-100 pt-6">
+          <section className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Sofa className="w-5 h-5 text-orange-600" />
               Furnishing & Ideal For
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Furnishing */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Furnishing Status{" "}
-                  <span className="text-gray-400 text-xs">
+                  Furnishing Status
+                  <span className="text-gray-400 text-xs ml-2">
                     (Optional)
                   </span>
                 </label>
 
                 <select
                   name="furnishing"
-                  value={
-                    formData.furnishing
-                  }
-                  onChange={
-                    handleInputChange
-                  }
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                  value={formData.furnishing}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
                 >
                   <option value="">
                     Select Furnishing
                   </option>
 
-                  {furnishingOptions.map(
-                    (option) => (
-                      <option
-                        key={
-                          option.value
-                        }
-                        value={
-                          option.value
-                        }
-                      >
-                        {option.label}
-                      </option>
-                    )
-                  )}
+                  {FURNISHING_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              {/* Ideal For */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Ideal For{" "}
-                  <span className="text-gray-400 text-xs">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ideal For
+                  <span className="text-gray-400 text-xs ml-2">
                     (Select all that apply)
                   </span>
                 </label>
 
                 <div className="flex flex-wrap gap-2">
-                  {idealForOptions.map(
-                    (option) => (
-                      <button
-                        key={
-                          option.value
-                        }
-                        type="button"
-                        onClick={() =>
-                          toggleIdealFor(
-                            option.value
-                          )
-                        }
-                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                          formData.idealFor.includes(
-                            option.value
-                          )
-                            ? "bg-green-600 text-white shadow-md shadow-green-600/20"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    )
-                  )}
+                  {IDEAL_FOR_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() =>
+                        toggleIdealFor(option)
+                      }
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                        formData.idealFor.includes(option)
+                          ? "bg-green-600 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
                 </div>
-
-                {formData.idealFor
-                  .length > 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    Selected:{" "}
-                    {formData.idealFor.join(
-                      ", "
-                    )}
-                  </p>
-                )}
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* SECURITY & MAINTENANCE */}
-          <div className="border-t border-gray-100 pt-6">
+          <section className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-blue-600" />
               Security & Maintenance
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Security Deposit */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Security Deposit{" "}
-                  <span className="text-gray-400 text-xs">
+                  Security Deposit
+                  <span className="text-gray-400 text-xs ml-2">
                     (Optional)
                   </span>
                 </label>
@@ -1195,24 +1178,19 @@ const AddProperty = () => {
                   <input
                     type="number"
                     name="securityDeposit"
-                    value={
-                      formData.securityDeposit
-                    }
-                    onChange={
-                      handleInputChange
-                    }
+                    value={formData.securityDeposit}
+                    onChange={handleInputChange}
                     min="0"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                    placeholder="e.g., 20000"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                    placeholder="20000"
                   />
                 </div>
               </div>
 
-              {/* Maintenance */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Maintenance (per month){" "}
-                  <span className="text-gray-400 text-xs">
+                  Maintenance (per month)
+                  <span className="text-gray-400 text-xs ml-2">
                     (Optional)
                   </span>
                 </label>
@@ -1223,708 +1201,300 @@ const AddProperty = () => {
                   <input
                     type="number"
                     name="maintenance"
-                    value={
-                      formData.maintenance
-                    }
-                    onChange={
-                      handleInputChange
-                    }
+                    value={formData.maintenance}
+                    onChange={handleInputChange}
                     min="0"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                    placeholder="e.g., 2000"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+                    placeholder="2000"
                   />
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="border-t border-gray-100 pt-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Description</h2>
+          <section className="border-t border-gray-100 pt-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Description
+            </h2>
+
             <textarea
               name="description"
-              value={
-                formData.description
-              }
-              onChange={
-                handleInputChange
-              }
-              rows="5"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all resize-none"
+              value={formData.description}
+              onChange={handleInputChange}
+              rows={5}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none resize-none"
               placeholder="Describe your property in detail..."
             />
-          </div>
+          </section>
 
-          <div className="border-t border-gray-100 pt-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Image className="w-5 h-5 text-purple-600" />
+          <section className="border-t border-gray-100 pt-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-purple-600" />
               Property Images
             </h2>
-            
-            <div className="space-y-6">
-              {/* Outer Images - Min 3, Max 5 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Outer Images <span className="text-red-500">*</span>
-                  <span className="text-gray-400 text-xs ml-2">(Min 3, Max 5 images)</span>
-                </label>
-                <div className="space-y-3">
-                  {formData.outerImages.length < 5 && (
-                    <div
-                      className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-500 transition-colors cursor-pointer max-w-md"
-                      onClick={() => document.getElementById('outer-upload').click()}
-                    >
-                      <input
-                        type="file"
-                        id="outer-upload"
-                        onChange={handleOuterUpload}
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                      />
-                      <div className="flex items-center justify-center gap-2">
-                        <Upload className="w-5 h-5 text-gray-400" />
-                        <span className="text-sm text-gray-500">
-                          {formData.outerImages.length < 3 ? (
-                            `Upload ${5 - formData.outerImages.length} more image${5 - formData.outerImages.length > 1 ? 's' : ''} (Min 3 required)`
-                          ) : (
-                            `Upload ${5 - formData.outerImages.length} more image${5 - formData.outerImages.length > 1 ? 's' : ''}`
-                          )}
-                        </span>
-                      </div>
-                      {formData.outerImages.length < 3 && (
-                        <p className="text-xs text-red-400 mt-1">* Minimum 3 images required</p>
-                      )}
-                    </div>
-                  )}
 
-                  <div className="flex flex-wrap gap-3">
-                    {formData.outerImages.map((image, index) => (
-                      <div key={index} className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-green-500 group">
-                        <img src={image} alt={`Outer ${index + 1}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeOuterImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-                          Outer {index + 1}
-                        </div>
-                        {index < 3 && (
-                          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
-                            Required
-                          </div>
-                        )}
-                      </div>
-                    ))}
+            <div className="space-y-8">
+              {renderImageSection({
+                title: "Outer Images",
+                images: formData.outerImages,
+                maxImages: 5,
+                minImages: 3,
+                uploadId: "outer-upload",
+                uploadHandler: handleOuterUpload,
+                removeHandler: (index) =>
+                  removeImage("outerImages", index),
+                icon: (
+                  <Upload className="w-5 h-5 text-gray-400" />
+                ),
+                shortLabel: "Outer",
+                borderClass: "border-green-500",
+              })}
 
-                    {Array.from({ length: Math.max(0, 5 - formData.outerImages.length) }).map((_, index) => (
-                      <div 
-                        key={`outer-empty-${index}`}
-                        className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
-                      >
-                        <span className="text-xs text-red-400 text-center px-2">
-                          Slot {formData.outerImages.length + index + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {renderImageSection({
+                title: "Living Room Images",
+                images: formData.livingRoomImages,
+                maxImages: 2,
+                minImages: 1,
+                uploadId: "livingroom-upload",
+                uploadHandler: handleLivingRoomUpload,
+                removeHandler: (index) =>
+                  removeImage(
+                    "livingRoomImages",
+                    index
+                  ),
+                icon: (
+                  <Sofa className="w-5 h-5 text-gray-400" />
+                ),
+                shortLabel: "LR",
+              })}
 
-              {/* Living Room Images - Min 1, Max 2 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Living Room Images <span className="text-red-500">*</span>
-                  <span className="text-gray-400 text-xs ml-2">(Min 1, Max 2 images)</span>
-                </label>
-                <div className="space-y-3">
-                  {formData.livingRoomImages.length < 2 && (
-                    <div
-                      className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-500 transition-colors cursor-pointer max-w-md"
-                      onClick={() => document.getElementById('livingroom-upload').click()}
-                    >
-                      <input
-                        type="file"
-                        id="livingroom-upload"
-                        onChange={handleLivingRoomUpload}
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                      />
-                      <div className="flex items-center justify-center gap-2">
-                        <Sofa className="w-5 h-5 text-gray-400" />
-                        <span className="text-sm text-gray-500">
-                          {formData.livingRoomImages.length === 0 ? (
-                            `Upload ${2 - formData.livingRoomImages.length} image${2 - formData.livingRoomImages.length > 1 ? 's' : ''} for Living Room`
-                          ) : (
-                            `Upload ${1} more image for Living Room`
-                          )}
-                        </span>
-                      </div>
-                      {formData.livingRoomImages.length === 0 && (
-                        <p className="text-xs text-red-400 mt-1">* Minimum 1 image required</p>
-                      )}
-                    </div>
-                  )}
+              {renderImageSection({
+                title: "Bathroom Images",
+                images: formData.bathroomImages,
+                maxImages: 2,
+                minImages: 1,
+                uploadId: "bathroom-upload",
+                uploadHandler: handleBathroomUpload,
+                removeHandler: (index) =>
+                  removeImage(
+                    "bathroomImages",
+                    index
+                  ),
+                icon: (
+                  <Bath className="w-5 h-5 text-gray-400" />
+                ),
+                shortLabel: "Bath",
+                borderClass: "border-cyan-500",
+              })}
 
-                  <div className="flex flex-wrap gap-3">
-                    {formData.livingRoomImages.map((image, index) => (
-                      <div key={index} className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200 group">
-                        <img src={image} alt={`Living Room ${index + 1}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeLivingRoomImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-                          LR {index + 1}
-                        </div>
-                        {index === 0 && (
-                          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
-                            Required
-                          </div>
-                        )}
-                      </div>
-                    ))}
+              {renderImageSection({
+                title: "Balcony Images",
+                images: formData.balconyImages,
+                maxImages: 2,
+                minImages: 1,
+                uploadId: "balcony-upload",
+                uploadHandler: handleBalconyUpload,
+                removeHandler: (index) =>
+                  removeImage(
+                    "balconyImages",
+                    index
+                  ),
+                icon: (
+                  <Grid3x3 className="w-5 h-5 text-gray-400" />
+                ),
+                shortLabel: "Balcony",
+                borderClass: "border-blue-500",
+              })}
 
-                    {Array.from({ length: 2 - formData.livingRoomImages.length }).map((_, index) => (
-                      <div 
-                        key={`livingroom-empty-${index}`}
-                        className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
-                      >
-                        <span className="text-xs text-red-400 text-center px-2">
-                          Slot {index + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {renderImageSection({
+                title: "Kitchen Images",
+                images: formData.kitchenImages,
+                maxImages: 2,
+                minImages: 1,
+                uploadId: "kitchen-upload",
+                uploadHandler: handleKitchenUpload,
+                removeHandler: (index) =>
+                  removeImage(
+                    "kitchenImages",
+                    index
+                  ),
+                icon: (
+                  <ImageIcon className="w-5 h-5 text-gray-400" />
+                ),
+                shortLabel: "Kitchen",
+                borderClass: "border-yellow-500",
+              })}
 
-              {/* Bathroom Images - Min 1, Max 2 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bathroom Images <span className="text-red-500">*</span>
-                  <span className="text-gray-400 text-xs ml-2">(Min 1, Max 2 images)</span>
-                </label>
-                <div className="space-y-3">
-                  {formData.bathroomImages.length < 2 && (
-                    <div
-                      className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-500 transition-colors cursor-pointer max-w-md"
-                      onClick={() => document.getElementById('bathroom-upload').click()}
-                    >
-                      <input
-                        type="file"
-                        id="bathroom-upload"
-                        onChange={handleBathroomUpload}
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                      />
-                      <div className="flex items-center justify-center gap-2">
-                        <Bath className="w-5 h-5 text-gray-400" />
-                        <span className="text-sm text-gray-500">
-                          {formData.bathroomImages.length === 0 ? (
-                            `Upload ${2 - formData.bathroomImages.length} image${2 - formData.bathroomImages.length > 1 ? 's' : ''} for Bathroom`
-                          ) : (
-                            `Upload ${1} more image for Bathroom`
-                          )}
-                        </span>
-                      </div>
-                      {formData.bathroomImages.length === 0 && (
-                        <p className="text-xs text-red-400 mt-1">* Minimum 1 image required</p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap gap-3">
-                    {formData.bathroomImages.map((image, index) => (
-                      <div key={index} className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-cyan-500 group">
-                        <img src={image} alt={`Bathroom ${index + 1}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeBathroomImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-                          Bath {index + 1}
-                        </div>
-                        {index === 0 && (
-                          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
-                            Required
-                          </div>
-                        )}
-                      </div>
-                    ))}
-
-                    {Array.from({ length: 2 - formData.bathroomImages.length }).map((_, index) => (
-                      <div 
-                        key={`bathroom-empty-${index}`}
-                        className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
-                      >
-                        <span className="text-xs text-red-400 text-center px-2">
-                          Slot {index + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Balcony Images */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Balcony Images <span className="text-red-500">*</span>
-                  <span className="text-gray-400 text-xs ml-2">(Min 1, Max 2 images)</span>
-                </label>
-                <div className="space-y-3">
-                  {formData.balconyImages.length < 2 && (
-                    <div
-                      className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-500 transition-colors cursor-pointer max-w-md"
-                      onClick={() => document.getElementById('balcony-upload').click()}
-                    >
-                      <input
-                        type="file"
-                        id="balcony-upload"
-                        onChange={handleBalconyUpload}
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                      />
-                      <div className="flex items-center justify-center gap-2">
-                        <Grid3x3 className="w-5 h-5 text-gray-400" />
-                        <span className="text-sm text-gray-500">
-                          {formData.balconyImages.length === 0 ? (
-                            `Upload ${2 - formData.balconyImages.length} image${2 - formData.balconyImages.length > 1 ? 's' : ''} for Balcony`
-                          ) : (
-                            `Upload ${1} more image for Balcony`
-                          )}
-                        </span>
-                      </div>
-                      {formData.balconyImages.length === 0 && (
-                        <p className="text-xs text-red-400 mt-1">* Minimum 1 image required</p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap gap-3">
-                    {formData.balconyImages.map((image, index) => (
-                      <div key={index} className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-blue-500 group">
-                        <img src={image} alt={`Balcony ${index + 1}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeBalconyImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-                          Balcony {index + 1}
-                        </div>
-                        {index === 0 && (
-                          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
-                            Required
-                          </div>
-                        )}
-                      </div>
-                    ))}
-
-                    {Array.from({ length: 2 - formData.balconyImages.length }).map((_, index) => (
-                      <div 
-                        key={`balcony-empty-${index}`}
-                        className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
-                      >
-                        <span className="text-xs text-red-400 text-center px-2">
-                          Slot {index + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Kitchen Images */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kitchen Images <span className="text-red-500">*</span>
-                  <span className="text-gray-400 text-xs ml-2">(Min 1, Max 2 images)</span>
-                </label>
-                <div className="space-y-3">
-                  {formData.kitchenImages.length < 2 && (
-                    <div
-                      className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-500 transition-colors cursor-pointer max-w-md"
-                      onClick={() => document.getElementById('kitchen-upload').click()}
-                    >
-                      <input
-                        type="file"
-                        id="kitchen-upload"
-                        onChange={handleKitchenUpload}
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                      />
-                      <div className="flex items-center justify-center gap-2">
-                        <Image className="w-5 h-5 text-gray-400" />
-                        <span className="text-sm text-gray-500">
-                          {formData.kitchenImages.length === 0 ? (
-                            `Upload ${2 - formData.kitchenImages.length} image${2 - formData.kitchenImages.length > 1 ? 's' : ''} for Kitchen`
-                          ) : (
-                            `Upload ${1} more image for Kitchen`
-                          )}
-                        </span>
-                      </div>
-                      {formData.kitchenImages.length === 0 && (
-                        <p className="text-xs text-red-400 mt-1">* Minimum 1 image required</p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap gap-3">
-                    {formData.kitchenImages.map((image, index) => (
-                      <div key={index} className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-yellow-500 group">
-                        <img src={image} alt={`Kitchen ${index + 1}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeKitchenImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-                          Kitchen {index + 1}
-                        </div>
-                        {index === 0 && (
-                          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
-                            Required
-                          </div>
-                        )}
-                      </div>
-                    ))}
-
-                    {Array.from({ length: 2 - formData.kitchenImages.length }).map((_, index) => (
-                      <div 
-                        key={`kitchen-empty-${index}`}
-                        className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
-                      >
-                        <span className="text-xs text-red-400 text-center px-2">
-                          Slot {index + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bedroom Images */}
               {formData.bhk && (
-                <div className="mt-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Bedroom Images{' '}
-                    <span className="text-red-500">
-                      *
-                    </span>
+                    Bedroom Images{" "}
+                    <span className="text-red-500">*</span>
+
                     <span className="text-gray-400 text-xs ml-2">
-                      (Min 1, Max 2 images
-                      per bedroom)
+                      (Min 1, Max 2 per bedroom)
                     </span>
                   </label>
 
                   {Array.from({
-                    length: Number(
-                      formData.bhk
-                    )
-                  }).map(
-                    (_, bedroomIndex) => {
-                      const currentImages =
-                        formData
-                          .bedroomImages[
-                          bedroomIndex
-                        ] || [];
+                    length: Number(formData.bhk),
+                  }).map((_, bedroomIndex) => {
+                    const images =
+                      formData.bedroomImages[
+                        bedroomIndex
+                      ] || [];
 
-                      const isComplete =
-                        currentImages.length >=
-                        1;
+                    const complete =
+                      images.length >= 1;
 
-                      return (
-                        <div
-                          key={bedroomIndex}
-                          className={`mb-6 p-4 rounded-xl border-2 ${
-                            isComplete
-                              ? 'border-green-200 bg-green-50'
-                              : 'border-gray-200 bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                              <Bed className="w-4 h-4 text-orange-500" />
+                    return (
+                      <div
+                        key={bedroomIndex}
+                        className={`mb-6 p-4 rounded-xl border-2 ${
+                          complete
+                            ? "border-green-200 bg-green-50"
+                            : "border-gray-200 bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <Bed className="w-4 h-4 text-orange-500" />
 
-                              Bedroom{' '}
-                              {bedroomIndex +
-                                1}{' '}
-                              Images
+                            Bedroom {bedroomIndex + 1}
 
-                              {isComplete ? (
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <AlertCircle className="w-4 h-4 text-red-500" />
-                              )}
-                            </h3>
+                            {complete ? (
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-red-500" />
+                            )}
+                          </h3>
 
-                            <span
-                              className={`text-xs font-medium ${
-                                isComplete
-                                  ? 'text-green-600'
-                                  : 'text-red-500'
-                              }`}
-                            >
-                              {
-                                currentImages.length
-                              }
-                              /2 (Min 1)
-                            </span>
-                          </div>
-
-                          <div className="space-y-3">
-                            {currentImages.length <
-                              2 &&
-                              renderUploadBox({
-                                id: `bedroom-upload-${bedroomIndex}`,
-                                onChange: (
-                                  e
-                                ) =>
-                                  handleBedroomUpload(
-                                    e,
-                                    bedroomIndex
-                                  ),
-                                icon: (
-                                  <Upload className="w-5 h-5 text-gray-400" />
-                                ),
-                                text:
-                                  currentImages.length ===
-                                  0
-                                    ? `Upload 1 or 2 images for Bedroom ${
-                                        bedroomIndex +
-                                        1
-                                      }`
-                                    : `Upload 1 more image for Bedroom ${
-                                        bedroomIndex +
-                                        1
-                                      }`,
-                                requiredText:
-                                  currentImages.length ===
-                                  0
-                                    ? '* Minimum 1 image required'
-                                    : null,
-                                disabled:
-                                  currentImages.length >=
-                                  2
-                              })}
-
-                            <div className="flex flex-wrap gap-3">
-                              {currentImages.map(
-                                (
-                                  image,
-                                  imageIndex
-                                ) => (
-                                  <div
-                                    key={
-                                      imageIndex
-                                    }
-                                    className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-orange-500 group"
-                                  >
-                                    <img
-                                      src={image}
-                                      alt={`Bedroom ${
-                                        bedroomIndex +
-                                        1
-                                      } - ${
-                                        imageIndex +
-                                        1
-                                      }`}
-                                      className="w-full h-full object-cover"
-                                    />
-
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        removeBedroomImage(
-                                          bedroomIndex,
-                                          imageIndex
-                                        )
-                                      }
-                                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                                    >
-                                      <X className="w-3 h-3" />
-                                    </button>
-
-                                    <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
-                                      BR{' '}
-                                      {bedroomIndex +
-                                        1}{' '}
-                                      -{' '}
-                                      {imageIndex +
-                                        1}
-                                    </div>
-
-                                    {imageIndex ===
-                                      0 && (
-                                      <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
-                                        Required
-                                      </div>
-                                    )}
-                                  </div>
-                                )
-                              )}
-
-                              {Array.from({
-                                length:
-                                  2 -
-                                  currentImages.length
-                              }).map(
-                                (_, index) => (
-                                  <div
-                                    key={`bedroom-empty-${bedroomIndex}-${index}`}
-                                    className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
-                                  >
-                                    <span className="text-xs text-red-400 text-center px-2">
-                                      Slot{' '}
-                                      {currentImages.length +
-                                        index +
-                                        1}
-                                    </span>
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          </div>
+                          <span
+                            className={`text-xs font-medium ${
+                              complete
+                                ? "text-green-600"
+                                : "text-red-500"
+                            }`}
+                          >
+                            {images.length}/2
+                          </span>
                         </div>
-                      );
-                    }
-                  )}
+
+                        {images.length < 2 &&
+                          renderUploadBox({
+                            id: `bedroom-upload-${bedroomIndex}`,
+                            onChange: (event) =>
+                              handleBedroomUpload(
+                                event,
+                                bedroomIndex
+                              ),
+                            icon: (
+                              <Upload className="w-5 h-5 text-gray-400" />
+                            ),
+                            text:
+                              images.length === 0
+                                ? `Upload 1 or 2 images for Bedroom ${
+                                    bedroomIndex + 1
+                                  }`
+                                : `Upload 1 more image for Bedroom ${
+                                    bedroomIndex + 1
+                                  }`,
+                            requiredText:
+                              images.length === 0
+                                ? "* Minimum 1 image required"
+                                : null,
+                          })}
+
+                        <div className="flex flex-wrap gap-3 mt-3">
+                          {images.map(
+                            (image, imageIndex) => (
+                              <div
+                                key={imageIndex}
+                                className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-orange-500 group"
+                              >
+                                <ImagePreview
+                                  file={image}
+                                  alt={`Bedroom ${
+                                    bedroomIndex + 1
+                                  }`}
+                                />
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeBedroomImage(
+                                      bedroomIndex,
+                                      imageIndex
+                                    )
+                                  }
+                                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md opacity-0 group-hover:opacity-100"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+
+                                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
+                                  BR {bedroomIndex + 1} -{" "}
+                                  {imageIndex + 1}
+                                </div>
+
+                                {imageIndex === 0 && (
+                                  <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-green-600 text-white text-xs rounded">
+                                    Required
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          )}
+
+                          {Array.from({
+                            length: 2 - images.length,
+                          }).map((_, index) => (
+                            <div
+                              key={index}
+                              className="w-32 h-32 rounded-lg border-2 border-dashed border-red-300 flex items-center justify-center bg-red-50"
+                            >
+                              <span className="text-xs text-red-400">
+                                Slot{" "}
+                                {images.length +
+                                  index +
+                                  1}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                <CheckCircle className={`w-4 h-4 ${formData.outerImages.length >= 3 ? 'text-green-500' : 'text-red-500'}`} />
-                Outer: {formData.outerImages.length}/5 (Min 3)
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-500">
+              <span>
+                Outer: {formData.outerImages.length}/5
               </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle
-                  className={`w-4 h-4 ${
-                    formData.livingRoomImages
-                      .length >= 1
-                      ? 'text-green-500'
-                      : 'text-red-500'
-                  }`}
-                />
-                Living Room:{' '}
-                {
-                  formData
-                    .livingRoomImages
-                    .length
-                }
-                /2 (Min 1)
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle
-                  className={`w-4 h-4 ${
-                    formData.bathroomImages
-                      .length >= 1
-                      ? 'text-green-500'
-                      : 'text-red-500'
-                  }`}
-                />
-                Bathroom:{' '}
-                {
-                  formData.bathroomImages
-                    .length
-                }
-                /2 (Min 1)
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle
-                  className={`w-4 h-4 ${
-                    formData.balconyImages
-                      .length >= 1
-                      ? 'text-green-500'
-                      : 'text-red-500'
-                  }`}
-                />
-                Balcony:{' '}
-                {
-                  formData.balconyImages
-                    .length
-                }
-                /2 (Min 1)
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle
-                  className={`w-4 h-4 ${
-                    formData.kitchenImages
-                      .length >= 1
-                      ? 'text-green-500'
-                      : 'text-red-500'
-                  }`}
-                />
-                Kitchen:{' '}
-                {
-                  formData.kitchenImages
-                    .length
-                }
-                /2 (Min 1)
-              </span>
-              {formData.bhk && (
-                <span className="flex items-center gap-1">
-                  <CheckCircle
-                    className={`w-4 h-4 ${
-                      Array.from({
-                        length: Number(
-                          formData.bhk
-                        )
-                      }).every(
-                        (_, index) =>
-                          Array.isArray(
-                            formData
-                              .bedroomImages[
-                              index
-                            ]
-                          ) &&
-                          formData
-                            .bedroomImages[
-                            index
-                          ].length >= 1
-                      )
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                    }`}
-                  />
 
-                  Bedrooms:{' '}
-                  {
-                    formData.bedroomImages.filter(
-                      (images) =>
-                        Array.isArray(
-                          images
-                        ) &&
-                        images.length >=
-                          1
-                    ).length
-                  }
-                  /{Number(formData.bhk)}
-                  {' '}(
-                  Min 1 each)
-                </span>
-              )}
+              <span>
+                Living Room:{" "}
+                {formData.livingRoomImages.length}/2
+              </span>
+
+              <span>
+                Bathroom:{" "}
+                {formData.bathroomImages.length}/2
+              </span>
+
+              <span>
+                Balcony:{" "}
+                {formData.balconyImages.length}/2
+              </span>
+
+              <span>
+                Kitchen:{" "}
+                {formData.kitchenImages.length}/2
+              </span>
             </div>
-          </div>
+          </section>
 
           <PropertyVerification
             ref={verificationRef}
@@ -1932,19 +1502,23 @@ const AddProperty = () => {
             setFormData={setFormData}
           />
 
-          {/* Amenities */}
-          <div className="border-t border-gray-100 pt-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Amenities</h2>
+          <section className="border-t border-gray-100 pt-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Amenities
+            </h2>
+
             <div className="flex flex-wrap gap-2">
-              {availableAmenities.map((amenity) => (
+              {AVAILABLE_AMENITIES.map((amenity) => (
                 <button
                   key={amenity}
                   type="button"
-                  onClick={() => toggleAmenity(amenity)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  onClick={() =>
+                    toggleAmenity(amenity)
+                  }
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     formData.amenities.includes(amenity)
-                      ? 'bg-green-600 text-white shadow-md shadow-green-600/20'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? "bg-green-600 text-white shadow-md"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   {amenity}
@@ -1952,52 +1526,49 @@ const AddProperty = () => {
               ))}
             </div>
 
-            {formData.amenities.length >
-              0 && (
+            {formData.amenities.length > 0 && (
               <p className="text-xs text-gray-500 mt-2">
-                Selected:{' '}
-                {formData.amenities.length}{' '}
+                Selected: {formData.amenities.length}{" "}
                 amenities
               </p>
             )}
-          </div>
+          </section>
 
           <div className="border-t border-gray-100 pt-6 flex flex-col sm:flex-row gap-3">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-
-                  Submitting for
-                  Verification...
+                  Submitting...
                 </>
               ) : (
                 <>
                   <Shield className="w-5 h-5" />
-
-                  Submit for
-                  Verification
+                  Submit for Verification
                 </>
               )}
             </button>
+
             <button
               type="button"
               onClick={resetForm}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200"
+              disabled={isSubmitting}
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50"
             >
               Clear All
             </button>
+
             <button
               type="button"
               onClick={() =>
-                navigate('/host/my-properties')
+                navigate("/host/my-properties")
               }
               disabled={isSubmitting}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50"
             >
               Cancel
             </button>

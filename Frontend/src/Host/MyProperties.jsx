@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   Plus,
   Eye,
@@ -14,16 +20,398 @@ import {
   Grid,
   List,
   ChevronDown,
-  Calendar,
   Building2,
   Heart,
   X,
+  RefreshCw,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
+import {
+  motion,
+  AnimatePresence,
+} from "framer-motion";
+
 import { useNavigate } from "react-router-dom";
+
 import PropertyCard from "../Ui/PropertyCard";
 
-const API_URL = "http://localhost:5000/api/owners/properties";
+const API_URL =
+  "http://localhost:5000/api/owners/properties";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80";
+
+const toNumber = (value, fallback = 0) => {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return fallback;
+  }
+
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : fallback;
+};
+
+const toArray = (value) => {
+  return Array.isArray(value) ? value : [];
+};
+
+const cleanImages = (images) => {
+  if (!Array.isArray(images)) {
+    return [];
+  }
+
+  return images
+    .filter(
+      (image) =>
+        typeof image === "string" &&
+        image.trim() !== "" &&
+        !image.startsWith("blob:")
+    )
+    .map((image) => image.trim());
+};
+
+const uniqueImages = (images) => {
+  return [...new Set(images)];
+};
+
+const getDateValue = (property) => {
+  const date =
+    property?.createdAt ||
+    property?.listedDate ||
+    property?.updatedAt ||
+    null;
+
+  if (!date) {
+    return 0;
+  }
+
+  const timestamp = new Date(date).getTime();
+
+  return Number.isFinite(timestamp)
+    ? timestamp
+    : 0;
+};
+
+const normalizeStatus = (status) => {
+  const value = String(status || "pending")
+    .trim()
+    .toLowerCase();
+
+  switch (value) {
+    case "approved":
+    case "verified":
+    case "accepted":
+      return "approved";
+
+    case "active":
+      return "active";
+
+    case "pending":
+    case "waiting":
+    case "waiting for verification":
+    case "under review":
+    case "submitted":
+      return "pending";
+
+    case "rejected":
+    case "declined":
+      return "rejected";
+
+    case "inactive":
+      return "inactive";
+
+    case "rented":
+    case "rent":
+      return "rented";
+
+    default:
+      return "pending";
+  }
+};
+
+const normalizeProperty = (property = {}) => {
+  const owner =
+    property?.owner &&
+    typeof property.owner === "object"
+      ? property.owner
+      : {};
+
+  const propertyId =
+    property?._id ||
+    property?.id ||
+    property?.propertyId ||
+    "";
+
+  const price = toNumber(
+    property?.price ??
+      property?.rent ??
+      property?.monthlyRent,
+    0
+  );
+
+  const bedrooms = toNumber(
+    property?.bedrooms ??
+      property?.bhk,
+    0
+  );
+
+  const bathrooms = toNumber(
+    property?.bathrooms ??
+      property?.bath,
+    0
+  );
+
+  const area = toNumber(
+    property?.area ??
+      property?.squareFeet ??
+      property?.size,
+    0
+  );
+
+  const images = cleanImages(
+    property?.images
+  );
+
+  const outerImages = cleanImages(
+    property?.outerImages
+  );
+
+  const livingRoomImages = cleanImages(
+    property?.livingRoomImages
+  );
+
+  const bedroomImages = cleanImages(
+    property?.bedroomImages
+  );
+
+  const kitchenImages = cleanImages(
+    property?.kitchenImages
+  );
+
+  const bathroomImages = cleanImages(
+    property?.bathroomImages
+  );
+
+  const balconyImages = cleanImages(
+    property?.balconyImages
+  );
+
+  const allImages = uniqueImages([
+    ...outerImages,
+    ...images,
+    ...livingRoomImages,
+    ...bedroomImages,
+    ...kitchenImages,
+    ...bathroomImages,
+    ...balconyImages,
+  ]);
+
+  const generatedLocation = [
+    property?.locality,
+    property?.city,
+    property?.state,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const location =
+    typeof property?.location === "string"
+      ? property.location
+      : property?.location &&
+        typeof property.location === "object"
+      ? [
+          property.location?.address,
+          property.location?.locality,
+          property.location?.city,
+          property.location?.state,
+        ]
+          .filter(Boolean)
+          .join(", ")
+      : generatedLocation ||
+        property?.address ||
+        property?.verification
+          ?.propertyAddress ||
+        "Location not available";
+
+  const normalizedStatus = normalizeStatus(
+    property?.status ||
+      property?.approvalStatus ||
+      property?.verification?.status
+  );
+
+  return {
+    ...property,
+
+    id: String(propertyId),
+
+    _id:
+      property?._id ||
+      propertyId,
+
+    title:
+      property?.title ||
+      property?.name ||
+      "Untitled Property",
+
+    description:
+      property?.description ||
+      property?.details ||
+      "",
+
+    location,
+
+    address:
+      property?.address ||
+      property?.verification
+        ?.propertyAddress ||
+      "",
+
+    locality:
+      property?.locality || "",
+
+    city:
+      property?.city || "",
+
+    state:
+      property?.state || "",
+
+    country:
+      property?.country ||
+      "India",
+
+    pincode:
+      property?.pincode ||
+      property?.pinCode ||
+      property?.zipCode ||
+      "",
+
+    price,
+
+    rent: price,
+
+    monthlyRent: toNumber(
+      property?.monthlyRent ??
+        property?.rent ??
+        property?.price,
+      0
+    ),
+
+    maintenance: toNumber(
+      property?.maintenance,
+      0
+    ),
+
+    securityDeposit: toNumber(
+      property?.securityDeposit ??
+        property?.deposit,
+      0
+    ),
+
+    deposit: toNumber(
+      property?.deposit ??
+        property?.securityDeposit,
+      0
+    ),
+
+    type:
+      property?.type ||
+      property?.propertyType ||
+      "Property",
+
+    propertyType:
+      property?.propertyType ||
+      property?.type ||
+      "Property",
+
+    bedrooms,
+
+    bhk: bedrooms,
+
+    bathrooms,
+
+    kitchens: toNumber(
+      property?.kitchens ??
+        property?.kitchen,
+      0
+    ),
+
+    area,
+
+    squareFeet: area,
+
+    furnishing:
+      property?.furnishing ||
+      "Not specified",
+
+    idealFor: toArray(
+      property?.idealFor
+    ),
+
+    amenities: toArray(
+      property?.amenities
+    ),
+
+    status: normalizedStatus,
+
+    approvalStatus:
+      normalizedStatus,
+
+    verification:
+      property?.verification ||
+      null,
+
+    inquiries: toNumber(
+      property?.inquiries,
+      0
+    ),
+
+    views: toNumber(
+      property?.views,
+      0
+    ),
+
+    favorites: toNumber(
+      property?.favorites ??
+        property?.likes,
+      0
+    ),
+
+    images,
+    outerImages,
+    livingRoomImages,
+    bedroomImages,
+    kitchenImages,
+    bathroomImages,
+    balconyImages,
+    allImages,
+
+    createdAt:
+      property?.createdAt ||
+      null,
+
+    updatedAt:
+      property?.updatedAt ||
+      null,
+
+    listedDate:
+      property?.listedDate ||
+      null,
+
+    owner,
+
+    ownerId:
+      property?.ownerId ||
+      owner?._id ||
+      owner?.id ||
+      null,
+  };
+};
 
 const MyProperties = () => {
   const navigate = useNavigate();
@@ -34,135 +422,290 @@ const MyProperties = () => {
   const [sortBy, setSortBy] = useState("latest");
   const [viewMode, setViewMode] = useState("grid");
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] =
+    useState(null);
+  const [showDetailModal, setShowDetailModal] =
+    useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadProperties = async () => {
+  const loadProperties = useCallback(
+    async (isRefresh = false) => {
       try {
-        setLoading(true);
-        setError(null);
+        if (isRefresh) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
 
-        const token = localStorage.getItem("ownerToken");
+        setError("");
+
+        const token =
+          localStorage.getItem("ownerToken") ||
+          localStorage.getItem("token");
 
         if (!token) {
-          navigate("/login", { replace: true });
+          navigate("/login", {
+            replace: true,
+          });
           return;
         }
 
         const response = await fetch(API_URL, {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
+            Accept: "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
 
         let data = {};
 
-        try {
-          data = await response.json();
-        } catch {
-          data = {};
+        const contentType =
+          response.headers.get("content-type") ||
+          "";
+
+        if (
+          contentType.includes(
+            "application/json"
+          )
+        ) {
+          try {
+            data = await response.json();
+          } catch {
+            data = {};
+          }
         }
 
-        if (response.status === 401) {
-          localStorage.removeItem("ownerToken");
-          navigate("/login", { replace: true });
-          return;
-        }
-
-        if (response.status === 403) {
-          setError(
-            data.message ||
-              "Your owner account is not approved by admin yet."
+        if (
+          response.status === 401 ||
+          response.status === 403
+        ) {
+          localStorage.removeItem(
+            "ownerToken"
           );
+
+          localStorage.removeItem("token");
+
+          navigate("/login", {
+            replace: true,
+          });
+
           return;
         }
 
         if (!response.ok) {
           throw new Error(
-            data.message || "Failed to load properties."
+            data?.message ||
+              data?.error ||
+              `Failed to load properties. Status: ${response.status}`
           );
         }
 
-        const propertyData = Array.isArray(data)
-          ? data
-          : Array.isArray(data.data)
-          ? data.data
-          : Array.isArray(data.properties)
-          ? data.properties
-          : [];
+        let propertyData = [];
 
-        setProperties(propertyData);
+        if (Array.isArray(data)) {
+          propertyData = data;
+        } else if (
+          Array.isArray(data?.properties)
+        ) {
+          propertyData = data.properties;
+        } else if (
+          Array.isArray(data?.data)
+        ) {
+          propertyData = data.data;
+        } else if (
+          Array.isArray(
+            data?.data?.properties
+          )
+        ) {
+          propertyData =
+            data.data.properties;
+        } else if (
+          Array.isArray(
+            data?.data?.data
+          )
+        ) {
+          propertyData =
+            data.data.data;
+        }
+
+        const normalizedProperties =
+          propertyData
+            .filter(
+              (property) =>
+                property &&
+                typeof property ===
+                  "object"
+            )
+            .map(normalizeProperty)
+            .filter(
+              (property) =>
+                property.id &&
+                property.id !==
+                  "undefined" &&
+                property.id !== "null"
+            );
+
+        setProperties(
+          normalizedProperties
+        );
       } catch (err) {
-        console.error("Error loading properties:", err);
+        console.error(
+          "Error loading properties:",
+          err
+        );
+
         setError(
-          err.message || "Failed to load properties from server."
+          err?.message ||
+            "Unable to load your properties."
         );
       } finally {
         setLoading(false);
+        setRefreshing(false);
       }
+    },
+    [navigate]
+  );
+
+  useEffect(() => {
+    loadProperties();
+  }, [loadProperties]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      loadProperties(true);
     };
 
-    loadProperties();
-  }, [navigate]);
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
 
-  const normalizeStatus = (status) => {
-    if (!status) return "pending";
-    return String(status).toLowerCase();
+    return () => {
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+    };
+  }, [loadProperties]);
+
+  const propertyTypes = useMemo(() => {
+    const types = properties
+      .map(
+        (property) =>
+          property.propertyType
+      )
+      .filter(Boolean);
+
+    return [
+      "all",
+      ...new Set(types),
+    ];
+  }, [properties]);
+
+  const filteredProperties = useMemo(() => {
+    return [...properties]
+      .filter((property) => {
+        const matchesStatus =
+          filterStatus === "all" ||
+          property.status ===
+            filterStatus;
+
+        const matchesType =
+          filterType === "all" ||
+          property.propertyType ===
+            filterType;
+
+        return (
+          matchesStatus &&
+          matchesType
+        );
+      })
+      .sort((a, b) => {
+        if (sortBy === "price-high") {
+          return b.price - a.price;
+        }
+
+        if (sortBy === "price-low") {
+          return a.price - b.price;
+        }
+
+        if (sortBy === "oldest") {
+          return (
+            getDateValue(a) -
+            getDateValue(b)
+          );
+        }
+
+        return (
+          getDateValue(b) -
+          getDateValue(a)
+        );
+      });
+  }, [
+    properties,
+    filterStatus,
+    filterType,
+    sortBy,
+  ]);
+
+  const stats = useMemo(() => {
+    return {
+      total: properties.length,
+
+      approved: properties.filter(
+        (property) =>
+          property.status ===
+            "approved" ||
+          property.status === "active"
+      ).length,
+
+      pending: properties.filter(
+        (property) =>
+          property.status === "pending"
+      ).length,
+
+      rejected: properties.filter(
+        (property) =>
+          property.status === "rejected"
+      ).length,
+
+      rented: properties.filter(
+        (property) =>
+          property.status === "rented"
+      ).length,
+    };
+  }, [properties]);
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "approved":
+        return "Approved";
+
+      case "active":
+        return "Active";
+
+      case "pending":
+        return "Waiting for Verification";
+
+      case "rejected":
+        return "Rejected";
+
+      case "inactive":
+        return "Inactive";
+
+      case "rented":
+        return "Rented";
+
+      default:
+        return "Waiting for Verification";
+    }
   };
 
-  const propertyTypes = [
-    "all",
-    ...new Set(
-      properties
-        .map((property) => property.type)
-        .filter(Boolean)
-    ),
-  ];
-
-  const filteredProperties = [...properties]
-    .filter((property) => {
-      const status = normalizeStatus(property.status);
-
-      const matchesStatus =
-        filterStatus === "all" || status === filterStatus;
-
-      const matchesType =
-        filterType === "all" || property.type === filterType;
-
-      return matchesStatus && matchesType;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "latest":
-          return (
-            new Date(b.createdAt || b.listedDate || 0) -
-            new Date(a.createdAt || a.listedDate || 0)
-          );
-
-        case "oldest":
-          return (
-            new Date(a.createdAt || a.listedDate || 0) -
-            new Date(b.createdAt || b.listedDate || 0)
-          );
-
-        case "price-high":
-          return Number(b.price || 0) - Number(a.price || 0);
-
-        case "price-low":
-          return Number(a.price || 0) - Number(b.price || 0);
-
-        default:
-          return 0;
-      }
-    });
-
   const getStatusBadge = (status) => {
-    switch (normalizeStatus(status)) {
+    switch (status) {
       case "approved":
       case "active":
         return "bg-green-100 text-green-800 border-green-200";
@@ -183,53 +726,50 @@ const MyProperties = () => {
   };
 
   const getStatusIcon = (status) => {
-    switch (normalizeStatus(status)) {
+    switch (status) {
       case "approved":
       case "active":
-        return <CheckCircle className="w-4 h-4" />;
+      case "rented":
+        return (
+          <CheckCircle className="w-4 h-4" />
+        );
 
       case "pending":
-        return <Clock className="w-4 h-4" />;
+        return (
+          <Clock className="w-4 h-4" />
+        );
 
       case "rejected":
       case "inactive":
-        return <AlertCircle className="w-4 h-4" />;
-
-      case "rented":
-        return <CheckCircle className="w-4 h-4" />;
-
       default:
-        return <AlertCircle className="w-4 h-4" />;
+        return (
+          <AlertCircle className="w-4 h-4" />
+        );
     }
   };
 
-  const getStatusLabel = (status) => {
-    switch (normalizeStatus(status)) {
-      case "approved":
-        return "Approved";
+  const getPropertyImage = (property) => {
+    const image =
+      property?.allImages?.find(
+        (item) =>
+          typeof item === "string" &&
+          item.trim() !== "" &&
+          !item.startsWith("blob:")
+      );
 
-      case "active":
-        return "Active";
-
-      case "pending":
-        return "Pending";
-
-      case "rejected":
-        return "Rejected";
-
-      case "inactive":
-        return "Inactive";
-
-      case "rented":
-        return "Rented";
-
-      default:
-        return "Unknown";
-    }
+    return image || FALLBACK_IMAGE;
   };
 
   const handleAddProperty = () => {
     navigate("/host/add-property");
+  };
+
+  const handlePropertyClick = (id) => {
+    if (!id) {
+      return;
+    }
+
+    navigate(`/host/property/${id}`);
   };
 
   const handleViewDetails = (property) => {
@@ -237,56 +777,129 @@ const MyProperties = () => {
     setShowDetailModal(true);
   };
 
-  const handlePropertyClick = (propertyId) => {
-    if (!propertyId) return;
-    navigate(`/host/property/${propertyId}`);
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedProperty(null);
   };
 
-  const getStats = () => {
-    const total = properties.length;
+  const handleDeleteProperty = async (
+    propertyId
+  ) => {
+    if (!propertyId) {
+      throw new Error(
+        "Property ID is missing."
+      );
+    }
 
-    const active = properties.filter((property) => {
-      const status = normalizeStatus(property.status);
-      return status === "approved" || status === "active";
-    }).length;
+    const token =
+      localStorage.getItem("ownerToken") ||
+      localStorage.getItem("token");
 
-    const pending = properties.filter(
-      (property) =>
-        normalizeStatus(property.status) === "pending"
-    ).length;
+    if (!token) {
+      navigate("/login", {
+        replace: true,
+      });
 
-    const rejected = properties.filter(
-      (property) =>
-        normalizeStatus(property.status) === "rejected"
-    ).length;
+      throw new Error(
+        "Please login again."
+      );
+    }
 
-    const rented = properties.filter(
-      (property) =>
-        normalizeStatus(property.status) === "rented"
-    ).length;
+    try {
+      const response = await fetch(
+        `${API_URL}/${encodeURIComponent(
+          propertyId
+        )}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const totalInquiries = properties.reduce(
-      (sum, property) => sum + Number(property.inquiries || 0),
-      0
-    );
+      let data = {};
 
-    return {
-      total,
-      active,
-      pending,
-      rejected,
-      rented,
-      totalInquiries,
-    };
+      const contentType =
+        response.headers.get(
+          "content-type"
+        ) || "";
+
+      if (
+        contentType.includes(
+          "application/json"
+        )
+      ) {
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+      }
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        localStorage.removeItem(
+          "ownerToken"
+        );
+
+        localStorage.removeItem("token");
+
+        navigate("/login", {
+          replace: true,
+        });
+
+        throw new Error(
+          "Your session has expired. Please login again."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            data?.error ||
+            `Failed to delete property. Status: ${response.status}`
+        );
+      }
+
+      setProperties(
+        (previousProperties) =>
+          previousProperties.filter(
+            (property) =>
+              String(property.id) !==
+              String(propertyId)
+          )
+      );
+
+      if (
+        selectedProperty &&
+        String(selectedProperty.id) ===
+          String(propertyId)
+      ) {
+        setSelectedProperty(null);
+        setShowDetailModal(false);
+      }
+
+      return data;
+    } catch (err) {
+      console.error(
+        "Error deleting property:",
+        err
+      );
+
+      throw err;
+    }
   };
-
-  const stats = getStats();
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+
           <p className="text-gray-500">
             Loading your properties...
           </p>
@@ -298,28 +911,41 @@ const MyProperties = () => {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+          <AlertCircle className="w-14 h-14 text-red-500 mx-auto mb-4" />
 
-          <h3 className="text-lg font-semibold text-red-700 mb-2">
-            Error Loading Properties
-          </h3>
+          <h2 className="text-xl font-bold text-red-700">
+            Unable to Load Properties
+          </h2>
 
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600 mt-2">
+            {error}
+          </p>
 
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
+          <div className="flex flex-wrap justify-center gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() =>
+                loadProperties()
+              }
+              className="px-5 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Try Again
+            </button>
 
-          <button
-            onClick={() => navigate("/host/dashboard")}
-            className="mt-4 ml-2 px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            Dashboard
-          </button>
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  "/host/dashboard"
+                )
+              }
+              className="px-5 py-2.5 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition"
+            >
+              Dashboard
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -327,105 +953,136 @@ const MyProperties = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
             My Properties
           </h1>
 
           <p className="text-gray-500 mt-1">
-            Manage all your hosted properties in one place
+            Manage and monitor your property listings
           </p>
         </div>
 
-        <button
-          onClick={handleAddProperty}
-          className="mt-4 sm:mt-0 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 flex items-center gap-2 shadow-lg shadow-green-600/20"
-        >
-          <Plus className="w-5 h-5" />
-          List New Property
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              loadProperties(true)
+            }
+            disabled={refreshing}
+            className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <RefreshCw
+              className={`w-5 h-5 ${
+                refreshing
+                  ? "animate-spin"
+                  : ""
+              }`}
+            />
+
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAddProperty}
+            className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-lg shadow-green-600/20"
+          >
+            <Plus className="w-5 h-5" />
+            List New Property
+          </button>
+        </div>
       </div>
 
-      {properties.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <p className="text-xs text-gray-500">Total</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats.total}
-            </p>
-            <p className="text-xs text-gray-400">Properties</p>
-          </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <StatCard
+          label="Total"
+          value={stats.total}
+          text="Properties"
+        />
 
-          <div className="bg-white rounded-xl p-4 border border-green-100 shadow-sm">
-            <p className="text-xs text-green-600">Approved</p>
-            <p className="text-2xl font-bold text-green-700">
-              {stats.active}
-            </p>
-            <p className="text-xs text-green-500">Listings</p>
-          </div>
+        <StatCard
+          label="Approved"
+          value={stats.approved}
+          text="Listings"
+          color="green"
+        />
 
-          <div className="bg-white rounded-xl p-4 border border-yellow-100 shadow-sm">
-            <p className="text-xs text-yellow-600">Pending</p>
-            <p className="text-2xl font-bold text-yellow-700">
-              {stats.pending}
-            </p>
-            <p className="text-xs text-yellow-500">Approvals</p>
-          </div>
+        <StatCard
+          label="Pending"
+          value={stats.pending}
+          text="Approvals"
+          color="yellow"
+        />
 
-          <div className="bg-white rounded-xl p-4 border border-red-100 shadow-sm">
-            <p className="text-xs text-red-600">Rejected</p>
-            <p className="text-2xl font-bold text-red-700">
-              {stats.rejected}
-            </p>
-            <p className="text-xs text-red-500">Listings</p>
-          </div>
+        <StatCard
+          label="Rejected"
+          value={stats.rejected}
+          text="Listings"
+          color="red"
+        />
 
-          <div className="bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
-            <p className="text-xs text-blue-600">Rented</p>
-            <p className="text-2xl font-bold text-blue-700">
-              {stats.rented}
-            </p>
-            <p className="text-xs text-blue-500">Properties</p>
-          </div>
-        </div>
-      )}
+        <StatCard
+          label="Rented"
+          value={stats.rented}
+          text="Properties"
+          color="blue"
+        />
+      </div>
 
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
           <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2"
+            type="button"
+            onClick={() =>
+              setShowFilters(
+                (previous) =>
+                  !previous
+              )
+            }
+            className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl flex items-center gap-2 hover:bg-gray-100 transition w-fit"
           >
             <Filter className="w-4 h-4" />
+
             Filters
 
             <ChevronDown
               className={`w-4 h-4 transition-transform ${
-                showFilters ? "rotate-180" : ""
+                showFilters
+                  ? "rotate-180"
+                  : ""
               }`}
             />
           </button>
 
-          <div className="flex bg-gray-50 rounded-xl p-1 border border-gray-200">
+          <div className="flex bg-gray-50 rounded-xl p-1 border border-gray-200 w-fit">
             <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg transition-all ${
+              type="button"
+              onClick={() =>
+                setViewMode("grid")
+              }
+              className={`p-2 rounded-lg transition ${
                 viewMode === "grid"
                   ? "bg-white shadow-sm text-green-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-gray-500"
               }`}
+              title="Grid view"
             >
               <Grid className="w-4 h-4" />
             </button>
 
             <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 rounded-lg transition-all ${
+              type="button"
+              onClick={() =>
+                setViewMode("list")
+              }
+              className={`p-2 rounded-lg transition ${
                 viewMode === "list"
                   ? "bg-white shadow-sm text-green-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-gray-500"
               }`}
+              title="List view"
             >
               <List className="w-4 h-4" />
             </button>
@@ -435,67 +1092,119 @@ const MyProperties = () => {
         <AnimatePresence>
           {showFilters && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{
+                opacity: 0,
+                height: 0,
+              }}
+              animate={{
+                opacity: 1,
+                height: "auto",
+              }}
+              exit={{
+                opacity: 0,
+                height: 0,
+              }}
               className="overflow-hidden"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 mt-4 border-t border-gray-100">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 mt-4 border-t">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                  <label
+                    htmlFor="status-filter"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
                     Status
                   </label>
 
                   <select
+                    id="status-filter"
                     value={filterStatus}
                     onChange={(e) =>
-                      setFilterStatus(e.target.value)
+                      setFilterStatus(
+                        e.target.value
+                      )
                     }
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    <option value="all">All Status</option>
-                    <option value="approved">Approved</option>
-                    <option value="active">Active</option>
-                    <option value="pending">Pending</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="rented">Rented</option>
+                    <option value="all">
+                      All Status
+                    </option>
+
+                    <option value="approved">
+                      Approved
+                    </option>
+
+                    <option value="active">
+                      Active
+                    </option>
+
+                    <option value="pending">
+                      Pending
+                    </option>
+
+                    <option value="rejected">
+                      Rejected
+                    </option>
+
+                    <option value="inactive">
+                      Inactive
+                    </option>
+
+                    <option value="rented">
+                      Rented
+                    </option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                  <label
+                    htmlFor="type-filter"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
                     Property Type
                   </label>
 
                   <select
+                    id="type-filter"
                     value={filterType}
                     onChange={(e) =>
-                      setFilterType(e.target.value)
+                      setFilterType(
+                        e.target.value
+                      )
                     }
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    {propertyTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type === "all"
-                          ? "All Types"
-                          : type}
-                      </option>
-                    ))}
+                    {propertyTypes.map(
+                      (type) => (
+                        <option
+                          key={type}
+                          value={type}
+                        >
+                          {type === "all"
+                            ? "All Types"
+                            : type}
+                        </option>
+                      )
+                    )}
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">
+                  <label
+                    htmlFor="sort-filter"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
                     Sort By
                   </label>
 
                   <select
+                    id="sort-filter"
                     value={sortBy}
                     onChange={(e) =>
-                      setSortBy(e.target.value)
+                      setSortBy(
+                        e.target.value
+                      )
                     }
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="latest">
                       Latest First
@@ -520,14 +1229,20 @@ const MyProperties = () => {
         </AnimatePresence>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-500">
           Showing{" "}
-          <span className="font-semibold text-gray-700">
+          <strong className="text-gray-800">
             {filteredProperties.length}
-          </span>{" "}
+          </strong>{" "}
           properties
         </p>
+
+        {properties.length > 0 && (
+          <p className="text-xs text-gray-400">
+            Your submitted properties
+          </p>
+        )}
       </div>
 
       {filteredProperties.length === 0 ? (
@@ -542,14 +1257,15 @@ const MyProperties = () => {
 
           <p className="text-gray-400 mt-2">
             {properties.length === 0
-              ? "Start by listing your first property"
-              : "Try adjusting your filters to see more properties"}
+              ? "Start by listing your first property."
+              : "Try changing your filters."}
           </p>
 
           {properties.length === 0 && (
             <button
+              type="button"
               onClick={handleAddProperty}
-              className="mt-4 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors"
+              className="mt-5 px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
             >
               List New Property
             </button>
@@ -557,297 +1273,594 @@ const MyProperties = () => {
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.map((property, index) => {
-            const propertyId = property._id || property.id;
-
-            return (
-              <PropertyCard
-                key={propertyId}
-                property={property}
-                index={index}
-                onClick={() =>
-                  handlePropertyClick(propertyId)
-                }
-              />
-            );
-          })}
+          {filteredProperties.map(
+            (property, index) => (
+              <motion.div
+                key={property.id}
+                initial={{
+                  opacity: 0,
+                  y: 20,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{
+                  delay: index * 0.05,
+                }}
+                className="relative"
+              >
+                <PropertyCard
+                  property={property}
+                  index={index}
+                  variant="owner"
+                  onClick={() =>
+                    handlePropertyClick(
+                      property.id
+                    )
+                  }
+                  onDelete={
+                    handleDeleteProperty
+                  }
+                />
+              </motion.div>
+            )
+          )}
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredProperties.map((property, index) => {
-            const propertyId = property._id || property.id;
-
-            return (
+          {filteredProperties.map(
+            (property, index) => (
               <motion.div
-                key={propertyId}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
+                key={property.id}
+                initial={{
+                  opacity: 0,
+                  y: 20,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{
+                  delay: index * 0.05,
+                }}
                 onClick={() =>
-                  handlePropertyClick(propertyId)
+                  handlePropertyClick(
+                    property.id
+                  )
                 }
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer hover:shadow-xl transition"
               >
-                <div className="flex flex-col sm:flex-row">
-                  <div className="sm:w-64 h-48 sm:h-auto relative overflow-hidden">
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-64 h-52 relative flex-shrink-0">
                     <img
-                      src={
-                        property.outerImages?.[0] ||
-                        property.images?.[0] ||
-                        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400"
-                      }
-                      alt={property.title || "Property"}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      src={getPropertyImage(
+                        property
+                      )}
+                      alt={property.title}
+                      className="w-full h-full object-cover"
+                      onError={(event) => {
+                        if (
+                          event.currentTarget
+                            .src !==
+                          FALLBACK_IMAGE
+                        ) {
+                          event.currentTarget.src =
+                            FALLBACK_IMAGE;
+                        }
+                      }}
                     />
 
                     <div className="absolute top-3 left-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 border ${getStatusBadge(
-                          property.status
-                        )}`}
-                      >
-                        {getStatusIcon(property.status)}
-                        {getStatusLabel(property.status)}
-                      </span>
+                      <StatusBadge
+                        status={property.status}
+                        getStatusBadge={
+                          getStatusBadge
+                        }
+                        getStatusIcon={
+                          getStatusIcon
+                        }
+                        getStatusLabel={
+                          getStatusLabel
+                        }
+                      />
                     </div>
                   </div>
 
-                  <div className="flex-1 p-4 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-semibold text-gray-800 text-lg">
-                            {property.title ||
-                              "Untitled Property"}
-                          </h4>
+                  <div className="flex-1 p-5">
+                    <div className="flex justify-between gap-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800">
+                          {property.title}
+                        </h3>
 
-                          <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
-                            <MapPin className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-gray-500 mt-2">
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
 
-                            <span>
-                              {property.location ||
-                                "Location not available"}
-                            </span>
-
-                            {property.type && (
-                              <span className="px-2 py-0.5 bg-gray-100 rounded-full text-xs">
-                                {property.type}
-                              </span>
-                            )}
-                          </div>
+                          <span>
+                            {property.location}
+                          </span>
                         </div>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewDetails(property);
-                          }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Eye className="w-4 h-4 text-gray-500" />
-                        </button>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-6 text-sm mt-3">
-                        <span className="flex items-center gap-1">
-                          <Bed className="w-4 h-4 text-gray-400" />
-                          {property.bedrooms ?? "N/A"} Beds
-                        </span>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
 
-                        <span className="flex items-center gap-1">
-                          <Bath className="w-4 h-4 text-gray-400" />
-                          {property.bathrooms ?? "N/A"} Baths
-                        </span>
-
-                        <span className="flex items-center gap-1">
-                          <Square className="w-4 h-4 text-gray-400" />
-                          {property.area ?? "N/A"} sq.ft
-                        </span>
-
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          {property.createdAt
-                            ? new Date(
-                                property.createdAt
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </span>
-                      </div>
-
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                        {property.description ||
-                          "No description available."}
-                      </p>
+                          handleViewDetails(
+                            property
+                          );
+                        }}
+                        className="p-2 h-fit hover:bg-gray-100 rounded-lg transition"
+                        title="View details"
+                      >
+                        <Eye className="w-5 h-5 text-gray-500" />
+                      </button>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between pt-3 mt-3 border-t border-gray-100">
+                    <div className="flex flex-wrap gap-5 mt-4 text-sm text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <Bed className="w-4 h-4" />
+                        {property.bhk || 0} BHK
+                      </span>
+
+                      <span className="flex items-center gap-1">
+                        <Bath className="w-4 h-4" />
+                        {property.bathrooms || 0}{" "}
+                        Baths
+                      </span>
+
+                      <span className="flex items-center gap-1">
+                        <Square className="w-4 h-4" />
+                        {property.area || 0} sq.ft
+                      </span>
+                    </div>
+
+                    <p className="text-gray-600 text-sm mt-3 line-clamp-2">
+                      {property.description ||
+                        "No description available."}
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t mt-4 pt-4">
                       <div>
-                        <span className="text-xl font-bold text-gray-900">
+                        <span className="text-2xl font-bold text-gray-900">
                           ₹
                           {Number(
-                            property.price || 0
-                          ).toLocaleString("en-IN")}
+                            property.price
+                          ).toLocaleString(
+                            "en-IN"
+                          )}
                         </span>
 
-                        <span className="text-sm text-gray-500">
-                          /mo
+                        <span className="text-gray-500">
+                          /month
                         </span>
                       </div>
 
                       <div className="flex items-center gap-1 text-sm text-gray-500">
                         <Heart className="w-4 h-4" />
-                        {property.inquiries || 0} inquiries
+
+                        {property.inquiries}{" "}
+                        inquiries
                       </div>
                     </div>
                   </div>
                 </div>
               </motion.div>
-            );
-          })}
+            )
+          )}
         </div>
       )}
 
       <AnimatePresence>
-        {showDetailModal && selectedProperty && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowDetailModal(false)}
-          >
+        {showDetailModal &&
+          selectedProperty && (
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
+              initial={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+              exit={{
+                opacity: 0,
+              }}
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={closeDetailModal}
             >
-              <div className="relative h-64">
-                <img
-                  src={
-                    selectedProperty.outerImages?.[0] ||
-                    selectedProperty.images?.[0] ||
-                    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400"
-                  }
-                  alt={selectedProperty.title || "Property"}
-                  className="w-full h-full object-cover"
-                />
+              <motion.div
+                initial={{
+                  scale: 0.95,
+                  y: 20,
+                }}
+                animate={{
+                  scale: 1,
+                  y: 0,
+                }}
+                exit={{
+                  scale: 0.95,
+                  y: 20,
+                }}
+                className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                onClick={(event) =>
+                  event.stopPropagation()
+                }
+              >
+                <div className="relative h-64">
+                  <img
+                    src={getPropertyImage(
+                      selectedProperty
+                    )}
+                    alt={
+                      selectedProperty.title
+                    }
+                    className="w-full h-full object-cover"
+                    onError={(event) => {
+                      if (
+                        event.currentTarget
+                          .src !==
+                        FALLBACK_IMAGE
+                      ) {
+                        event.currentTarget.src =
+                          FALLBACK_IMAGE;
+                      }
+                    }}
+                  />
 
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="absolute top-4 right-4 p-2 bg-white/90 rounded-lg hover:bg-white"
-                >
-                  <X className="w-5 h-5 text-gray-700" />
-                </button>
-
-                <div className="absolute bottom-4 left-4">
-                  <span
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-1 border ${getStatusBadge(
-                      selectedProperty.status
-                    )}`}
+                  <button
+                    type="button"
+                    onClick={
+                      closeDetailModal
+                    }
+                    className="absolute top-4 right-4 p-2 bg-white rounded-lg shadow hover:bg-gray-100 transition"
+                    title="Close"
                   >
-                    {getStatusIcon(selectedProperty.status)}
-                    {getStatusLabel(selectedProperty.status)}
-                  </span>
-                </div>
-              </div>
+                    <X className="w-5 h-5" />
+                  </button>
 
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                  {selectedProperty.title ||
-                    "Untitled Property"}
-                </h3>
-
-                <div className="flex items-center gap-2 text-gray-500 mb-4">
-                  <MapPin className="w-4 h-4" />
-                  {selectedProperty.location ||
-                    "Location not available"}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-6 text-sm mb-4">
-                  <span className="flex items-center gap-1">
-                    <Bed className="w-4 h-4 text-gray-400" />
-                    {selectedProperty.bedrooms ?? "N/A"} Beds
-                  </span>
-
-                  <span className="flex items-center gap-1">
-                    <Bath className="w-4 h-4 text-gray-400" />
-                    {selectedProperty.bathrooms ?? "N/A"} Baths
-                  </span>
-
-                  <span className="flex items-center gap-1">
-                    <Square className="w-4 h-4 text-gray-400" />
-                    {selectedProperty.area ?? "N/A"} sq.ft
-                  </span>
+                  <div className="absolute bottom-4 left-4">
+                    <StatusBadge
+                      status={
+                        selectedProperty.status
+                      }
+                      getStatusBadge={
+                        getStatusBadge
+                      }
+                      getStatusIcon={
+                        getStatusIcon
+                      }
+                      getStatusLabel={
+                        getStatusLabel
+                      }
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1 mb-4">
-                  <IndianRupee className="w-6 h-6 text-green-600" />
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {
+                      selectedProperty.title
+                    }
+                  </h2>
 
-                  <span className="text-3xl font-bold text-gray-800">
-                    {Number(
-                      selectedProperty.price || 0
-                    ).toLocaleString("en-IN")}
-                  </span>
+                  <div className="flex items-center gap-2 text-gray-500 mt-2">
+                    <MapPin className="w-4 h-4" />
 
-                  <span className="text-gray-500">
-                    /month
-                  </span>
-                </div>
+                    {
+                      selectedProperty.location
+                    }
+                  </div>
 
-                <div className="border-t border-gray-100 pt-4 mt-4">
-                  <h4 className="font-semibold text-gray-800 mb-2">
-                    Description
-                  </h4>
+                  <div className="flex flex-wrap gap-6 mt-5">
+                    <span className="flex items-center gap-2">
+                      <Bed className="w-5 h-5" />
+                      {
+                        selectedProperty.bhk
+                      }{" "}
+                      BHK
+                    </span>
 
-                  <p className="text-gray-600 text-sm">
-                    {selectedProperty.description ||
-                      "No description available."}
-                  </p>
-                </div>
+                    <span className="flex items-center gap-2">
+                      <Bath className="w-5 h-5" />
+                      {
+                        selectedProperty.bathrooms
+                      }{" "}
+                      Baths
+                    </span>
 
-                {selectedProperty.amenities?.length > 0 && (
-                  <div className="border-t border-gray-100 pt-4 mt-4">
-                    <h4 className="font-semibold text-gray-800 mb-2">
-                      Amenities
-                    </h4>
+                    <span className="flex items-center gap-2">
+                      <Square className="w-5 h-5" />
+                      {
+                        selectedProperty.area
+                      }{" "}
+                      sq.ft
+                    </span>
+                  </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {selectedProperty.amenities.map(
-                        (amenity, index) => (
-                          <span
-                            key={`${amenity}-${index}`}
-                            className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
-                          >
-                            {amenity}
-                          </span>
-                        )
+                  <div className="flex items-center mt-6">
+                    <IndianRupee className="w-7 h-7 text-green-600" />
+
+                    <span className="text-3xl font-bold">
+                      {Number(
+                        selectedProperty.price
+                      ).toLocaleString(
+                        "en-IN"
                       )}
+                    </span>
+
+                    <span className="text-gray-500 ml-2">
+                      /month
+                    </span>
+                  </div>
+
+                  {selectedProperty.status ===
+                    "pending" && (
+                    <div className="mt-5 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                      <div className="flex gap-3">
+                        <Clock className="w-5 h-5 text-yellow-600 mt-0.5" />
+
+                        <div>
+                          <h3 className="font-semibold text-yellow-800">
+                            Waiting for Verification
+                          </h3>
+
+                          <p className="text-sm text-yellow-700 mt-1">
+                            Your property has been submitted successfully and is waiting for admin verification.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="border-t mt-6 pt-5">
+                    <h3 className="font-semibold text-lg">
+                      Description
+                    </h3>
+
+                    <p className="text-gray-600 mt-2">
+                      {selectedProperty.description ||
+                        "No description available."}
+                    </p>
+                  </div>
+
+                  <div className="border-t mt-6 pt-5">
+                    <h3 className="font-semibold text-lg mb-4">
+                      Property Information
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <InfoItem
+                        label="Property Type"
+                        value={
+                          selectedProperty.propertyType
+                        }
+                      />
+
+                      <InfoItem
+                        label="Furnishing"
+                        value={
+                          selectedProperty.furnishing
+                        }
+                      />
+
+                      <InfoItem
+                        label="Maintenance"
+                        value={`₹${Number(
+                          selectedProperty.maintenance
+                        ).toLocaleString(
+                          "en-IN"
+                        )}`}
+                      />
+
+                      <InfoItem
+                        label="Security Deposit"
+                        value={`₹${Number(
+                          selectedProperty.securityDeposit
+                        ).toLocaleString(
+                          "en-IN"
+                        )}`}
+                      />
+
+                      <InfoItem
+                        label="City"
+                        value={
+                          selectedProperty.city
+                        }
+                      />
+
+                      <InfoItem
+                        label="Pincode"
+                        value={
+                          selectedProperty.pincode
+                        }
+                      />
                     </div>
                   </div>
-                )}
 
-                <div className="border-t border-gray-100 pt-4 mt-4 flex justify-end">
-                  <button
-                    onClick={() => {
-                      setShowDetailModal(false);
-                      handlePropertyClick(
-                        selectedProperty._id ||
-                          selectedProperty.id
-                      );
-                    }}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Full Details
-                  </button>
+                  {selectedProperty.amenities
+                    ?.length > 0 && (
+                    <div className="border-t mt-6 pt-5">
+                      <h3 className="font-semibold text-lg mb-3">
+                        Amenities
+                      </h3>
+
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProperty.amenities.map(
+                          (
+                            amenity,
+                            index
+                          ) => (
+                            <span
+                              key={`${amenity}-${index}`}
+                              className="px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700"
+                            >
+                              {amenity}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedProperty.idealFor
+                    ?.length > 0 && (
+                    <div className="border-t mt-6 pt-5">
+                      <h3 className="font-semibold text-lg mb-3">
+                        Ideal For
+                      </h3>
+
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProperty.idealFor.map(
+                          (
+                            item,
+                            index
+                          ) => (
+                            <span
+                              key={`${item}-${index}`}
+                              className="px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm"
+                            >
+                              {item}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="border-t mt-6 pt-5 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={
+                        closeDetailModal
+                      }
+                      className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition"
+                    >
+                      Close
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const id =
+                          selectedProperty.id;
+
+                        closeDetailModal();
+
+                        handlePropertyClick(
+                          id
+                        );
+                      }}
+                      className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition flex items-center gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Full Details
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          )}
       </AnimatePresence>
+    </div>
+  );
+};
+
+const StatusBadge = ({
+  status,
+  getStatusBadge,
+  getStatusIcon,
+  getStatusLabel,
+}) => {
+  return (
+    <span
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1 ${getStatusBadge(
+        status
+      )}`}
+    >
+      {getStatusIcon(status)}
+      {getStatusLabel(status)}
+    </span>
+  );
+};
+
+const InfoItem = ({ label, value }) => {
+  return (
+    <div className="bg-gray-50 rounded-xl p-3">
+      <p className="text-xs text-gray-500">
+        {label}
+      </p>
+
+      <p className="font-medium text-gray-800 mt-1 break-words">
+        {value || "Not specified"}
+      </p>
+    </div>
+  );
+};
+
+const StatCard = ({
+  label,
+  value,
+  text,
+  color = "gray",
+}) => {
+  const styles = {
+    gray: {
+      border: "border-gray-100",
+      label: "text-gray-500",
+      value: "text-gray-900",
+      text: "text-gray-400",
+    },
+    green: {
+      border: "border-green-100",
+      label: "text-green-600",
+      value: "text-green-700",
+      text: "text-green-500",
+    },
+    yellow: {
+      border: "border-yellow-100",
+      label: "text-yellow-600",
+      value: "text-yellow-700",
+      text: "text-yellow-500",
+    },
+    red: {
+      border: "border-red-100",
+      label: "text-red-600",
+      value: "text-red-700",
+      text: "text-red-500",
+    },
+    blue: {
+      border: "border-blue-100",
+      label: "text-blue-600",
+      value: "text-blue-700",
+      text: "text-blue-500",
+    },
+  };
+
+  const style =
+    styles[color] || styles.gray;
+
+  return (
+    <div
+      className={`bg-white rounded-xl p-4 border ${style.border} shadow-sm`}
+    >
+      <p
+        className={`text-xs ${style.label}`}
+      >
+        {label}
+      </p>
+
+      <p
+        className={`text-2xl font-bold ${style.value}`}
+      >
+        {value}
+      </p>
+
+      <p
+        className={`text-xs ${style.text}`}
+      >
+        {text}
+      </p>
     </div>
   );
 };

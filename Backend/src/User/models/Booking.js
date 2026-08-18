@@ -1,44 +1,96 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
   {
-    tenantId: {
+    tenant: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
+      ref: "Tenant",
       required: true,
     },
-    ownerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Owner',
-      required: true,
-    },
+
     propertyId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Property',
+      type: String,
       required: true,
     },
+
+    title: {
+      type: String,
+      required: true,
+    },
+
+    location: {
+      type: String,
+      required: true,
+    },
+
+    price: {
+      type: Number,
+      required: true,
+    },
+
+    bedrooms: {
+      type: Number,
+    },
+
+    bathrooms: {
+      type: Number,
+    },
+
+    area: {
+      type: Number,
+    },
+
+    images: [
+      {
+        type: String,
+      },
+    ],
+
+    host: {
+      type: String,
+    },
+
+    hostPhone: {
+      type: String,
+    },
+
     visitDate: {
-      type: Date,
+      type: String,
       required: true,
     },
+
     visitTime: {
       type: String,
       required: true,
     },
+
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'confirmed', 'completed', 'rejected', 'rescheduled', 'cancelled'],
-      default: 'pending',
+      enum: [
+        "pending",
+        "approved",
+        "completed",
+        "rejected",
+        "cancelled",
+      ],
+      default: "pending",
     },
-    rescheduleReason: {
-      type: String,
+
+    bookedAt: {
+      type: Date,
+      default: Date.now,
     },
-    adminNotes: {
+
+    notes: {
       type: String,
-      default: '',
     },
   },
-  { timestamps: true, collection: 'bookings' }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = mongoose.model(
+  "Booking",
+  bookingSchema
+);

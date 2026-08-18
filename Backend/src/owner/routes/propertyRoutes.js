@@ -9,10 +9,14 @@ const {
 } = require('../controllers/propertyController');
 const { protect, requireApprovedOwner } = require('../../common/middleware/authMiddleware');
 
+// IMPORT YOUR MULTTER MIDDLEWARE HERE
+const { propertyImageFields } = require('../../common/middleware/uploadMiddleware'); 
+
 router.use(protect, requireApprovedOwner);
 
+// Apply propertyImageFields to the POST route
 router.route('/')
-  .post(createProperty)
+  .post(propertyImageFields, createProperty)
   .get(getMyProperties);
 
 router.route('/:id')

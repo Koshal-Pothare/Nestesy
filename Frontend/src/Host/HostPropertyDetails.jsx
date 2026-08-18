@@ -1,13 +1,1156 @@
+// import React, { useCallback, useEffect, useMemo, useState } from "react";
+// import { motion } from "framer-motion";
+// import { useNavigate, useParams } from "react-router-dom";
+
+// import {
+//   MapPin,
+//   BedDouble,
+//   Bath,
+//   Ruler,
+//   Calendar,
+//   ShieldCheck,
+//   Clock,
+//   Home,
+//   CheckCircle,
+//   XCircle,
+//   FileText,
+//   Edit,
+//   Eye,
+//   Building2,
+//   Trash2,
+//   Key,
+//   Check,
+//   Users,
+//   ArrowLeft,
+// } from "lucide-react";
+
+// const HostPropertyDetails = () => {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   const [property, setProperty] = useState(null);
+//   const [allProperties, setAllProperties] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState("");
+//   const [deleting, setDeleting] = useState(false);
+//   const [updatingStatus, setUpdatingStatus] = useState(false);
+//   const [showAllVisitors, setShowAllVisitors] = useState(false);
+
+//   const loadProperty = useCallback(() => {
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       const stored = localStorage.getItem("hostProperties");
+
+//       if (!stored) {
+//         setAllProperties([]);
+//         setProperty(null);
+//         setError("No properties found. Please add a property first.");
+//         return;
+//       }
+
+//       const parsedProperties = JSON.parse(stored);
+
+//       if (!Array.isArray(parsedProperties)) {
+//         setAllProperties([]);
+//         setProperty(null);
+//         setError("Invalid property data found.");
+//         return;
+//       }
+
+//       setAllProperties(parsedProperties);
+
+//       const foundProperty = parsedProperties.find(
+//         (item) => String(item.id) === String(id)
+//       );
+
+//       if (!foundProperty) {
+//         setProperty(null);
+//         setError(
+//           `Property with ID "${id}" not found. Please check the property ID.`
+//         );
+//         return;
+//       }
+
+//       const normalizedProperty = {
+//         ...foundProperty,
+//         verification: foundProperty.verification || {
+//           ownerName: "Not provided",
+//           ownerEmail: "Not provided",
+//           ownerPhone: "Not provided",
+//           propertyAddress:
+//             foundProperty.location ||
+//             foundProperty.address ||
+//             "Not provided",
+//           submittedAt:
+//             foundProperty.createdAt || new Date().toISOString(),
+//           verified: false,
+//           status: "pending",
+//         },
+//       };
+
+//       setProperty(normalizedProperty);
+//     } catch (err) {
+//       console.error("Error loading property:", err);
+//       setProperty(null);
+//       setError(
+//         `Failed to load property details: ${
+//           err?.message || "Unknown error"
+//         }`
+//       );
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [id]);
+
+//   useEffect(() => {
+//     loadProperty();
+//   }, [loadProperty]);
+
+//   const handleDelete = async () => {
+//     if (deleting || !property) {
+//       return;
+//     }
+
+//     const confirmed = window.confirm(
+//       "Are you sure you want to permanently delete this property?"
+//     );
+
+//     if (!confirmed) {
+//       return;
+//     }
+
+//     try {
+//       setDeleting(true);
+//       setError("");
+
+//       const stored = localStorage.getItem("hostProperties");
+
+//       if (!stored) {
+//         throw new Error("No property data found.");
+//       }
+
+//       const parsedProperties = JSON.parse(stored);
+
+//       const updatedProperties = parsedProperties.filter(
+//         (item) => String(item.id) !== String(id)
+//       );
+
+//       localStorage.setItem(
+//         "hostProperties",
+//         JSON.stringify(updatedProperties)
+//       );
+
+//       setAllProperties(updatedProperties);
+//       setProperty(null);
+
+//       window.alert("Property deleted successfully.");
+
+//       navigate("/host/my-properties", {
+//         replace: true,
+//       });
+//     } catch (err) {
+//       console.error("Error deleting property:", err);
+
+//       setError(
+//         err?.message || "Failed to delete property. Please try again."
+//       );
+
+//       setDeleting(false);
+//     }
+//   };
+
+//   const handleStatusUpdate = (newStatus) => {
+//     if (!property || updatingStatus) {
+//       return;
+//     }
+
+//     if (newStatus !== "Active" && newStatus !== "Rented") {
+//       return;
+//     }
+
+//     if (property.status === newStatus) {
+//       return;
+//     }
+
+//     const confirmed = window.confirm(
+//       `Are you sure you want to mark this property as "${newStatus}"?`
+//     );
+
+//     if (!confirmed) {
+//       return;
+//     }
+
+//     try {
+//       setUpdatingStatus(true);
+//       setError("");
+
+//       const stored = localStorage.getItem("hostProperties");
+
+//       if (!stored) {
+//         throw new Error("Property data not found.");
+//       }
+
+//       const parsedProperties = JSON.parse(stored);
+//       const updatedAt = new Date().toISOString();
+
+//       const updatedProperties = parsedProperties.map((item) => {
+//         if (String(item.id) === String(id)) {
+//           return {
+//             ...item,
+//             status: newStatus,
+//             statusUpdatedAt: updatedAt,
+//           };
+//         }
+
+//         return item;
+//       });
+
+//       localStorage.setItem(
+//         "hostProperties",
+//         JSON.stringify(updatedProperties)
+//       );
+
+//       setAllProperties(updatedProperties);
+
+//       setProperty((previous) => ({
+//         ...previous,
+//         status: newStatus,
+//         statusUpdatedAt: updatedAt,
+//       }));
+
+//       window.alert(
+//         `Property marked as "${newStatus}" successfully!`
+//       );
+//     } catch (err) {
+//       console.error("Error updating property status:", err);
+
+//       setError(
+//         err?.message ||
+//           "Failed to update property status. Please try again."
+//       );
+//     } finally {
+//       setUpdatingStatus(false);
+//     }
+//   };
+
+//   const statusBadge = useMemo(() => {
+//     if (!property) {
+//       return {
+//         bg: "bg-yellow-100",
+//         text: "text-yellow-800",
+//         icon: <Clock className="h-4 w-4" />,
+//         label: "Pending Verification",
+//         border: "border-yellow-300",
+//       };
+//     }
+
+//     const status = property.status || "Pending";
+//     const verified = property.verification?.verified === true;
+//     const verificationStatusValue =
+//       property.verification?.status;
+
+//     if (status === "Rented") {
+//       return {
+//         bg: "bg-blue-100",
+//         text: "text-blue-800",
+//         icon: <Key className="h-4 w-4" />,
+//         label: "Rented",
+//         border: "border-blue-300",
+//       };
+//     }
+
+//     if (status === "Active" && verified) {
+//       return {
+//         bg: "bg-green-100",
+//         text: "text-green-800",
+//         icon: <CheckCircle className="h-4 w-4" />,
+//         label: "Verified",
+//         border: "border-green-300",
+//       };
+//     }
+
+//     if (
+//       status === "Inactive" ||
+//       verificationStatusValue === "rejected"
+//     ) {
+//       return {
+//         bg: "bg-red-100",
+//         text: "text-red-800",
+//         icon: <XCircle className="h-4 w-4" />,
+//         label: "Rejected",
+//         border: "border-red-300",
+//       };
+//     }
+
+//     return {
+//       bg: "bg-yellow-100",
+//       text: "text-yellow-800",
+//       icon: <Clock className="h-4 w-4" />,
+//       label: "Pending Verification",
+//       border: "border-yellow-300",
+//     };
+//   }, [property]);
+
+//   const verificationStatus = useMemo(() => {
+//     if (!property?.verification) {
+//       return {
+//         label: "Verification Pending",
+//         color: "text-yellow-600",
+//         bg: "bg-yellow-50",
+//         border: "border-yellow-200",
+//       };
+//     }
+
+//     const verification = property.verification;
+
+//     if (verification.verified === true) {
+//       return {
+//         label: "Verified ✓",
+//         color: "text-green-600",
+//         bg: "bg-green-50",
+//         border: "border-green-200",
+//       };
+//     }
+
+//     if (verification.status === "rejected") {
+//       return {
+//         label: "Rejected ✗",
+//         color: "text-red-600",
+//         bg: "bg-red-50",
+//         border: "border-red-200",
+//       };
+//     }
+
+//     return {
+//       label: "Pending Review ⏳",
+//       color: "text-yellow-600",
+//       bg: "bg-yellow-50",
+//       border: "border-yellow-200",
+//     };
+//   }, [property]);
+
+//   const images = useMemo(() => {
+//     if (!property) {
+//       return [];
+//     }
+
+//     if (Array.isArray(property.outerImages)) {
+//       return property.outerImages;
+//     }
+
+//     if (Array.isArray(property.images)) {
+//       return property.images;
+//     }
+
+//     return [];
+//   }, [property]);
+
+//   const visitors = useMemo(() => {
+//     if (!property) {
+//       return [];
+//     }
+
+//     if (Array.isArray(property.visitors)) {
+//       return property.visitors;
+//     }
+
+//     if (Array.isArray(property.visits)) {
+//       return property.visits;
+//     }
+
+//     return [];
+//   }, [property]);
+
+//   const currentStatus = property?.status || "Pending";
+//   const isVerified = property?.verification?.verified === true;
+
+//   if (loading) {
+//     return (
+//       <div className="flex min-h-screen items-center justify-center bg-gray-50">
+//         <div className="text-center">
+//           <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-green-500 border-t-transparent" />
+//           <p className="text-gray-500">
+//             Loading property details...
+//           </p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   if (error || !property) {
+//     return (
+//       <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+//         <div className="w-full max-w-2xl rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+//           <Building2 className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+
+//           <h3 className="text-xl font-semibold text-gray-700">
+//             {error || "Property not found"}
+//           </h3>
+
+//           <p className="mt-2 text-gray-400">
+//             The property you're looking for doesn't exist or has
+//             been removed.
+//           </p>
+
+//           {allProperties.length > 0 && (
+//             <div className="mt-6 rounded-lg bg-gray-50 p-4 text-left">
+//               <p className="text-sm font-semibold text-gray-700">
+//                 Available Properties ({allProperties.length})
+//               </p>
+
+//               <div className="mt-2 max-h-48 overflow-y-auto">
+//                 {allProperties.map((item) => (
+//                   <div
+//                     key={item.id}
+//                     className="flex items-center justify-between gap-2 border-b border-gray-100 py-2 text-sm text-gray-600"
+//                   >
+//                     <span>
+//                       <span className="font-medium">
+//                         ID: {item.id}
+//                       </span>
+//                       {" - "}
+//                       {item.title ||
+//                         item.name ||
+//                         "Untitled Property"}
+//                     </span>
+
+//                     <button
+//                       type="button"
+//                       onClick={() =>
+//                         navigate(`/host/property/${item.id}`)
+//                       }
+//                       className="shrink-0 rounded bg-blue-50 px-2 py-1 text-xs text-blue-600 hover:bg-blue-100 hover:text-blue-800"
+//                     >
+//                       View
+//                     </button>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           )}
+
+//           <div className="mt-6 flex flex-col gap-2">
+//             <button
+//               type="button"
+//               onClick={() => navigate("/host/my-properties")}
+//               className="mx-auto flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2 text-white transition-colors hover:bg-green-700"
+//             >
+//               <ArrowLeft className="h-4 w-4" />
+//               Back to My Properties
+//             </button>
+
+//             <button
+//               type="button"
+//               onClick={loadProperty}
+//               className="mx-auto rounded-xl bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
+//             >
+//               Try Again
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+//       <div className="mx-auto max-w-7xl">
+//         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+//           <div>
+//             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+//               {property.title ||
+//                 property.name ||
+//                 "Property Details"}
+//             </h1>
+
+//             <p className="mt-1 text-sm text-gray-500">
+//               {property.location ||
+//                 property.address ||
+//                 "Location not available"}
+//             </p>
+//           </div>
+
+//           <button
+//             type="button"
+//             onClick={() => navigate("/host/my-properties")}
+//             className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+//           >
+//             Back to Properties
+//           </button>
+//         </div>
+
+//         {error && (
+//           <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+//             {error}
+//           </div>
+//         )}
+
+//         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+//           {images.length > 0 ? (
+//             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+//               {images.slice(0, 4).map((image, index) => {
+//                 const imageUrl =
+//                   typeof image === "string"
+//                     ? image
+//                     : image?.url || image?.secure_url;
+
+//                 if (!imageUrl) {
+//                   return null;
+//                 }
+
+//                 return (
+//                   <img
+//                     key={`${imageUrl}-${index}`}
+//                     src={imageUrl}
+//                     alt={`${property.title || "Property"} ${
+//                       index + 1
+//                     }`}
+//                     className="h-64 w-full object-cover"
+//                   />
+//                 );
+//               })}
+//             </div>
+//           ) : (
+//             <div className="flex h-64 items-center justify-center bg-gray-100 text-gray-400">
+//               No property images available
+//             </div>
+//           )}
+//         </div>
+
+//         <main className="mx-auto px-0 py-8">
+//           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_350px]">
+//             <div className="min-w-0">
+//               <motion.section
+//                 initial={{ opacity: 0, y: 20 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.5 }}
+//                 className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7"
+//               >
+//                 <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+//                   <div>
+//                     <div className="flex flex-wrap items-center gap-2">
+//                       <span className="inline-flex rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+//                         {property.type ||
+//                           property.propertyType ||
+//                           "Property"}
+//                       </span>
+
+//                       <span
+//                         className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${statusBadge.bg} ${statusBadge.text}`}
+//                       >
+//                         {statusBadge.icon}
+//                         {statusBadge.label}
+//                       </span>
+//                     </div>
+
+//                     <h2 className="mt-3 text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
+//                       {property.title ||
+//                         property.name ||
+//                         "Property"}
+//                     </h2>
+
+//                     <div className="mt-2 flex items-center gap-2 text-gray-500">
+//                       <MapPin
+//                         size={18}
+//                         className="shrink-0 text-primary-600"
+//                       />
+//                       <span>
+//                         {property.location ||
+//                           property.address ||
+//                           "Location not available"}
+//                       </span>
+//                     </div>
+//                   </div>
+
+//                   <div className="sm:text-right">
+//                     <div className="flex items-baseline gap-1 sm:justify-end">
+//                       <span className="text-2xl font-bold text-primary-600 sm:text-3xl">
+//                         ₹
+//                         {Number(
+//                           property.price || 0
+//                         ).toLocaleString("en-IN")}
+//                       </span>
+
+//                       <span className="text-sm text-gray-500">
+//                         /month
+//                       </span>
+//                     </div>
+
+//                     <div className="mt-2 flex items-center gap-1 text-sm text-gray-500 sm:justify-end">
+//                       <Calendar size={16} />
+//                       <span>
+//                         Listed:{" "}
+//                         {property.listedDate ||
+//                           property.createdAt ||
+//                           "Not available"}
+//                       </span>
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+//                   <div className="rounded-2xl bg-gray-50 p-4">
+//                     <BedDouble
+//                       className="text-primary-600"
+//                       size={21}
+//                     />
+//                     <p className="mt-2 text-xs text-gray-500">
+//                       Bedrooms
+//                     </p>
+//                     <p className="font-semibold text-gray-800">
+//                       {property.bedrooms ?? 0}
+//                     </p>
+//                   </div>
+
+//                   <div className="rounded-2xl bg-gray-50 p-4">
+//                     <Bath
+//                       className="text-primary-600"
+//                       size={21}
+//                     />
+//                     <p className="mt-2 text-xs text-gray-500">
+//                       Bathrooms
+//                     </p>
+//                     <p className="font-semibold text-gray-800">
+//                       {property.bathrooms ?? 0}
+//                     </p>
+//                   </div>
+
+//                   <div className="rounded-2xl bg-gray-50 p-4">
+//                     <Ruler
+//                       className="text-primary-600"
+//                       size={21}
+//                     />
+//                     <p className="mt-2 text-xs text-gray-500">
+//                       Area
+//                     </p>
+//                     <p className="font-semibold text-gray-800">
+//                       {property.area ?? 0} sq.ft
+//                     </p>
+//                   </div>
+
+//                   <div className="rounded-2xl bg-gray-50 p-4">
+//                     <Home
+//                       className="text-primary-600"
+//                       size={21}
+//                     />
+//                     <p className="mt-2 text-xs text-gray-500">
+//                       Property ID
+//                     </p>
+//                     <p className="break-all text-sm font-semibold text-gray-800">
+//                       #{property.id}
+//                     </p>
+//                   </div>
+//                 </div>
+//               </motion.section>
+
+//               <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+//                 <h2 className="text-xl font-bold text-gray-900">
+//                   About this property
+//                 </h2>
+
+//                 <p className="mt-3 text-sm leading-7 text-gray-600 sm:text-base">
+//                   {property.description ||
+//                     "No description provided."}
+//                 </p>
+//               </section>
+
+//               {Array.isArray(property.amenities) &&
+//                 property.amenities.length > 0 && (
+//                   <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+//                     <h2 className="text-xl font-bold text-gray-900">
+//                       Amenities
+//                     </h2>
+
+//                     <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+//                       {property.amenities.map((item, index) => (
+//                         <div
+//                           key={`${item}-${index}`}
+//                           className="flex items-center gap-2 rounded-2xl border border-primary-100 bg-primary-50 p-3 text-sm font-medium text-gray-700"
+//                         >
+//                           <ShieldCheck
+//                             size={17}
+//                             className="shrink-0 text-primary-600"
+//                           />
+//                           <span>{item}</span>
+//                         </div>
+//                       ))}
+//                     </div>
+//                   </section>
+//                 )}
+
+//               {property.verification && (
+//                 <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+//                   <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+//                     <ShieldCheck
+//                       className="text-blue-600"
+//                       size={24}
+//                     />
+//                     Verification Details
+//                   </h2>
+
+//                   <div
+//                     className={`mt-5 rounded-xl border p-4 ${verificationStatus.border} ${verificationStatus.bg}`}
+//                   >
+//                     <div className="flex items-center gap-2">
+//                       {property.verification.verified ? (
+//                         <CheckCircle className="h-5 w-5 text-green-600" />
+//                       ) : property.verification.status ===
+//                         "rejected" ? (
+//                         <XCircle className="h-5 w-5 text-red-600" />
+//                       ) : (
+//                         <Clock className="h-5 w-5 text-yellow-600" />
+//                       )}
+
+//                       <span
+//                         className={`font-semibold ${verificationStatus.color}`}
+//                       >
+//                         {verificationStatus.label}
+//                       </span>
+//                     </div>
+
+//                     <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+//                       <div>
+//                         <p className="text-gray-500">
+//                           Owner Name
+//                         </p>
+//                         <p className="font-medium text-gray-800">
+//                           {property.verification.ownerName ||
+//                             "Not provided"}
+//                         </p>
+//                       </div>
+
+//                       <div>
+//                         <p className="text-gray-500">Email</p>
+//                         <p className="break-all font-medium text-gray-800">
+//                           {property.verification.ownerEmail ||
+//                             "Not provided"}
+//                         </p>
+//                       </div>
+
+//                       <div>
+//                         <p className="text-gray-500">Phone</p>
+//                         <p className="font-medium text-gray-800">
+//                           {property.verification.ownerPhone ||
+//                             "Not provided"}
+//                         </p>
+//                       </div>
+
+//                       <div>
+//                         <p className="text-gray-500">
+//                           Property Address
+//                         </p>
+//                         <p className="font-medium text-gray-800">
+//                           {property.verification.propertyAddress ||
+//                             "Not provided"}
+//                         </p>
+//                       </div>
+
+//                       <div>
+//                         <p className="text-gray-500">
+//                           Submitted At
+//                         </p>
+//                         <p className="font-medium text-gray-800">
+//                           {property.verification.submittedAt
+//                             ? new Date(
+//                                 property.verification.submittedAt
+//                               ).toLocaleString()
+//                             : "Not available"}
+//                         </p>
+//                       </div>
+
+//                       {property.verification.verifiedAt && (
+//                         <div>
+//                           <p className="text-gray-500">
+//                             Verified At
+//                           </p>
+
+//                           <p
+//                             className={`font-medium ${
+//                               property.verification.status ===
+//                               "approved"
+//                                 ? "text-green-600"
+//                                 : property.verification.status ===
+//                                   "rejected"
+//                                 ? "text-red-600"
+//                                 : "text-gray-800"
+//                             }`}
+//                           >
+//                             {new Date(
+//                               property.verification.verifiedAt
+//                             ).toLocaleString()}
+//                           </p>
+//                         </div>
+//                       )}
+//                     </div>
+
+//                     {property.verification.adminNotes && (
+//                       <div className="mt-4 border-t border-gray-200 pt-4">
+//                         <p className="text-sm text-gray-500">
+//                           Admin Notes
+//                         </p>
+
+//                         <p
+//                           className={`mt-1 rounded-lg p-3 text-sm ${
+//                             property.verification.status ===
+//                             "approved"
+//                               ? "bg-green-50 text-green-700"
+//                               : property.verification.status ===
+//                                 "rejected"
+//                               ? "bg-red-50 text-red-700"
+//                               : "bg-gray-50 text-gray-700"
+//                           }`}
+//                         >
+//                           {property.verification.adminNotes}
+//                         </p>
+//                       </div>
+//                     )}
+//                   </div>
+
+//                   {property.verification.documents &&
+//                     typeof property.verification.documents ===
+//                       "object" &&
+//                     Object.keys(
+//                       property.verification.documents
+//                     ).length > 0 && (
+//                       <div className="mt-5">
+//                         <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-800">
+//                           <FileText
+//                             className="h-5 w-5 text-blue-600"
+//                           />
+//                           Uploaded Documents
+//                         </h3>
+
+//                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+//                           {Object.entries(
+//                             property.verification.documents
+//                           ).map(([docType, docUrl]) => {
+//                             if (!docUrl) {
+//                               return null;
+//                             }
+
+//                             return (
+//                               <div
+//                                 key={docType}
+//                                 className="group relative"
+//                               >
+//                                 <img
+//                                   src={docUrl}
+//                                   alt={docType}
+//                                   className="h-32 w-full cursor-pointer rounded-lg border border-gray-200 object-cover transition-opacity hover:opacity-90"
+//                                   onClick={() =>
+//                                     window.open(
+//                                       docUrl,
+//                                       "_blank",
+//                                       "noopener,noreferrer"
+//                                     )
+//                                   }
+//                                 />
+
+//                                 <p className="mt-1 text-center text-xs capitalize text-gray-500">
+//                                   {docType
+//                                     .replace(
+//                                       /([A-Z])/g,
+//                                       " $1"
+//                                     )
+//                                     .trim()}
+//                                 </p>
+//                               </div>
+//                             );
+//                           })}
+//                         </div>
+//                       </div>
+//                     )}
+//                 </section>
+//               )}
+
+//               <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+//                 <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+//                   <Eye
+//                     className="text-purple-600"
+//                     size={24}
+//                   />
+//                   Property Stats
+//                 </h2>
+
+//                 <div className="mt-4 grid grid-cols-2 gap-4">
+//                   <div className="rounded-xl bg-purple-50 p-4">
+//                     <p className="text-2xl font-bold text-purple-700">
+//                       {property.inquiries || 0}
+//                     </p>
+//                     <p className="text-xs text-purple-600">
+//                       Total Inquiries
+//                     </p>
+//                   </div>
+
+//                   <div className="rounded-xl bg-green-50 p-4">
+//                     <p className="text-lg font-bold text-green-700">
+//                       {property.listedDate ||
+//                         property.createdAt ||
+//                         "N/A"}
+//                     </p>
+//                     <p className="text-xs text-green-600">
+//                       Listed Date
+//                     </p>
+//                   </div>
+//                 </div>
+//               </section>
+
+//               <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+//                 <div className="mb-4 flex items-center justify-between">
+//                   <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+//                     <Users
+//                       className="text-blue-600"
+//                       size={24}
+//                     />
+//                     Visitors ({visitors.length})
+//                   </h2>
+
+//                   {visitors.length > 3 && (
+//                     <button
+//                       type="button"
+//                       onClick={() =>
+//                         setShowAllVisitors(
+//                           (previous) => !previous
+//                         )
+//                       }
+//                       className="text-sm font-medium text-blue-600 hover:text-blue-800"
+//                     >
+//                       {showAllVisitors
+//                         ? "Show Less"
+//                         : "View All"}
+//                     </button>
+//                   )}
+//                 </div>
+
+//                 <div className="space-y-3">
+//                   {(showAllVisitors
+//                     ? visitors
+//                     : visitors.slice(0, 3)
+//                   ).map((visitor, index) => (
+//                     <div
+//                       key={
+//                         visitor.id ||
+//                         visitor.email ||
+//                         visitor.name ||
+//                         index
+//                       }
+//                       className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 p-3"
+//                     >
+//                       <div>
+//                         <p className="font-medium text-gray-800">
+//                           {visitor.name || "Visitor"}
+//                         </p>
+
+//                         <p className="text-xs text-gray-500">
+//                           {visitor.date ||
+//                             visitor.visitDate ||
+//                             "Recently"}
+//                         </p>
+//                       </div>
+
+//                       <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+//                         {visitor.status || "Interested"}
+//                       </span>
+//                     </div>
+//                   ))}
+
+//                   {visitors.length === 0 && (
+//                     <p className="text-sm text-gray-500">
+//                       No visitors yet for this property.
+//                     </p>
+//                   )}
+//                 </div>
+//               </section>
+//             </div>
+
+//             <aside className="h-fit lg:sticky lg:top-24">
+//               <motion.div
+//                 initial={{ opacity: 0, x: 25 }}
+//                 animate={{ opacity: 1, x: 0 }}
+//                 transition={{ duration: 0.5 }}
+//                 className="rounded-3xl border border-gray-100 bg-white p-5 shadow-lg sm:p-6"
+//               >
+//                 <div className="flex items-center justify-between gap-3">
+//                   <div>
+//                     <p className="text-xs text-gray-500">
+//                       Monthly Rent
+//                     </p>
+
+//                     <h2 className="text-2xl font-bold text-primary-600">
+//                       ₹
+//                       {Number(
+//                         property.price || 0
+//                       ).toLocaleString("en-IN")}
+//                     </h2>
+//                   </div>
+
+//                   <div
+//                     className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${statusBadge.bg} ${statusBadge.text}`}
+//                   >
+//                     {statusBadge.icon}
+//                     {statusBadge.label}
+//                   </div>
+//                 </div>
+
+//                 <div className="mt-5">
+//                   <p className="text-xs text-gray-400">
+//                     Bathrooms
+//                   </p>
+
+//                   <p className="mt-1 font-bold text-gray-800">
+//                     {property.bathrooms ?? 0}
+//                   </p>
+//                 </div>
+
+//                 {isVerified ? (
+//                   <div className="mt-6 space-y-3">
+//                     <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+//                       Manage Status
+//                     </p>
+
+//                     <div className="grid grid-cols-2 gap-2">
+//                       <button
+//                         type="button"
+//                         onClick={() =>
+//                           handleStatusUpdate("Active")
+//                         }
+//                         disabled={
+//                           updatingStatus ||
+//                           currentStatus === "Active"
+//                         }
+//                         className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-xs font-medium transition-all ${
+//                           currentStatus === "Active"
+//                             ? "cursor-default border-2 border-green-500 bg-green-100 text-green-700"
+//                             : "bg-green-600 text-white hover:bg-green-700"
+//                         }`}
+//                       >
+//                         <Check size={14} />
+//                         Active
+//                       </button>
+
+//                       <button
+//                         type="button"
+//                         onClick={() =>
+//                           handleStatusUpdate("Rented")
+//                         }
+//                         disabled={
+//                           updatingStatus ||
+//                           currentStatus === "Rented"
+//                         }
+//                         className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-xs font-medium transition-all ${
+//                           currentStatus === "Rented"
+//                             ? "cursor-default border-2 border-blue-500 bg-blue-100 text-blue-700"
+//                             : "bg-blue-600 text-white hover:bg-blue-700"
+//                         }`}
+//                       >
+//                         <Key size={14} />
+//                         Rented
+//                       </button>
+//                     </div>
+
+//                     {currentStatus === "Active" && (
+//                       <p className="text-center text-xs text-green-600">
+//                         ✓ Property is currently active and
+//                         available
+//                       </p>
+//                     )}
+
+//                     {currentStatus === "Rented" && (
+//                       <p className="text-center text-xs text-blue-600">
+//                         🔑 Property has been rented out
+//                       </p>
+//                     )}
+
+//                     {updatingStatus && (
+//                       <p className="text-center text-xs text-blue-600">
+//                         Updating status...
+//                       </p>
+//                     )}
+//                   </div>
+//                 ) : (
+//                   <div className="mt-6 rounded-xl border border-yellow-200 bg-yellow-50 p-3">
+//                     <p className="text-center text-xs text-yellow-700">
+//                       Status management available after
+//                       verification
+//                     </p>
+//                   </div>
+//                 )}
+
+//                 <div className="mt-6 grid grid-cols-1 gap-3">
+//                   <button
+//                     type="button"
+//                     onClick={() =>
+//                       navigate("/host/my-properties")
+//                     }
+//                     className="flex items-center justify-center gap-2 rounded-2xl border border-gray-300 py-3.5 font-semibold text-gray-700 transition hover:bg-gray-50"
+//                   >
+//                     <ArrowLeft size={18} />
+//                     Back to Properties
+//                   </button>
+
+//                   <button
+//                     type="button"
+//                     onClick={() =>
+//                       navigate(
+//                         `/host/edit-property/${property.id}`
+//                       )
+//                     }
+//                     className="flex items-center justify-center gap-2 rounded-2xl bg-primary-600 py-3.5 font-semibold text-white shadow-lg shadow-primary-600/20 transition hover:bg-primary-700"
+//                   >
+//                     <Edit size={18} />
+//                     Edit Property
+//                   </button>
+
+//                   <button
+//                     type="button"
+//                     onClick={handleDelete}
+//                     disabled={deleting}
+//                     className="flex items-center justify-center gap-2 rounded-2xl bg-red-500 py-3.5 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+//                   >
+//                     <Trash2 size={18} />
+//                     {deleting
+//                       ? "Deleting..."
+//                       : "Delete Property"}
+//                   </button>
+//                 </div>
+
+//                 <div className="mt-5 flex items-center justify-center gap-2 text-xs text-gray-400">
+//                   <ShieldCheck
+//                     size={15}
+//                     className="text-green-500"
+//                   />
+//                   Your property is secure
+//                 </div>
+//               </motion.div>
+//             </aside>
+//           </div>
+//         </main>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default HostPropertyDetails;
+
+
+
+
+
+
+
+
+
+
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
-
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { motion } from "framer-motion";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   MapPin,
@@ -26,233 +1169,406 @@ import {
   Building2,
   Trash2,
   Key,
-  Check
-} from 'lucide-react';
+  Check,
+  Users,
+  ArrowLeft,
+} from "lucide-react";
 
-const PropertyDetails = () => {
+const API_URL = "http://localhost:5000/api/owners/properties";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80";
+
+const toNumber = (value, fallback = 0) => {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+};
+
+const toArray = (value) => {
+  return Array.isArray(value) ? value : [];
+};
+
+// ✅ FIX: Filter out blob: URLs and invalid entries
+const cleanImages = (images) => {
+  if (!Array.isArray(images)) return [];
+  return images
+    .filter(
+      (image) =>
+        typeof image === "string" &&
+        image.trim() !== "" &&
+        !image.startsWith("blob:")
+    )
+    .map((image) => image.trim());
+};
+
+const uniqueImages = (images) => [...new Set(images)];
+
+const normalizeStatus = (status) => {
+  const value = String(status || "pending").trim().toLowerCase();
+  switch (value) {
+    case "approved":
+    case "verified":
+    case "accepted":
+      return "approved";
+    case "active":
+      return "active";
+    case "pending":
+    case "waiting":
+    case "submitted":
+      return "pending";
+    case "rejected":
+    case "declined":
+      return "rejected";
+    case "inactive":
+      return "inactive";
+    case "rented":
+      return "rented";
+    default:
+      return "pending";
+  }
+};
+
+const normalizeProperty = (property = {}) => {
+  const owner =
+    property?.owner && typeof property.owner === "object" ? property.owner : {};
+
+  const propertyId = property?._id || property?.id || property?.propertyId || "";
+
+  const price = toNumber(property?.price ?? property?.rent ?? property?.monthlyRent, 0);
+  const bedrooms = toNumber(property?.bedrooms ?? property?.bhk, 0);
+  const bathrooms = toNumber(property?.bathrooms ?? property?.bath, 0);
+  const area = toNumber(property?.area ?? property?.squareFeet ?? property?.size, 0);
+
+  const images = cleanImages(property?.images);
+  const outerImages = cleanImages(property?.outerImages);
+  const livingRoomImages = cleanImages(property?.livingRoomImages);
+  const bedroomImages = cleanImages(property?.bedroomImages);
+  const kitchenImages = cleanImages(property?.kitchenImages);
+  const bathroomImages = cleanImages(property?.bathroomImages);
+  const balconyImages = cleanImages(property?.balconyImages);
+
+  const allImages = uniqueImages([
+    ...outerImages,
+    ...images,
+    ...livingRoomImages,
+    ...bedroomImages,
+    ...kitchenImages,
+    ...bathroomImages,
+    ...balconyImages,
+  ]);
+
+  const generatedLocation = [property?.locality, property?.city, property?.state]
+    .filter(Boolean)
+    .join(", ");
+
+  const location =
+    typeof property?.location === "string"
+      ? property.location
+      : generatedLocation ||
+        property?.address ||
+        property?.verification?.propertyAddress ||
+        "Location not available";
+
+  const normalizedStatus = normalizeStatus(
+    property?.status || property?.approvalStatus || property?.verification?.status
+  );
+
+  return {
+    ...property,
+    id: String(propertyId),
+    _id: property?._id || propertyId,
+    title: property?.title || property?.name || "Untitled Property",
+    description: property?.description || property?.details || "",
+    location,
+    address: property?.address || property?.verification?.propertyAddress || "",
+    locality: property?.locality || "",
+    city: property?.city || "",
+    state: property?.state || "",
+    price,
+    rent: price,
+    bedrooms,
+    bhk: bedrooms,
+    bathrooms,
+    area,
+    squareFeet: area,
+    propertyType: property?.propertyType || property?.type || "Property",
+    status: normalizedStatus,
+    approvalStatus: normalizedStatus,
+    verification: property?.verification || null,
+    inquiries: toNumber(property?.inquiries, 0),
+    views: toNumber(property?.views, 0),
+    images,
+    outerImages,
+    livingRoomImages,
+    bedroomImages,
+    kitchenImages,
+    bathroomImages,
+    balconyImages,
+    allImages,
+    createdAt: property?.createdAt || null,
+    owner,
+    ownerId: property?.ownerId || owner?._id || owner?.id || null,
+  };
+};
+
+const HostPropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [allProperties, setAllProperties] = useState([]);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
-
-  useEffect(() => {
-    loadProperty();
-  }, [id]);
-
+  const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [showAllVisitors, setShowAllVisitors] = useState(false);
 
-  const loadProperty = useCallback(() => {
+  const getToken = () =>
+    localStorage.getItem("ownerToken") || localStorage.getItem("token");
+
+  const loadProperty = useCallback(async () => {
     setLoading(true);
     setError("");
 
+    const token = getToken();
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
     try {
-      const stored = localStorage.getItem('hostProperties');
-      console.log('=== DEBUG: PROPERTY DETAILS ===');
-      console.log('Raw stored data:', stored);
-      
-      if (stored) {
-        const allProperties = JSON.parse(stored);
-        setAllProperties(allProperties);
-        console.log('All properties count:', allProperties.length);
-        console.log('All properties:', allProperties);
-        console.log('Looking for property with ID:', id);
-        console.log('ID type:', typeof id);
-        
-        // Try multiple ways to find the property
-        let foundProperty = null;
-        
-        // Method 1: String comparison
-        foundProperty = allProperties.find(p => String(p.id) === String(id));
-        
-        // Method 2: Number comparison (if Method 1 fails)
-        if (!foundProperty) {
-          console.log('Method 1 failed, trying number comparison');
-          foundProperty = allProperties.find(p => Number(p.id) === Number(id));
+      const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+
+      let data = {};
+      if (contentType.includes("application/json")) {
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
         }
-        
-        // Method 3: Check if property exists in the list
-        if (!foundProperty) {
-          console.log('Property not found. Available IDs:', allProperties.map(p => ({ id: p.id, title: p.title })));
-        }
-        
-        console.log('Found property:', foundProperty);
-        
-        if (foundProperty) {
-          // Ensure property has a verification object
-          if (!foundProperty.verification) {
-            console.warn('Property has no verification object. Adding default.');
-            foundProperty.verification = {
-              ownerName: 'Not provided',
-              ownerEmail: 'Not provided',
-              ownerPhone: 'Not provided',
-              propertyAddress: foundProperty.location || 'Not provided',
-              submittedAt: new Date().toISOString(),
-              verified: false,
-              status: 'pending'
-            };
-          }
-          setProperty(foundProperty);
-        } else {
-          setError(`Property with ID "${id}" not found. Please check the property ID.`);
-          console.error('Property with ID', id, 'not found.');
-        }
-      } else {
-        setError('No properties found. Please add a property first.');
-        console.error('No properties in localStorage');
       }
-    } catch (error) {
-      console.error('Error loading property:', error);
-      setError('Failed to load property details: ' + error.message);
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("ownerToken");
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || data?.error || `Failed to load property. Status: ${response.status}`
+        );
+      }
+
+      const propertyData = data?.property || data?.data?.property || data?.data || data;
+
+      if (!propertyData) {
+        throw new Error("Property not found.");
+      }
+
+      const normalized = normalizeProperty(propertyData);
+      setProperty(normalized);
+    } catch (err) {
+      console.error("Error loading property:", err);
+      setError(err?.message || "Unable to load property details.");
+      setProperty(null);
     } finally {
       setLoading(false);
     }
   }, [id, navigate]);
 
-  // Auto-slide images
   useEffect(() => {
     loadProperty();
   }, [loadProperty]);
 
   const handleDelete = async () => {
-    if (deleting) return;
+    if (deleting || !property) return;
 
     const confirmed = window.confirm(
       "Are you sure you want to permanently delete this property?"
     );
-
     if (!confirmed) return;
+
+    const token = getToken();
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
     try {
       setDeleting(true);
       setError("");
 
-      await deleteProperty(id);
-
-      alert("Property deleted successfully.");
-
-      navigate("/host/my-properties", {
-        replace: true,
-      });
-    } catch (err) {
-      console.error(
-        "Error deleting property:",
-        err.response?.data || err
+      const response = await fetch(
+        `${API_URL}/${encodeURIComponent(property.id)}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      if (
-        err.response?.status === 401 ||
-        err.response?.status === 403
-      ) {
+      if (response.status === 401 || response.status === 403) {
         localStorage.removeItem("ownerToken");
-        navigate("/login");
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
         return;
       }
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          data?.message || `Failed to delete property. Status: ${response.status}`
+        );
+      }
+
+      window.alert("Property deleted successfully.");
+      navigate("/host/my-properties", { replace: true });
+    } catch (err) {
+      console.error("Error deleting property:", err);
+      setError(err?.message || "Failed to delete property. Please try again.");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  // Handle status update (Active / Rented)
-  const handleStatusUpdate = (newStatus) => {
-    if (!property || updatingStatus) {
-      return;
-    }
+  const handleStatusUpdate = async (newStatus) => {
+    if (!property || updatingStatus) return;
+
+    // ✅ Normalize status to lowercase for API
+    const apiStatus = newStatus.toLowerCase();
+
+    if (apiStatus !== "active" && apiStatus !== "rented") return;
+    if (property.status === apiStatus) return;
 
     const confirmed = window.confirm(
       `Are you sure you want to mark this property as "${newStatus}"?`
     );
-
     if (!confirmed) return;
+
+    const token = getToken();
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
     try {
       setUpdatingStatus(true);
-      const stored = localStorage.getItem('hostProperties');
-      if (stored) {
-        const allProperties = JSON.parse(stored);
-        const updatedProperties = allProperties.map(p => {
-          if (String(p.id) === String(id)) {
-            return {
-              ...p,
-              status: newStatus,
-              statusUpdatedAt: new Date().toISOString()
-            };
-          }
-          return p;
-        });
-        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
-        // Update the current property state
-        setProperty(prev => ({
-          ...prev,
-          status: newStatus,
-          statusUpdatedAt: new Date().toISOString()
-        }));
-        setTimeout(() => {
-          setUpdatingStatus(false);
-          alert(`Property marked as "${newStatus}" successfully!`);
-        }, 500);
+      setError("");
+
+      const response = await fetch(
+        `${API_URL}/${encodeURIComponent(property.id)}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: apiStatus }),
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("ownerToken");
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
+        return;
       }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || `Failed to update status. Status: ${response.status}`
+        );
+      }
+
+      const updated = data?.property ? normalizeProperty(data.property) : null;
+      if (updated) {
+        setProperty(updated);
+      } else {
+        setProperty((prev) => ({
+          ...prev,
+          status: apiStatus,
+          approvalStatus: apiStatus,
+        }));
+      }
+
+      window.alert(`Property marked as "${newStatus}" successfully!`);
+    } catch (err) {
+      console.error("Error updating property status:", err);
+      setError(
+        err?.message || "Failed to update property status. Please try again."
+      );
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
-  const getStatusBadge = () => {
+  const statusBadge = useMemo(() => {
     if (!property) {
       return {
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
-        icon: <Key className="w-5 h-5" />,
-        label: 'Rented 🔑',
-        border: 'border-blue-300'
+        bg: "bg-yellow-100",
+        text: "text-yellow-800",
+        icon: <Clock className="h-4 w-4" />,
+        label: "Pending Verification",
       };
     }
 
-    const status = property.status || "Pending";
-    const verified = property.verification?.verified === true;
+    const status = property.status || "pending";
+    const verificationStatus = property?.verification?.status;
+    const verified = property?.verification?.verified === true;
 
-    if (status === "Rented") {
+    if (status === "rented") {
       return {
-        bg: 'bg-green-100',
-        text: 'text-green-800',
-        icon: <CheckCircle className="w-5 h-5" />,
-        label: 'Verified ✓',
-        border: 'border-green-300'
+        bg: "bg-blue-100",
+        text: "text-blue-800",
+        icon: <Key className="h-4 w-4" />,
+        label: "Rented",
       };
     }
 
-    if (status === "Active" && verified) {
+    if (status === "active" || (status === "approved" && verified)) {
       return {
         bg: "bg-green-100",
         text: "text-green-800",
-        icon: <CheckCircle className="w-4 h-4" />,
+        icon: <CheckCircle className="h-4 w-4" />,
         label: "Verified",
-        border: "border-green-300",
       };
     }
 
-    if (
-      status === "Inactive" ||
-      property.verification?.status === "rejected"
-    ) {
+    if (status === "rejected" || status === "inactive" || verificationStatus === "rejected") {
       return {
         bg: "bg-red-100",
         text: "text-red-800",
-        icon: <XCircle className="w-4 h-4" />,
+        icon: <XCircle className="h-4 w-4" />,
         label: "Rejected",
-        border: "border-red-300",
       };
     }
-    // Default fallback - return Pending instead of Unknown
+
     return {
       bg: "bg-yellow-100",
       text: "text-yellow-800",
-      icon: <Clock className="w-4 h-4" />,
+      icon: <Clock className="h-4 w-4" />,
       label: "Pending Verification",
-      border: "border-yellow-300",
     };
-  };
+  }, [property]);
 
-  const getVerificationStatus = () => {
+  const verificationStatus = useMemo(() => {
     if (!property?.verification) {
       return {
         label: "Verification Pending",
@@ -264,7 +1580,7 @@ const PropertyDetails = () => {
 
     const verification = property.verification;
 
-    if (verification.verified === true) {
+    if (verification.verified === true || verification.status === "approved") {
       return {
         label: "Verified ✓",
         color: "text-green-600",
@@ -288,14 +1604,58 @@ const PropertyDetails = () => {
       bg: "bg-yellow-50",
       border: "border-yellow-200",
     };
+  }, [property]);
+
+  // ✅ FIX: Use allImages (already filtered for blob URLs)
+  const images = useMemo(() => {
+    if (!property) return [];
+    return property.allImages && property.allImages.length > 0
+      ? property.allImages
+      : property.outerImages || property.images || [];
+  }, [property]);
+
+  const visitors = useMemo(() => {
+    if (!property) return [];
+    return Array.isArray(property.visitors)
+      ? property.visitors
+      : Array.isArray(property.visits)
+      ? property.visits
+      : [];
+  }, [property]);
+
+  const currentStatus = property?.status || "pending";
+  const isVerified =
+    property?.verification?.verified === true ||
+    property?.verification?.status === "approved" ||
+    currentStatus === "approved" ||
+    currentStatus === "active";
+
+  // ✅ FIX: Helper to safely render images (skip blob: URLs)
+  const getSafeImageSrc = (image) => {
+    if (typeof image === "string") {
+      return image.startsWith("blob:") ? FALLBACK_IMAGE : image;
+    }
+    if (image && typeof image === "object") {
+      const url = image.url || image.secure_url;
+      return url && !url.startsWith("blob:") ? url : FALLBACK_IMAGE;
+    }
+    return FALLBACK_IMAGE;
   };
 
-  // Debug: Show all properties if not found
+  const formatDate = (date) => {
+    if (!date) return "Not available";
+    try {
+      return new Date(date).toLocaleString();
+    } catch {
+      return "Not available";
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-green-500 border-t-transparent" />
           <p className="text-gray-500">Loading property details...</p>
         </div>
       </div>
@@ -304,64 +1664,30 @@ const PropertyDetails = () => {
 
   if (error || !property) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="text-center bg-white rounded-2xl p-8 shadow-sm border border-gray-100 max-w-2xl w-full">
-          <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700">{error || 'Property not found'}</h3>
-          <p className="text-gray-400 mt-2">The property you're looking for doesn't exist or has been removed.</p>
-          
-          {/* Debug info - show available properties */}
-          {allProperties.length > 0 && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg text-left">
-              <p className="text-sm font-semibold text-gray-700">
-                Available Properties ({allProperties.length}):
-              </p>
-
-              <div className="mt-2 max-h-48 overflow-y-auto">
-                {allProperties.map((p) => (
-                  <div
-                    key={p.id}
-                    className="text-sm text-gray-600 py-2 border-b border-gray-100 flex justify-between items-center gap-2"
-                  >
-                    <span>
-                      <span className="font-medium">
-                        ID: {p.id}
-                      </span>
-
-                      {" - "}
-
-                      {p.title ||
-                        p.name ||
-                        "Untitled Property"}
-                    </span>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/host/property/${p.id}`)
-                      }
-                      className="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 bg-blue-50 rounded shrink-0"
-                    >
-                      View
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+        <div className="w-full max-w-2xl rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+          <Building2 className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+          <h3 className="text-xl font-semibold text-gray-700">
+            {error || "Property not found"}
+          </h3>
+          <p className="mt-2 text-gray-400">
+            The property you're looking for doesn't exist or has been removed.
+          </p>
           <div className="mt-6 flex flex-col gap-2">
             <button
-              onClick={() => navigate('/host/my-properties')}
-              className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 mx-auto"
+              type="button"
+              onClick={() => navigate("/host/my-properties")}
+              className="mx-auto flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2 text-white transition-colors hover:bg-green-700"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Back to My Properties
             </button>
             <button
+              type="button"
               onClick={loadProperty}
-              className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+              className="mx-auto rounded-xl bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
             >
-              Back
+              Try Again
             </button>
           </div>
         </div>
@@ -369,65 +1695,28 @@ const PropertyDetails = () => {
     );
   }
 
-  if (!property) {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-6">
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-800">
-            Property not found
-          </h2>
-
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/host/my-properties")
-            }
-            className="mt-5 rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white"
-          >
-            Back to My Properties
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const images =
-    Array.isArray(property.outerImages)
-      ? property.outerImages
-      : Array.isArray(property.images)
-      ? property.images
-      : [];
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              {property.title ||
-                property.name ||
-                "Property Details"}
+              {property.title || "Property Details"}
             </h1>
-
             <p className="mt-1 text-sm text-gray-500">
-              {property.location ||
-                property.address ||
-                "Location not available"}
+              {property.location || "Location not available"}
             </p>
           </div>
-
           <button
             type="button"
-            onClick={() =>
-              navigate("/host/my-properties")
-            }
+            onClick={() => navigate("/host/my-properties")}
             className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
           >
             Back to Properties
           </button>
         </div>
 
-        {error && property && (
+        {error && (
           <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
             {error}
           </div>
@@ -437,22 +1726,18 @@ const PropertyDetails = () => {
           {images.length > 0 ? (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {images.slice(0, 4).map((image, index) => {
-                const imageUrl =
-                  typeof image === "string"
-                    ? image
-                    : image?.url ||
-                      image?.secure_url;
-
-                if (!imageUrl) return null;
-
+                const imageUrl = getSafeImageSrc(image);
                 return (
                   <img
-                    key={index}
+                    key={`${imageUrl}-${index}`}
                     src={imageUrl}
-                    alt={`${property.title || "Property"} ${
-                      index + 1
-                    }`}
+                    alt={`${property.title || "Property"} ${index + 1}`}
                     className="h-64 w-full object-cover"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== FALLBACK_IMAGE) {
+                        e.currentTarget.src = FALLBACK_IMAGE;
+                      }
+                    }}
                   />
                 );
               })}
@@ -461,617 +1746,393 @@ const PropertyDetails = () => {
             <div className="flex h-64 items-center justify-center bg-gray-100 text-gray-400">
               No property images available
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Static Images */}
-          <div className="grid grid-cols-2 gap-3 h-[320px] sm:h-[420px] lg:h-full">
-            {property.images?.slice(1, 5).map((image, index) => (
-              <motion.div
-                key={image}
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: index * 0.08 }}
-                className="overflow-hidden rounded-2xl"
+        <main className="mx-auto px-0 py-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_350px]">
+            <div className="min-w-0">
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7"
               >
-                <img
-                  src={image}
-                  alt={`${property.title} ${index + 2}`}
-                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                />
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+                        {property.propertyType || "Property"}
+                      </span>
+                      <span
+                        className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${statusBadge.bg} ${statusBadge.text}`}
+                      >
+                        {statusBadge.icon}
+                        {statusBadge.label}
+                      </span>
+                    </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">
-          <div className="min-w-0">
-            {/* Title & Basic Info */}
-            <motion.section
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.5,
-              }}
-              className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
-                      {property.type ||
-                        property.propertyType ||
-                        "Property"}
-                    </span>
+                    <h2 className="mt-3 text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
+                      {property.title || "Property"}
+                    </h2>
 
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${statusBadge.bg} ${statusBadge.text}`}
-                    >
-                      {statusBadge.icon}
-                      {statusBadge.label}
-                    </span>
+                    <div className="mt-2 flex items-center gap-2 text-gray-500">
+                      <MapPin size={18} className="shrink-0 text-primary-600" />
+                      <span>{property.location}</span>
+                    </div>
                   </div>
 
-                  <h2 className="mt-3 text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-                    {property.title ||
-                      property.name ||
-                      "Property"}
-                  </h2>
-
-                  <div className="mt-2 flex items-center gap-2 text-gray-500">
-                    <MapPin
-                      size={18}
-                      className="shrink-0 text-primary-600"
-                    />
-
-                    <span>
-                      {property.location ||
-                        property.address ||
-                        "Location not available"}
-                    </span>
+                  <div className="sm:text-right">
+                    <div className="flex items-baseline gap-1 sm:justify-end">
+                      <span className="text-2xl font-bold text-primary-600 sm:text-3xl">
+                        ₹{Number(property.price || 0).toLocaleString("en-IN")}
+                      </span>
+                      <span className="text-sm text-gray-500">/month</span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-1 text-sm text-gray-500 sm:justify-end">
+                      <Calendar size={16} />
+                      <span>Listed: {formatDate(property.createdAt)}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="sm:text-right">
-                  <div className="flex items-baseline gap-1 sm:justify-end">
-                    <span className="text-2xl sm:text-3xl font-bold text-primary-600">
-                      ₹
-                      {Number(
-                        property.price || 0
-                      ).toLocaleString("en-IN")}
-                    </span>
-
-                    <span className="text-sm text-gray-500">
-                      /month
-                    </span>
+                <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <div className="rounded-2xl bg-gray-50 p-4">
+                    <BedDouble className="text-primary-600" size={21} />
+                    <p className="mt-2 text-xs text-gray-500">Bedrooms</p>
+                    <p className="font-semibold text-gray-800">
+                      {property.bedrooms ?? 0}
+                    </p>
                   </div>
-
-                  <div className="mt-2 flex items-center gap-1 sm:justify-end text-sm text-gray-500">
-                    <Calendar size={16} />
-
-                    <span>
-                      Listed:{" "}
-                      {property.listedDate ||
-                        "Not available"}
-                    </span>
+                  <div className="rounded-2xl bg-gray-50 p-4">
+                    <Bath className="text-primary-600" size={21} />
+                    <p className="mt-2 text-xs text-gray-500">Bathrooms</p>
+                    <p className="font-semibold text-gray-800">
+                      {property.bathrooms ?? 0}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-gray-50 p-4">
+                    <Ruler className="text-primary-600" size={21} />
+                    <p className="mt-2 text-xs text-gray-500">Area</p>
+                    <p className="font-semibold text-gray-800">
+                      {property.area ?? 0} sq.ft
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-gray-50 p-4">
+                    <Home className="text-primary-600" size={21} />
+                    <p className="mt-2 text-xs text-gray-500">Property ID</p>
+                    <p className="break-all text-sm font-semibold text-gray-800">
+                      #{property.id}
+                    </p>
                   </div>
                 </div>
-              </div>
+              </motion.section>
 
-              <div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="rounded-2xl bg-gray-50 p-4">
-                  <BedDouble
-                    className="text-primary-600"
-                    size={21}
-                  />
+              <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+                <h2 className="text-xl font-bold text-gray-900">About this property</h2>
+                <p className="mt-3 text-sm leading-7 text-gray-600 sm:text-base">
+                  {property.description || "No description provided."}
+                </p>
+              </section>
 
-                  <p className="mt-2 text-xs text-gray-500">
-                    Bedrooms
-                  </p>
-
-                  <p className="font-semibold text-gray-800">
-                    {property.bedrooms ?? 0}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-gray-50 p-4">
-                  <Bath
-                    className="text-primary-600"
-                    size={21}
-                  />
-
-                  <p className="mt-2 text-xs text-gray-500">
-                    Bathrooms
-                  </p>
-
-                  <p className="font-semibold text-gray-800">
-                    {property.bathrooms ?? 0}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-gray-50 p-4">
-                  <Ruler
-                    className="text-primary-600"
-                    size={21}
-                  />
-
-                  <p className="mt-2 text-xs text-gray-500">
-                    Area
-                  </p>
-
-                  <p className="font-semibold text-gray-800">
-                    {property.area ?? 0} sq.ft
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-gray-50 p-4">
-                  <Home
-                    className="text-primary-600"
-                    size={21}
-                  />
-
-                  <p className="mt-2 text-xs text-gray-500">
-                    Property ID
-                  </p>
-
-                  <p className="font-semibold text-gray-800 text-sm break-all">
-                    #{property.id}
-                  </p>
-                </div>
-              </div>
-            </motion.section>
-
-            <section className="mt-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7">
-              <h2 className="text-xl font-bold text-gray-900">
-                About this property
-              </h2>
-
-              <p className="mt-3 text-sm sm:text-base leading-7 text-gray-600">
-                {property.description ||
-                  "No description provided."}
-              </p>
-            </section>
-
-            {Array.isArray(property.amenities) &&
-              property.amenities.length > 0 && (
-                <section className="mt-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7">
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Amenities
-                  </h2>
-
-                  <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {property.amenities.map(
-                      (item, index) => (
-                        <div
-                          key={`${item}-${index}`}
-                          className="flex items-center gap-2 rounded-2xl border border-primary-100 bg-primary-50 p-3 text-sm font-medium text-gray-700"
-                        >
-                          <ShieldCheck
-                            size={17}
-                            className="text-primary-600 shrink-0"
-                          />
-
-                          <span>{item}</span>
-                        </div>
-                      )
-                    )}
+              {Array.isArray(property.amenities) && property.amenities.length > 0 && (
+                <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+                  <h2 className="text-xl font-bold text-gray-900">Amenities</h2>
+                  <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                    {property.amenities.map((item, index) => (
+                      <div
+                        key={`${item}-${index}`}
+                        className="flex items-center gap-2 rounded-2xl border border-primary-100 bg-primary-50 p-3 text-sm font-medium text-gray-700"
+                      >
+                        <ShieldCheck size={17} className="shrink-0 text-primary-600" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
                   </div>
                 </section>
               )}
 
-            {property.verification && (
-              <section className="mt-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <ShieldCheck
-                    className="text-blue-600"
-                    size={24}
-                  />
-                  Verification Details
-                </h2>
-
-                <div
-                  className={`mt-5 p-4 rounded-xl border ${verificationStatus.border} ${verificationStatus.bg}`}
-                >
-                  <div className="flex items-center gap-2">
-                    {property.verification.verified ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    ) : property.verification.status ===
-                      "rejected" ? (
-                      <XCircle className="w-5 h-5 text-red-600" />
-                    ) : (
-                      <Clock className="w-5 h-5 text-yellow-600" />
-                    )}
-
-                    <span
-                      className={`font-semibold ${verificationStatus.color}`}
-                    >
-                      {verificationStatus.label}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500">
-                        Owner Name
-                      </p>
-
-                      <p className="font-medium text-gray-800">
-                        {property.verification.ownerName ||
-                          "Not provided"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-500">
-                        Email
-                      </p>
-
-                      <p className="font-medium text-gray-800 break-all">
-                        {property.verification.ownerEmail ||
-                          "Not provided"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-500">
-                        Phone
-                      </p>
-
-                      <p className="font-medium text-gray-800">
-                        {property.verification.ownerPhone ||
-                          "Not provided"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-500">
-                        Property Address
-                      </p>
-
-                      <p className="font-medium text-gray-800">
-                        {property.verification.propertyAddress ||
-                          "Not provided"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-500">
-                        Submitted At
-                      </p>
-
-                      <p className="font-medium text-gray-800">
-                        {property.verification.submittedAt
-                          ? new Date(
-                              property.verification.submittedAt
-                            ).toLocaleString()
-                          : "Not available"}
-                      </p>
-                    </div>
-
-                    {property.verification.verifiedAt && (
-                      <div>
-                        <p className="text-gray-500">
-                          Verified At
-                        </p>
-
-                        <p
-                          className={`font-medium ${
-                            property.verification.status ===
-                            "approved"
-                              ? "text-green-600"
-                              : property.verification.status ===
-                                "rejected"
-                              ? "text-red-600"
-                              : "text-gray-800"
-                          }`}
-                        >
-                          {new Date(
-                            property.verification.verifiedAt
-                          ).toLocaleString()}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {property.verification.adminNotes && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <p className="text-gray-500 text-sm">
-                        Admin Notes
-                      </p>
-
-                      <p
-                        className={`mt-1 p-3 rounded-lg text-sm ${
-                          property.verification.status ===
-                          "approved"
-                            ? "bg-green-50 text-green-700"
-                            : property.verification.status ===
-                              "rejected"
-                            ? "bg-red-50 text-red-700"
-                            : "bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        {property.verification.adminNotes}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {property.verification.documents &&
-                  Object.keys(
-                    property.verification.documents
-                  ).length > 0 && (
-                    <div className="mt-5">
-                      <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-blue-600" />
-                        Uploaded Documents
-                      </h3>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {Object.entries(
-                          property.verification.documents
-                        ).map(([docType, docUrl]) => {
-                          if (!docUrl) {
-                            return null;
-                          }
-
-                          return (
-                            <div
-                              key={docType}
-                              className="relative group"
-                            >
-                              <img
-                                src={docUrl}
-                                alt={docType}
-                                className="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() =>
-                                  window.open(
-                                    docUrl,
-                                    "_blank",
-                                    "noopener,noreferrer"
-                                  )
-                                }
-                              />
-
-                              <p className="text-xs text-gray-500 mt-1 text-center capitalize">
-                                {docType
-                                  .replace(
-                                    /([A-Z])/g,
-                                    " $1"
-                                  )
-                                  .trim()}
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-              </section>
-            )}
-
-            <section className="mt-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Eye
-                  className="text-purple-600"
-                  size={24}
-                />
-                Property Stats
-              </h2>
-
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <div className="bg-purple-50 rounded-xl p-4">
-                  <p className="text-2xl font-bold text-purple-700">{property.inquiries || 0}</p>
-                  <p className="text-xs text-purple-600">Total Inquiries</p>
-                </div>
-
-                <div className="bg-green-50 rounded-xl p-4">
-                  <p className="text-lg font-bold text-green-700">
-                    {property.listedDate || "N/A"}
-                  </p>
-
-                  <p className="text-xs text-green-600">
-                    Listed Date
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            {/* Visitors List */}
-            <section className="mt-5 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-7">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <Users className="text-blue-600" size={24} />
-                  Visitors ({visitors.length})
-                </h2>
-                {visitors.length > 3 && (
-                  <button
-                    onClick={() => setShowAllVisitors(!showAllVisitors)}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    {showAllVisitors ? 'Show Less' : 'View All'}
-                  </button>
-                )}
-              </div>
-
-          {/* Right Sticky Card */}
-          <aside className="lg:sticky lg:top-24 h-fit">
-            <motion.div
-              initial={{
-                opacity: 0,
-                x: 25,
-              }}
-              animate={{
-                opacity: 1,
-                x: 0,
-              }}
-              transition={{
-                duration: 0.5,
-              }}
-              className="bg-white rounded-3xl border border-gray-100 shadow-lg p-5 sm:p-6"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs text-gray-500">
-                    Monthly Rent
-                  </p>
-
-                  <h2 className="text-2xl font-bold text-primary-600">
-                    ₹
-                    {Number(
-                      property.price || 0
-                    ).toLocaleString("en-IN")}
+              {property.verification && (
+                <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                    <ShieldCheck className="text-blue-600" size={24} />
+                    Verification Details
                   </h2>
-                </div>
 
-                <div
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 ${statusBadge.bg} ${statusBadge.text}`}
-                >
-                  {statusBadge.icon}
-                  {statusBadge.label}
-                </div>
-              </div>
+                  <div
+                    className={`mt-5 rounded-xl border p-4 ${verificationStatus.border} ${verificationStatus.bg}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {property.verification.verified ||
+                      property.verification.status === "approved" ? (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      ) : property.verification.status === "rejected" ? (
+                        <XCircle className="h-5 w-5 text-red-600" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-yellow-600" />
+                      )}
+                      <span className={`font-semibold ${verificationStatus.color}`}>
+                        {verificationStatus.label}
+                      </span>
+                    </div>
 
-              <div>
-                <p className="text-xs text-gray-400">
-                  Bathrooms
-                </p>
-
-                <p className="mt-1 font-bold text-gray-800">
-                  {property.bathrooms ?? 0}
-                </p>
-              </div>
-            </div>
-
-              {/* Status Management Buttons - Only show when verified */}
-              {isVerified && (
-                <div className="mt-6 space-y-3">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Manage Status
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() =>
-                        handleStatusUpdate("Active")
-                      }
-                      disabled={
-                        updatingStatus ||
-                        currentStatus === "Active"
-                      }
-                      className={`py-2.5 rounded-xl font-medium text-xs flex items-center justify-center gap-1 transition-all ${
-                        currentStatus === "Active"
-                          ? "bg-green-100 text-green-700 border-2 border-green-500 cursor-default"
-                          : "bg-green-600 text-white hover:bg-green-700"
-                      }`}
-                    >
-                      <Check size={14} />
-                      Active
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        handleStatusUpdate("Rented")
-                      }
-                      disabled={
-                        updatingStatus ||
-                        currentStatus === "Rented"
-                      }
-                      className={`py-2.5 rounded-xl font-medium text-xs flex items-center justify-center gap-1 transition-all ${
-                        currentStatus === "Rented"
-                          ? "bg-blue-100 text-blue-700 border-2 border-blue-500 cursor-default"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
-                    >
-                      <Key size={14} />
-                      Rented
-                    </button>
+                    <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+                      <div>
+                        <p className="text-gray-500">Owner Name</p>
+                        <p className="font-medium text-gray-800">
+                          {property.verification.ownerName || "Not provided"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Email</p>
+                        <p className="break-all font-medium text-gray-800">
+                          {property.verification.ownerEmail || "Not provided"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Phone</p>
+                        <p className="font-medium text-gray-800">
+                          {property.verification.ownerPhone || "Not provided"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Property Address</p>
+                        <p className="font-medium text-gray-800">
+                          {property.verification.propertyAddress || "Not provided"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Submitted At</p>
+                        <p className="font-medium text-gray-800">
+                          {formatDate(property.createdAt)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  {currentStatus === "Active" && (
-                    <p className="text-xs text-green-600 text-center">
-                      ✓ Property is currently active and available
-                    </p>
-                  )}
-
-                  {currentStatus === "Rented" && (
-                    <p className="text-xs text-blue-600 text-center">
-                      🔑 Property has been rented out
-                    </p>
-                  )}
-
-                  {updatingStatus && (
-                    <p className="text-xs text-blue-600 text-center">
-                      Updating status...
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
-                  <p className="text-xs text-yellow-700 text-center">
-                     Status management available after verification
-                  </p>
-                </div>
+                  {property.verification.documents &&
+                    typeof property.verification.documents === "object" &&
+                    Object.keys(property.verification.documents).length > 0 && (
+                      <div className="mt-5">
+                        <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-800">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Uploaded Documents
+                        </h3>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                          {Object.entries(property.verification.documents).map(
+                            ([docType, docUrl]) => {
+                              if (!docUrl) return null;
+                              const safeUrl = docUrl.startsWith("blob:")
+                                ? FALLBACK_IMAGE
+                                : docUrl;
+                              return (
+                                <div key={docType} className="group relative">
+                                  <img
+                                    src={safeUrl}
+                                    alt={docType}
+                                    className="h-32 w-full cursor-pointer rounded-lg border border-gray-200 object-cover transition-opacity hover:opacity-90"
+                                    onClick={() => window.open(safeUrl, "_blank", "noopener,noreferrer")}
+                                    onError={(e) => {
+                                      if (e.currentTarget.src !== FALLBACK_IMAGE) {
+                                        e.currentTarget.src = FALLBACK_IMAGE;
+                                      }
+                                    }}
+                                  />
+                                  <p className="mt-1 text-center text-xs capitalize text-gray-500">
+                                    {docType.replace(/([A-Z])/g, " $1").trim()}
+                                  </p>
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+                      </div>
+                    )}
+                </section>
               )}
 
-              <div className="mt-6 grid grid-cols-1 gap-3">
-                <button
-                  onClick={() =>
-                    navigate("/host/my-properties")
-                  }
-                  className="rounded-2xl border border-gray-300 py-3.5 font-semibold text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2"
-                >
-                  <ArrowLeft size={18} />
-                  Back to Properties
-                </button>
+              <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+                <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                  <Eye className="text-purple-600" size={24} />
+                  Property Stats
+                </h2>
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  <div className="rounded-xl bg-purple-50 p-4">
+                    <p className="text-2xl font-bold text-purple-700">
+                      {property.inquiries || 0}
+                    </p>
+                    <p className="text-xs text-purple-600">Total Inquiries</p>
+                  </div>
+                  <div className="rounded-xl bg-green-50 p-4">
+                    <p className="text-lg font-bold text-green-700">
+                      {formatDate(property.createdAt)}
+                    </p>
+                    <p className="text-xs text-green-600">Listed Date</p>
+                  </div>
+                </div>
+              </section>
 
-                <button
-                  onClick={() => navigate(`/host/edit-property/${property.id}`)}
-                  className="rounded-2xl bg-primary-600 py-3.5 font-semibold text-white hover:bg-primary-700 transition shadow-lg shadow-primary-600/20 flex items-center justify-center gap-2"
-                >
-                  <Edit size={18} />
-                  Edit Property
-                </button>
+              <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                    <Users className="text-blue-600" size={24} />
+                    Visitors ({visitors.length})
+                  </h2>
+                  {visitors.length > 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllVisitors((prev) => !prev)}
+                      className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                    >
+                      {showAllVisitors ? "Show Less" : "View All"}
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {(showAllVisitors ? visitors : visitors.slice(0, 3)).map(
+                    (visitor, index) => (
+                      <div
+                        key={visitor.id || visitor.email || visitor.name || index}
+                        className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 p-3"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-800">
+                            {visitor.name || "Visitor"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {visitor.date || visitor.visitDate || "Recently"}
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+                          {visitor.status || "Interested"}
+                        </span>
+                      </div>
+                    )
+                  )}
+                  {visitors.length === 0 && (
+                    <p className="text-sm text-gray-500">
+                      No visitors yet for this property.
+                    </p>
+                  )}
+                </div>
+              </section>
+            </div>
 
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="rounded-2xl bg-red-500 py-3.5 font-semibold text-white hover:bg-red-600 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  <Trash2 size={18} />
+            <aside className="h-fit lg:sticky lg:top-24">
+              <motion.div
+                initial={{ opacity: 0, x: 25 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="rounded-3xl border border-gray-100 bg-white p-5 shadow-lg sm:p-6"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-gray-500">Monthly Rent</p>
+                    <h2 className="text-2xl font-bold text-primary-600">
+                      ₹{Number(property.price || 0).toLocaleString("en-IN")}
+                    </h2>
+                  </div>
+                  <div
+                    className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${statusBadge.bg} ${statusBadge.text}`}
+                  >
+                    {statusBadge.icon}
+                    {statusBadge.label}
+                  </div>
+                </div>
 
-                  {deleting
-                    ? "Deleting..."
-                    : "Delete Property"}
-                </button>
-              </div>
+                <div className="mt-5">
+                  <p className="text-xs text-gray-400">Bathrooms</p>
+                  <p className="mt-1 font-bold text-gray-800">
+                    {property.bathrooms ?? 0}
+                  </p>
+                </div>
 
-              <div className="mt-5 flex items-center justify-center gap-2 text-xs text-gray-400">
-                <ShieldCheck
-                  size={15}
-                  className="text-green-500"
-                />
-                Your property is secure
-              </div>
-            </motion.div>
-          </aside>
-        </div>
-      </main>
+                {isVerified ? (
+                  <div className="mt-6 space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Manage Status
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleStatusUpdate("Active")}
+                        disabled={updatingStatus || currentStatus === "active"}
+                        className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-xs font-medium transition-all ${
+                          currentStatus === "active"
+                            ? "cursor-default border-2 border-green-500 bg-green-100 text-green-700"
+                            : "bg-green-600 text-white hover:bg-green-700"
+                        }`}
+                      >
+                        <Check size={14} />
+                        Active
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleStatusUpdate("Rented")}
+                        disabled={updatingStatus || currentStatus === "rented"}
+                        className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-xs font-medium transition-all ${
+                          currentStatus === "rented"
+                            ? "cursor-default border-2 border-blue-500 bg-blue-100 text-blue-700"
+                            : "bg-blue-600 text-white hover:bg-blue-700"
+                        }`}
+                      >
+                        <Key size={14} />
+                        Rented
+                      </button>
+                    </div>
+                    {updatingStatus && (
+                      <p className="text-center text-xs text-blue-600">
+                        Updating status...
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-6 rounded-xl border border-yellow-200 bg-yellow-50 p-3">
+                    <p className="text-center text-xs text-yellow-700">
+                      Status management available after verification
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-6 grid grid-cols-1 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/host/my-properties")}
+                    className="flex items-center justify-center gap-2 rounded-2xl border border-gray-300 py-3.5 font-semibold text-gray-700 transition hover:bg-gray-50"
+                  >
+                    <ArrowLeft size={18} />
+                    Back to Properties
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/host/edit-property/${property.id}`)}
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-primary-600 py-3.5 font-semibold text-white shadow-lg shadow-primary-600/20 transition hover:bg-primary-700"
+                  >
+                    <Edit size={18} />
+                    Edit Property
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-red-500 py-3.5 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Trash2 size={18} />
+                    {deleting ? "Deleting..." : "Delete Property"}
+                  </button>
+                </div>
+
+                <div className="mt-5 flex items-center justify-center gap-2 text-xs text-gray-400">
+                  <ShieldCheck size={15} className="text-green-500" />
+                  Your property is secure
+                </div>
+              </motion.div>
+            </aside>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
-
-// Refresh icon component
-const Refresh = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-  </svg>
-);
 
 export default HostPropertyDetails;

@@ -1,149 +1,261 @@
-const cloudinary = require('cloudinary').v2;
+const cloudinary = require("cloudinary").v2;
 
-/**
- * Configure Cloudinary SDK
- * Uses environment variables: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
- */
+/*
+|--------------------------------------------------------------------------
+| Cloudinary Configuration
+|--------------------------------------------------------------------------
+*/
+
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+if (!cloudName) {
+  console.error("❌ CLOUDINARY_CLOUD_NAME is missing");
+}
+
+if (!apiKey) {
+  console.error("❌ CLOUDINARY_API_KEY is missing");
+}
+
+if (!apiSecret) {
+  console.error("❌ CLOUDINARY_API_SECRET is missing");
+}
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
+  secure: true,
 });
 
-/**
- * Verify Cloudinary configuration
- * Logs status on startup
- */
+/*
+|--------------------------------------------------------------------------
+| Verify Configuration
+|--------------------------------------------------------------------------
+*/
+
 const verifyCloudinaryConfig = async () => {
+  if (!cloudName || !apiKey || !apiSecret) {
+    console.error(
+      "❌ Cloudinary configuration is incomplete."
+    );
+
+    return false;
+  }
+
   try {
-    // Test the configuration
-    const result = await cloudinary.api.resources({ max_results: 1 });
-    console.log('✅ Cloudinary configured successfully');
+    await cloudinary.api.ping();
+
+    console.log("✅ Cloudinary configured successfully");
+    console.log(`☁️ Cloud name: ${cloudName}`);
+
     return true;
   } catch (error) {
-    console.error('❌ Cloudinary configuration failed:', error.message);
+    console.error(
+      "❌ Cloudinary configuration failed:",
+      error?.message || error
+    );
+
     return false;
   }
 };
 
-/**
- * Upload single image to Cloudinary
- * @param {Buffer} buffer - Image buffer from multer
- * @param {string} folder - Cloudinary folder path (e.g., 'nestesy/properties')
- * @param {string} publicId - Optional custom public ID
- * @returns {Promise<Object>} Cloudinary response with secure_url
- */
-const uploadImage = (buffer, folder = 'nestesy/properties', publicId = null) => {
+/*
+|--------------------------------------------------------------------------
+| Upload Single Image
+|--------------------------------------------------------------------------
+*/
+
+const uploadImage = (
+  buffer,
+  folder = "nestesy/properties",
+  publicId = undefined
+) => {
   return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'auto',
-        public_id: publicId,
-        quality: 'auto',
-        fetch_format: 'auto', // Auto-optimize format
-        width: 1200,
-        crop: 'fill'
-      },
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
+    if (!buffer) {
+      return reject(
+        new Error("Image buffer is required")
+      );
+    }
+
+    const options = {
+      folder,
+      resource_type: "image",
+      quality: "auto",
+      fetch_format: "auto",
+      transformation: [
+        {
+          width: 1600,
+          height: 1200,
+          crop: "limit",
+        },
+      ],
+    };
+
+    if (publicId) {
+      options.public_id = publicId;
+    }
+
+    const uploadStream =
+      cloudinary.uploader.upload_stream(
+        options,
+        (error, result) => {
+          if (error) {
+            console.error(
+              "❌ Cloudinary upload error:",
+              error.message
+            );
+
+            return reject(error);
+          }
+
+          if (!result) {
+            return reject(
+              new Error(
+                "Cloudinary returned an empty response"
+              )
+            );
+          }
+
           resolve({
             url: result.secure_url,
             publicId: result.public_id,
             width: result.width,
-            height: result.height
+            height: result.height,
+            format: result.format,
+            bytes: result.bytes,
           });
         }
-      }
-    );
+      );
 
     uploadStream.end(buffer);
   });
 };
 
-/**
- * Upload multiple images in parallel
- * @param {Array<Buffer>} buffers - Array of image buffers
- * @param {string} folder - Cloudinary folder path
- * @returns {Promise<Array>} Array of upload results
- */
-const uploadMultipleImages = async (buffers, folder = 'nestesy/properties') => {
+/*
+|--------------------------------------------------------------------------
+| Upload Multiple Images
+|--------------------------------------------------------------------------
+*/
+
+const uploadMultipleImages = async (
+  buffers,
+  folder = "nestesy/properties"
+) => {
   if (!Array.isArray(buffers) || buffers.length === 0) {
     return [];
   }
 
+  const validBuffers = buffers.filter(Boolean);
+
+  if (validBuffers.length === 0) {
+    return [];
+  }
+
   try {
-    const uploadPromises = buffers.map((buffer, index) => 
-      uploadImage(buffer, folder, null)
+    const results = await Promise.all(
+      validBuffers.map((buffer) =>
+        uploadImage(buffer, folder)
+      )
     );
-    const results = await Promise.all(uploadPromises);
-    return results.map(r => r.url);
+
+    return results;
   } catch (error) {
-    console.error('Error uploading multiple images:', error);
+    console.error(
+      "❌ Multiple image upload failed:",
+      error.message
+    );
+
     throw error;
   }
 };
 
-/**
- * Delete image from Cloudinary
- * @param {string} publicId - Cloudinary public ID of the image
- * @returns {Promise<Object>} Deletion result
- */
+/*
+|--------------------------------------------------------------------------
+| Delete Single Image
+|--------------------------------------------------------------------------
+*/
+
 const deleteImage = async (publicId) => {
+  if (!publicId) {
+    return null;
+  }
+
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result =
+      await cloudinary.uploader.destroy(publicId);
+
     return result;
   } catch (error) {
-    console.error('Error deleting image:', error);
+    console.error(
+      "❌ Cloudinary delete error:",
+      error.message
+    );
+
     throw error;
   }
 };
 
-/**
- * Delete multiple images in parallel
- * @param {Array<string>} publicIds - Array of Cloudinary public IDs
- * @returns {Promise<Array>} Array of deletion results
- */
+/*
+|--------------------------------------------------------------------------
+| Delete Multiple Images
+|--------------------------------------------------------------------------
+*/
+
 const deleteMultipleImages = async (publicIds) => {
   if (!Array.isArray(publicIds) || publicIds.length === 0) {
     return [];
   }
 
-  try {
-    const deletePromises = publicIds.map(id => deleteImage(id));
-    return await Promise.all(deletePromises);
-  } catch (error) {
-    console.error('Error deleting multiple images:', error);
-    throw error;
+  const validIds = publicIds.filter(Boolean);
+
+  if (validIds.length === 0) {
+    return [];
   }
+
+  return Promise.all(
+    validIds.map((publicId) =>
+      deleteImage(publicId)
+    )
+  );
 };
 
-/**
- * Generate optimized Cloudinary URL for different sizes
- * @param {string} secureUrl - Cloudinary secure URL
- * @param {string} size - 'thumbnail', 'medium', or 'large'
- * @returns {string} Optimized URL
- */
-const getOptimizedImageUrl = (secureUrl, size = 'medium') => {
-  const sizes = {
-    thumbnail: 'w_200,h_200,c_fill,q_auto,f_auto',
-    medium: 'w_600,h_400,c_fill,q_auto,f_auto',
-    large: 'w_1200,h_800,c_fill,q_auto,f_auto'
-  };
+/*
+|--------------------------------------------------------------------------
+| Optimized Image URL
+|--------------------------------------------------------------------------
+*/
 
-  if (!secureUrl) return null;
-
-  // Extract public ID from URL and regenerate with transformations
-  const matches = secureUrl.match(/\/([^/]+)\/([^/]+)$/);
-  if (matches) {
-    const folder = matches[1];
-    const filename = matches[2];
-    return `${secureUrl.split('/upload/')[0]}/upload/${sizes[size] || sizes.medium}/${folder}/${filename}`;
+const getOptimizedImageUrl = (
+  secureUrl,
+  size = "medium"
+) => {
+  if (!secureUrl) {
+    return null;
   }
 
-  return secureUrl;
+  const transformations = {
+    thumbnail:
+      "w_300,h_200,c_fill,q_auto,f_auto",
+    medium:
+      "w_700,h_500,c_fill,q_auto,f_auto",
+    large:
+      "w_1400,h_1000,c_limit,q_auto,f_auto",
+  };
+
+  const transformation =
+    transformations[size] ||
+    transformations.medium;
+
+  if (!secureUrl.includes("/upload/")) {
+    return secureUrl;
+  }
+
+  return secureUrl.replace(
+    "/upload/",
+    `/upload/${transformation}/`
+  );
 };
 
 module.exports = {
@@ -153,5 +265,5 @@ module.exports = {
   deleteImage,
   deleteMultipleImages,
   getOptimizedImageUrl,
-  verifyCloudinaryConfig
+  verifyCloudinaryConfig,
 };

@@ -1,22 +1,76 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const favoriteSchema = new mongoose.Schema(
   {
-    tenantId: {
+    tenant: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
+      ref: "Tenant",
       required: true,
     },
+
     propertyId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Property',
+      type: String,
       required: true,
+    },
+
+    title: {
+      type: String,
+      required: true,
+    },
+
+    location: {
+      type: String,
+      required: true,
+    },
+
+    price: {
+      type: Number,
+      required: true,
+    },
+
+    bedrooms: {
+      type: Number,
+    },
+
+    bathrooms: {
+      type: Number,
+    },
+
+    area: {
+      type: Number,
+    },
+
+    images: [
+      {
+        type: String,
+      },
+    ],
+
+    description: {
+      type: String,
+    },
+
+    addedAt: {
+      type: Date,
+      default: Date.now,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-// prevent the same tenant from favoriting the same property twice
-favoriteSchema.index({ tenantId: 1, propertyId: 1 }, { unique: true });
+favoriteSchema.index(
+  {
+    tenant: 1,
+    propertyId: 1,
+  },
+  {
+    unique: true,
+  }
+);
 
-module.exports = mongoose.model('Favorite', favoriteSchema);
+module.exports = mongoose.model(
+  "Favorite",
+  favoriteSchema
+);
