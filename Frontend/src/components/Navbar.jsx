@@ -60,7 +60,7 @@ const handleLogout = () => {
 
   return (
    <>
-    <nav className=" fixed w-full h-18 bg-white text-gray-800 py-3  flex justify-between md:justify-around items-center z-50">
+    <nav className=" fixed w-full h-18 bg-white text-gray-800 py-3  flex justify-between md:justify-around items-center z-50 shadow-2xl ">
       <Link to="/" className="h-full flex items-center">
           <img
             src={AthenuraLogo}

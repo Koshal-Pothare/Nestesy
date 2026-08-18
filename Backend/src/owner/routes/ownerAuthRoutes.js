@@ -2,16 +2,11 @@ const express = require("express");
 
 const router = express.Router();
 
-const {
-  registerOwner,
-  loginOwner,
-  logoutOwner,
-} = require("../controllers/ownerAuthController");
+const { registerOwner, loginOwner, getMe } = require('../controllers/ownerAuthController');
+const { protect, authorize } = require('../../common/middleware/authMiddleware');
 
-const { protect } = require("../../common/middleware/authMiddleware");
-
-router.post("/register", registerOwner);
-router.post("/login", loginOwner);
-router.post("/logout", protect, logoutOwner);
+router.post('/register', registerOwner);
+router.post('/login', loginOwner);
+router.get('/me', protect, authorize('owner'), getMe);
 
 module.exports = router;

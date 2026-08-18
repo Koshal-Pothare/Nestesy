@@ -174,6 +174,35 @@ const AdminDashboard = () => {
   const [hoveredStat, setHoveredStat] = useState(null);
   const [hoveredBar, setHoveredBar] = useState(null);
 
+  const [dashboardStats, setDashboardStats] = useState(statsData);
+  const [dashboardRecentProps, setDashboardRecentProps] = useState(recentProperties);
+  const [dashboardRecentUsers, setDashboardRecentUsers] = useState(recentUsers);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    fetch('/api/admin/dashboard/stats', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          if (data.stats && data.stats.length > 0) {
+            setDashboardStats(
+              data.stats.map((s, idx) => ({
+                ...s,
+                icon: statsData[idx]?.icon || Building2,
+              }))
+            );
+          }
+          if (data.recentProperties) setDashboardRecentProps(data.recentProperties);
+          if (data.recentUsers) setDashboardRecentUsers(data.recentUsers);
+        }
+      })
+      .catch((err) => console.log('Dashboard stats fetch fallback to default:', err));
+  }, []);
+
   // Calculate max value for chart  
   const maxValue = useMemo(() => {
     const max = Math.max(...chartData.map(item => item.value));
@@ -182,7 +211,7 @@ const AdminDashboard = () => {
 
   // Stats cards
   const statsCards = useMemo(() => 
-    statsData.map((stat, index) => (
+    dashboardStats.map((stat, index) => (
       <motion.div
         key={stat.id}
         initial={{ opacity: 0, y: 20 }}

@@ -22,9 +22,9 @@ const navigation = [
   { id: 'host', name: 'Host', icon: Users, path: '/admin/hosts' },
    { id: 'properties', name: 'Properties', icon: Building2, path: '/admin/propertyverification' },
   { id: 'users', name: 'Users', icon: Users, path: '/admin/users' },
-  { id: 'bookings', name: 'Bookings', icon: Calendar, path: '/admin/bookings' }, 
-  { id: 'reviews', name: 'Reviews', icon: Star, path: '/admin/reviews' },
-  { id: 'inquiries', name: 'Inquiries', icon: MessageSquare, path: '/admin/inquiries' },
+  { id: 'bookings', name: 'Bookings Overview', icon: Calendar, path: '/admin/bookings-overview' }, 
+  { id: 'reviews', name: 'Reviews', icon: Star, path: '/admin/reviews-management' },
+  { id: 'inquiries', name: 'Inquiries', icon: MessageSquare, path: '/admin/inquiry-management' },
 ];
 
 const AdminLayout = () => {
@@ -114,7 +114,7 @@ const AdminLayout = () => {
           <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold px-4 mb-3 flex-shrink-0">
             Main Menu
           </p>
-          <div className="space-y-1 flex-1 overflow-hidden">
+         <div className="space-y-1 flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {navigation.map((item) => {
               const isActive = location.pathname === item.path;
               return (

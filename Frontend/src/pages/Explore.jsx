@@ -6,7 +6,7 @@ import {
     ShieldCheck, User, Headset, IndianRupee, MapPin, Building2, Wallet2, Wallet, Search, ChevronUp,
     BedDouble, Bath, Ruler, Heart, ListFilterPlus, Home
 } from 'lucide-react'
-import { budgets, Properties, propertyTypes } from '../Data/Data'
+import { budgets, propertyTypes } from '../Data/Data'
 import ExploreSidebar from '../components/ExploreSidebar'
 import CTA from '../assets/Explore/CTA.png'
 import PropertyCard from '../Ui/PropertyCard'
@@ -28,12 +28,59 @@ const Explore = () => {
         idealFor: "",
     })
 
-
     const [rotate, setRotate] = useState(0);
     const [sortBy, setSortBy] = useState("newest")
-    const [filteredProperties, setFilteredProperties] = useState(Properties);
-    const [propertyLoading, StylePropertyLoading] = useState(false);
+    const [filteredProperties, setFilteredProperties] = useState([]);
+    const [allProperties, setAllProperties] = useState([]);
+    const [propertyLoading, setPropertyLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+
+    // Load properties from localStorage
+    useEffect(() => {
+        loadProperties();
+    }, []);
+
+    const loadProperties = () => {
+        setPropertyLoading(true);
+        try {
+            const stored = localStorage.getItem('hostProperties');
+            if (stored) {
+                const properties = JSON.parse(stored);
+                // Only show properties that are Active and Verified
+                const activeProperties = properties.filter(
+                    p => p.status === 'Active' && p.verification?.verified === true
+                );
+                setAllProperties(activeProperties);
+                setFilteredProperties(activeProperties);
+            } else {
+                setAllProperties([]);
+                setFilteredProperties([]);
+            }
+        } catch (error) {
+            console.error('Error loading properties:', error);
+            setAllProperties([]);
+            setFilteredProperties([]);
+        } finally {
+            setPropertyLoading(false);
+        }
+    };
+
+    // Listen for storage changes (when host updates property status)
+    useEffect(() => {
+        const handleStorageChange = () => {
+            loadProperties();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('propertyAdded', handleStorageChange);
+        window.addEventListener('propertyUpdated', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('propertyAdded', handleStorageChange);
+            window.removeEventListener('propertyUpdated', handleStorageChange);
+        };
+    }, []);
 
     const scrollToProperty = () => {
         document.getElementById("properties")?.scrollIntoView({
@@ -49,7 +96,7 @@ const Explore = () => {
     }
 
     const handleSearch = () => {
-        let result = [...Properties];
+        let result = [...allProperties];
 
         if (filter.location.trim()) {
             result = result.filter((property) =>
@@ -61,13 +108,12 @@ const Explore = () => {
 
         if (filter.propertyType !== "Any") {
             result = result.filter(
-                (property) => property.propertyType === filter.propertyType
+                (property) => property.type === filter.propertyType
             );
         }
 
         if (filter.budget !== "Any") {
             const [min, max] = filter.budget.split("-").map(Number);
-
             result = result.filter(
                 (property) => property.price >= min && property.price <= max
             );
@@ -75,7 +121,23 @@ const Explore = () => {
 
         if (filter.idealFor) {
             result = result.filter((property) =>
-                property.idealFor.includes(filter.idealFor)
+                property.idealFor?.includes(filter.idealFor)
+            );
+        }
+
+        // Filter by amenities
+        if (filter.amenities.length > 0) {
+            result = result.filter((property) =>
+                filter.amenities.every(amenity => 
+                    property.amenities?.includes(amenity)
+                )
+            );
+        }
+
+        // Filter by bedrooms
+        if (filter.bedroom) {
+            result = result.filter(
+                (property) => property.bedrooms === parseInt(filter.bedroom)
             );
         }
 
@@ -88,39 +150,31 @@ const Explore = () => {
 
     const handleAmenity = (amenity) => {
         setFilter((prev) => {
-
             const exists = prev.amenities.includes(amenity);
-
             return {
                 ...prev,
                 amenities: exists
                     ? prev.amenities.filter((a) => a !== amenity)
                     : [...prev.amenities, amenity]
             }
-
         });
     };
 
     // sorting logic
-
-
     const sortedProperties = [...filteredProperties].sort((a, b) => {
         switch (sortBy) {
             case "priceLow":
                 return a.price - b.price;
-
             case "priceHigh":
                 return b.price - a.price;
-
             case "newest":
                 return b.id - a.id;
-
             default:
                 return 0;
         }
     });
 
-    // reseting filter 
+    // resetting filter
     const resetFilters = () => {
         setFilter({
             location: "",
@@ -131,27 +185,24 @@ const Explore = () => {
             furnishing: "",
             amenities: [],
             availability: "",
+            idealFor: "",
         });
 
         setSortBy("newest");
         setRotate((prev) => prev + 360);
-        setFilteredProperties(Properties);
+        setFilteredProperties(allProperties);
         setCurrentPage(1);
     };
 
     // pagination
     const propertiesPerPage = 9;
-
     const totalPages = Math.ceil(sortedProperties.length / propertiesPerPage);
-
     const indexOfLastProperty = currentPage * propertiesPerPage;
     const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
-
     const currentProperties = sortedProperties.slice(
         indexOfFirstProperty,
         indexOfLastProperty
     );
-
 
     const navigate = useNavigate();
 
@@ -179,37 +230,12 @@ const Explore = () => {
         },
     };
 
-    const CardContainer = {
-        hidden: {},
-        show: {
-            transition: {
-                staggerChildren: 0.15,
-            },
-        },
-    };
-
-    const card = {
-        hidden: { opacity: 0, y: 70, scale: 0.95 },
-        show: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                duration: 0.7,
-                ease: [0.22, 1, 0.36, 1],
-            },
-        },
-    };
-
     const stats = [
         { icon: ShieldCheck, label: "Verified Property" },
         { icon: User, label: "Trusted Host" },
         { icon: IndianRupee, label: "Pocket Friendly" },
         { icon: Headset, label: "24/7 Support" },
     ];
-
-
-
 
     return (
         <section>
@@ -230,7 +256,6 @@ const Explore = () => {
                         animate="show"
                         className="relative z-10 max-w-2xl px-6 md:px-10 py-16 lg:py-18 "
                     >
-
 
                         {/* Heading */}
                         <motion.h1
@@ -254,7 +279,7 @@ const Explore = () => {
                             variants={item}
                             className="max-w-xl mt-12 text-gray-200 leading-6 text-base md:text-xl font-semibold"
                         >
-                            Explore thousands of verifired flats and houses.<br />
+                            Explore thousands of verified flats and houses.<br />
                             Trusted Host. Secure Stay. Better Living
                         </motion.p>
 
@@ -271,7 +296,6 @@ const Explore = () => {
                                         </div>
 
                                         <div>
-
                                             <p className="text-sm font-semibold text-gray-200 mt-1 leading-5">
                                                 {label}
                                             </p>
@@ -281,11 +305,7 @@ const Explore = () => {
                             </div>
                         </motion.div>
 
-
-
-
                     </motion.div>
-
 
                 </div>
                 {/* search bar */}
@@ -333,7 +353,7 @@ const Explore = () => {
                                         <option value="Apartment">Apartment</option>
                                         <option value="Flat">Flat</option>
                                         <option value="PG">PG</option>
-                                         <option value="Single Room">Single Room</option>
+                                        <option value="Single Room">Single Room</option>
                                         <option value="Independent House">Independent House</option>
                                     </select>
                                 </div>
@@ -374,69 +394,78 @@ const Explore = () => {
 
             <div className="py-20 w-full  p-10">
 
-                {propertyLoading ? (<ExploreSkeleton />) : (<>
-                    <div className=" p-5">
-                        <h2 className="font-semibold text-4xl">Explore Homes</h2>
-                        <p className="mt-2 font-semibold text-gray-700">Find your perfect place from thousands of verified properties</p>
+                {propertyLoading ? (<ExploreSkeleton />) : (
+                    <>
+                        <div className="p-5">
+                            <h2 className="font-semibold text-4xl">Explore Homes</h2>
+                            <p className="mt-2 font-semibold text-gray-700">
+                                Find your perfect place from {allProperties.length} verified properties
+                            </p>
+                        </div>
 
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start" id="properties">
 
-                    </div>
+                            {/* Sidebar */}
+                            <ExploreSidebar 
+                                filter={filter} 
+                                setFilter={setFilter} 
+                                handleChange={handleChange}
+                                reset={resetFilters} 
+                                search={handleSearch} 
+                                handleAmenity={handleAmenity}
+                                rotate={rotate} 
+                                setRotate={setRotate}
+                            />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start" id="properties">
+                            {/* Property Grid */}
+                            <div className="lg:col-span-3">
 
-                        {/* Sidebar */}
+                                <div className="w-full flex justify-between items-center mb-5">
+                                    <p className="text-sm text-gray-500">
+                                        Showing {currentProperties.length} of {sortedProperties.length} properties
+                                    </p>
+                                    <SortBy sortBy={sortBy} setSortBy={setSortBy} />
+                                </div>
 
-                        <ExploreSidebar filter={filter} setFilter={setFilter} handleChange={handleChange}
-                            reset={resetFilters} search={handleSearch} handleAmenity={handleAmenity}
-                            rotate={rotate} setRotate={setRotate}
-                        />
+                                {currentProperties.length === 0 ? (
+                                    <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+                                        <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                                        <h3 className="text-xl font-semibold text-gray-600">No properties found</h3>
+                                        <p className="text-gray-400 mt-2">Try adjusting your filters to find more properties</p>
+                                    </div>
+                                ) : (
+                                    <motion.div
+                                        initial="hidden"
+                                        animate="show"
+                                        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
+                                    >
+                                        {currentProperties.map((property, index) => (
+                                            <PropertyCard property={property} index={index} key={property.id} />
+                                        ))}
+                                    </motion.div>
+                                )}
 
+                                {/* Pagination */}
+                                {sortedProperties.length > propertiesPerPage && (
+                                    <div className="flex justify-end items-center gap-3 mt-12">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            setCurrentPage={setCurrentPage}
+                                            totalItems={sortedProperties.length}
+                                            itemsPerPage={propertiesPerPage}
+                                            scrollTo={700}
+                                        />
+                                    </div>
+                                )}
 
-                        {/* Property Grid */}
-
-                        <div className="lg:col-span-3">
-
-                            <div className="w-full flex justify-end mb-5">
-                                <SortBy sortBy={sortBy} setSortBy={setSortBy} />
-                            </div>
-
-                            <motion.div
-
-                                initial="hidden"
-                                animate="show"
-                                className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
-                            >
-                                {currentProperties.map((property, index) => (
-                                    <PropertyCard property={property} index={index} key={property.id} />
-                                ))}
-
-                            </motion.div>
-
-                            {/* Pagination */}
-
-                            <div className="flex justify-end items-center gap-3 mt-12">
-                                <Pagination
-                                    currentPage={currentPage}
-                                    setCurrentPage={setCurrentPage}
-                                    totalItems={Properties.length}
-                                    itemsPerPage={propertiesPerPage}
-                                    scrollTo={700}
-                                />
                             </div>
 
                         </div>
-
-                    </div>
-                </>
-
+                    </>
                 )}
-
-
-
             </div>
 
             {/* CTA */}
-
             <motion.div
                 initial={{ opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -485,18 +514,12 @@ const Explore = () => {
                                     onClick={() => navigate("/wishlist")}
                                     className="bg-transparent backdrop-blur-xl mt-10 text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
                                 >
-                                    Explore Whishlist
+                                    Explore Wishlist
                                 </motion.button>
-
 
                             </div>
 
- 
                         </div>
-
-                     
-  
-
 
                     </div>
 

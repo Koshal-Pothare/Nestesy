@@ -9,43 +9,45 @@ import BecomeHost from "./pages/BecomeHost";
 import Login from "./auth/Login";
 import ForgotPassword from "./auth/ForgotPassword";
 import Contact from "./pages/Contact";
-import Explore from "./pages/Explore";
-import Wishlist from "./pages/Wishlist";
-import PropertyDetails from "./pages/PropertyDetails";
-import Review from "./pages/Review";
-import FAQ from "./pages/FAQ";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsConditions from "./pages/TermsCondition";
 
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Explore from './pages/Explore'
+import Whishlist from './pages/Wishlist'
+import PropertyDetails from './pages/PropertyDetails'
+import ForgotPassword from './auth/ForgotPassword'
+import Review from './pages/Review'
 
-import AdminLayout from "./Admin/AdminLout";
-import AdminDashboard from "./Admin/AdminDashboard";
-import AdminRegister from "./auth/AdminRegister";
-import AdminLogin from "./auth/AdminLogin";
-import PropertyVerificationDetail from "./Admin/PropertyVerificationDetail";
-import HostManagement from "./Admin/HostManagement";
-import HostDetails from "./Admin/HostDetail";
-import BookingManagement from "./Admin/BookingManagement";
-import UserManagement from "./pages/UserManagment";
+//Admin
+import AdminLayout from '../src/Admin/AdminLout'
+import AdminDashboard from '../src/Admin/AdminDashboard'
+import AdminRegister from './auth/AdminRegister'
+import AdminLogin from './auth/AdminLogin'
+import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
+import HostManagement from './Admin/HostManagement'
+import HostDetails from './Admin/HostDetail'
+import BookingManagement from './Admin/BookingManagement'
 
-import HostLayout from "./Host/HostLayout";
-import HostDashboard from "./Host/HostDashboard";
-import AddProperty from "./Host/AddProperty";
-import MyProperties from "./Host/MyProperties";
-import HostAnalytics from "./Host/HostAnalytics";
-import HostPropertyDetails from "./Host/HostPropertyDetails";
-import VisitManagement from "./Host/VisitManagement";
-import HostLogin from "./Host/HostLogin";
-import HostRegister from "./Host/HostRegister";
+// Host 
+import HostDashboard from './Host/HostDashboard'
+import HostLayout from './Host/HostLayout' 
+import Faq from './pages/FAQ'
+import FAQ from './pages/FAQ' 
+import AddProperty from './Host/AddProperty'
+import MyProperties from './Host/MyProperties'
+import HostAnalytics from './Host/HostAnalytics'
+import HostPropertyDetails from './Host/HostPropertyDetails'
+import VisitManagement from './Host/VisitManagement'
 
+
+//User
 import UserLayout from "./User/UserLayout";
 import UserDashboard from "./User/UserDashboard";
 import UpcomingVisits from "./User/UpcomingVisits";
 import BookingHistory from "./User/BookingHistory";
 import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
+import PrivacyPolicy from '../src/pages/PrivacyPolicy';
+import TermsConditions from '../src/pages/TermsCondition';
+import UserManagement from '../src/pages/UserManagment';
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -123,20 +125,11 @@ function App() {
             element={<UserManagement />}
           />
 
-          <Route
-            path="hosts"
-            element={<HostManagement />}
-          />
+          <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
+           <Route path="/admin/hosts" element={<HostManagement />} />
+           <Route path="/admin/hosts/:id" element={<HostDetails />} />
+            <Route path="/admin/bookings" element={<BookingManagement />} />
 
-          <Route
-            path="hosts/:id"
-            element={<HostDetails />}
-          />
-
-          <Route
-            path="bookings"
-            element={<BookingManagement />}
-          />
         </Route>
 
         {/* HOST AUTH ROUTES */}

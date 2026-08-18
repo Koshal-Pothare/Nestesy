@@ -51,47 +51,44 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (!validateForm()) return;
+    if (!validateForm()) return;
 
-    // setIsLoading(true);
-    // setLoginError('');
+    setIsLoading(true);
+    setLoginError('');
 
-    // try {
-    //   const res = await fetch(`${API_BASE}/admin/login`, {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(formData),
-    //   });
+    try {
+      const res = await fetch('/api/admin/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-    //   const data = await res.json();
+      const data = await res.json();
 
-    //   if (!res.ok || !data.success) {
-    //     setLoginError(data.message || 'Invalid email or password');
-    //     setIsLoading(false);
-    //     return;
-    //   }
+      if (!res.ok || !data.success) {
+        setLoginError(data.message || 'Invalid email or password');
+        setIsLoading(false);
+        return;
+      }
 
-    //   // Store the real JWT returned by the server, plus session info
-    //   localStorage.setItem('token', data.token);
-    //   localStorage.setItem(
-    //     'adminSession',
-    //     JSON.stringify({
-    //       ...data.admin,
-    //       isLoggedIn: true,
-    //       lastLogin: new Date().toISOString(),
-    //     })
-    //   );
+      // Store the real JWT returned by the server, plus session info
+      localStorage.setItem('token', data.token);
+      localStorage.setItem(
+        'adminSession',
+        JSON.stringify({
+          ...data.admin,
+          isLoggedIn: true,
+          lastLogin: new Date().toISOString(),
+        })
+      );
 
-    //   // NOTE: your App.jsx route for the dashboard is "/admin", not "/admin-dashboard"
-    //   navigate('/admin');
-    // } catch (error) {
-    //   console.error('Login error:', error);
-    //   setLoginError('Unable to reach the server. Please try again.');
-    // } finally {
-    //   setIsLoading(false);
-    // }
-
-    alert("Admin Login")
+      navigate('/admin');
+    } catch (error) {
+      console.error('Login error:', error);
+      setLoginError('Unable to reach the server. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

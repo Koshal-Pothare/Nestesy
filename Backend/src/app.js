@@ -4,28 +4,16 @@ const cors = require("cors");
 
 const connectDB = require("./config/database");
 
-const {
-  notFound,
-  errorHandler,
-} = require("./common/middleware/errorMiddleware");
+const { notFound, errorHandler } = require('./common/middleware/errorMiddleware');
 
-// ===============================
-// OWNER ROUTES
-// ===============================
+// Admin routes
+const adminAuthRoutes = require('./admin/routes/adminAuthRoutes');
 
-const ownerAuthRoutes = require("./owner/routes/ownerAuthRoutes");
-const propertyRoutes = require("./owner/routes/propertyRoutes");
-const ownerDashboardRoutes = require("./owner/routes/ownerDashboardRoutes");
-const visitRoutes = require("./owner/routes/visitRoutes");
-const analyticsRoutes = require("./owner/routes/analyticsRoutes");
-const roomRoutes = require("./owner/routes/roomRoutes");
-const ownerProfileRoutes = require("./owner/routes/ownerProfileRoutes");
+// Owner routes
+const ownerAuthRoutes = require('./owner/routes/ownerAuthRoutes');
 
-// ===============================
-// PUBLIC ROUTES
-// ===============================
-
-const publicPropertyRoutes = require("./public/routes/publicPropertyRoutes");
+// Tenant routes
+const tenantAuthRoutes = require('./tenant/routes/tenantAuthRoutes');
 
 const app = express();
 
@@ -81,61 +69,10 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ==================================================
-// OWNER AUTH
-// POST /api/owners/register
-// POST /api/owners/login
-// POST /api/owners/logout
-// ==================================================
-
-app.use(
-  "/api/owners",
-  ownerAuthRoutes
-);
-
-// ==================================================
-// OWNER PROPERTIES
-//
-// GET    /api/owners/properties
-// GET    /api/owners/properties/:id
-// POST   /api/owners/properties
-// DELETE /api/owners/properties/:id
-// PATCH  /api/owners/properties/:id/status
-// ==================================================
-
-app.use(
-  "/api/owners/properties",
-  propertyRoutes
-);
-
-// ==================================================
-// OWNER DASHBOARD
-//
-// GET /api/owners/dashboard/stats
-// ==================================================
-
-app.use(
-  "/api/owners/dashboard",
-  ownerDashboardRoutes
-);
-
-// ==================================================
-// OWNER VISITS
-// ==================================================
-
-app.use(
-  "/api/owners/visits",
-  visitRoutes
-);
-
-// ==================================================
-// OWNER ANALYTICS
-// ==================================================
-
-app.use(
-  "/api/owners/analytics",
-  analyticsRoutes
-);
+// --- Role-based routes ---
+app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/owner/auth', ownerAuthRoutes);
+app.use('/api/tenant/auth', tenantAuthRoutes);
 
 // ==================================================
 // OWNER ROOMS

@@ -1,57 +1,105 @@
 const mongoose = require('mongoose');
 
-const propertySchema = new mongoose.Schema({
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner', required: true },
-  title: { type: String, required: true },
-  location: { type: String, required: true },
-  price: { type: Number, required: true },
-  type: { type: String, required: true },
-  bedrooms: { type: Number, required: true },
-  bathrooms: { type: Number, required: true },
-  area: { type: Number, required: true },
-  description: { type: String },
-  amenities: [{ type: String }],
-  
-  // Supports both Admin verification status and Host Active/Rented status
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected', 'inactive', 'rented', 'Active', 'Inactive', 'Pending', 'Rented'],
-    default: 'pending',
-  },
-  statusUpdatedAt: { type: Date },
-  
-  // Images (URLs from Cloudinary/Uploads)
-  images: [{ type: String }],
-  outerImages: [{ type: String }],
-  livingRoomImages: [{ type: String }],
-  bathroomImages: [{ type: String }],
-  balconyImages: [{ type: String }],
-  kitchenImages: [{ type: String }],
-  bedroomImages: [[{ type: String }]],
-  
-  // Verification Details mapped from frontend
-  verification: {
-    ownerName: { type: String, required: true },
-    ownerEmail: { type: String, required: true },
-    ownerPhone: { type: String, required: true },
-    propertyAddress: { type: String, required: true },
-    documents: {
-      aadhar: { type: String },
-      pan: { type: String },
-      propertyTax: { type: String },
-      ownershipDeed: { type: String },
-      utilityBill: { type: String },
+const propertySchema = new mongoose.Schema(
+  {
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Owner',
+      required: true,
     },
-    additionalNotes: { type: String },
-    verified: { type: Boolean, default: false },
-    verifiedAt: { type: Date },
-    adminNotes: { type: String },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    propertyType: {
+      type: String,
+      enum: ['Apartment', 'Villa', 'Independent House', 'PG', 'Studio'],
+      required: true,
+    },
+    bhk: {
+      type: Number,
+      required: true,
+    },
+    bathrooms: {
+      type: Number,
+      required: true,
+    },
+    area: {
+      type: Number, // sq ft
+      required: true,
+    },
+    rent: {
+      type: Number,
+      required: true,
+    },
+    deposit: {
+      type: Number,
+      required: true,
+    },
+    furnished: {
+      type: String,
+      enum: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
+      default: 'Unfurnished',
+    },
+    tenantPreference: {
+      type: String,
+      enum: ['Family', 'Bachelor', 'Any'],
+      default: 'Any',
+    },
+    amenities: {
+      type: [String],
+      // e.g. ['Parking', 'Pet Friendly', 'Lift', 'Gym', 'Swimming Pool', 'Balcony']
+      default: [],
+    },
+    images: {
+      type: [String], // Cloudinary URLs
+      default: [],
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    locality: {
+      type: String,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+    coordinates: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true,
+      },
+    },
+    availability: {
+      type: Boolean,
+      default: true,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
   },
-  
-  // Analytics
-  views: { type: Number, default: 0 },
-  inquiries: { type: Number, default: 0 },
-  listedDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
-}, { timestamps: true });
+  { timestamps: true }
+);
+
+propertySchema.index({ coordinates: '2dsphere' });
 
 module.exports = mongoose.model('Property', propertySchema);

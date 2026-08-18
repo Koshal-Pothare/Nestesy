@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, CalendarDays, Clock, MapPin, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import { bookVisit, isVisitBooked } from "../utils/bookVisit";
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 import { useNavigate } from "react-router-dom";
 
 const BookVisitModal = ({ property, open, onClose }) => {
@@ -11,55 +11,66 @@ const BookVisitModal = ({ property, open, onClose }) => {
 
     if (!property) return null;
 
-    const navigate= useNavigate()
+    const navigate = useNavigate();
 
-  const handleBookVisit = () => {
-    const loggedInUser = JSON.parse(
-        localStorage.getItem("nestesyLoggedInUser")
-    );
+    const handleBookVisit = () => {
+        const loggedInUser = JSON.parse(
+            localStorage.getItem("nestesyLoggedInUser")
+        );
 
-    if (!loggedInUser) {
-        Swal.fire({
-            icon: "warning",
-            title: "Login Required",
-            text: "Please login first to book a visit.",
-            confirmButtonText: "OK",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                navigate("/login");
-            }
-        });
+        if (!loggedInUser) {
+            Swal.fire({
+                icon: "warning",
+                title: "Login Required",
+                text: "Please login first to book a visit.",
+                confirmButtonText: "OK",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate("/login");
+                }
+            });
 
-        return;
-    }
+            return;
+        }
 
-    if (!selectedDate) {
-        toast.error("Please select a visit date");
-        return;
-    }
+        if (!selectedDate) {
+            toast.error("Please select a visit date");
+            return;
+        }
 
-    if (isVisitBooked(property.id)) {
-        toast.info("You have already booked a visit for this property");
-        return;
-    }
+        if (isVisitBooked(property.id, selectedDate)) {
+            toast.info("You have already booked a visit for this property on this date");
+            return;
+        }
 
-    const visitData = {
-        ...property,
-        visitDate: selectedDate,
-        visitTime: property.visitTime,
-        bookedAt: new Date().toISOString(),
+        const visitData = {
+            id: Date.now(),
+            propertyId: property.id,
+            propertyName: property.title,
+            location: property.location,
+            price: property.price,
+            images: property.images,
+            visitDate: selectedDate,
+            visitTime: property.visitTime || '10:00 AM - 6:00 PM',
+            bookedAt: new Date().toISOString(),
+            visitorName: loggedInUser.name || loggedInUser.fullName || 'Guest',
+            visitorEmail: loggedInUser.email,
+            status: "pending",
+            createdAt: new Date().toISOString()
+        };
+
+        const result = bookVisit(visitData);
+
+        if (result) {
+            toast.success("Visit booked successfully! 🎉");
+            setSelectedDate("");
+            setTimeout(() => {
+                onClose();
+            }, 500);
+        } else {
+            toast.error("Failed to book visit. Please try again.");
+        }
     };
-
-    bookVisit(visitData);
-
-    toast.success("Visit booked successfully! 🎉");
-
-    setSelectedDate("");
-
-    setTimeout(() => {
-        onClose();
-    }, 500);
-};
 
     return (
         <AnimatePresence>
@@ -104,7 +115,7 @@ const BookVisitModal = ({ property, open, onClose }) => {
                             {/* Property */}
                             <div className="flex gap-4 rounded-2xl bg-gray-50 p-3">
                                 <img
-                                    src={property.images?.[0]}
+                                    src={property.images?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'}
                                     alt={property.title}
                                     className="h-20 w-24 rounded-xl object-cover"
                                 />
@@ -171,7 +182,7 @@ const BookVisitModal = ({ property, open, onClose }) => {
                                         </p>
 
                                         <p className="font-semibold text-gray-800">
-                                            {property.visitTime}
+                                            {property.visitTime || '10:00 AM - 6:00 PM'}
                                         </p>
                                     </div>
 
@@ -210,7 +221,7 @@ const BookVisitModal = ({ property, open, onClose }) => {
                                         </span>
 
                                         <span className="text-sm font-medium text-primary-600">
-                                            {property.visitTime}
+                                            {property.visitTime || '10:00 AM - 6:00 PM'}
                                         </span>
                                     </div>
                                 </motion.div>

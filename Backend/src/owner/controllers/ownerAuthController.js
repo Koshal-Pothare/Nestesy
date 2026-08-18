@@ -1,170 +1,107 @@
-const asyncHandler = require("express-async-handler");
+const bcrypt = require('bcrypt');
+const Owner = require('../models/Owner');
+const OwnerProfile = require('../models/OwnerProfile');
+const generateToken = require('../../common/utils/generateToken');
+const { success, error } = require('../../common/utils/response');
 
-const Owner = require("../models/Owner");
-const generateToken = require("../../common/utils/generateToken");
+/**
+ * @route   POST /api/owner/auth/register
+ * @desc    Register a new host/owner account
+ * @access  Public
+ */
+const registerOwner = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
 
-// ======================================================
-// REGISTER OWNER / HOST
-// ======================================================
+    if (!name || !email || !password) {
+      return error(res, 400, 'Name, email, and password are required');
+    }
 
-const registerOwner = asyncHandler(async (req, res) => {
-  const { name, email, phone, password } = req.body;
+    const existingOwner = await Owner.findOne({ email: email.toLowerCase() });
+    if (existingOwner) {
+      return error(res, 409, 'An account with this email already exists');
+    }
 
-  // Required fields
-  if (!name || !email || !phone || !password) {
-    res.status(400);
-    throw new Error("Please fill all fields");
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const owner = await Owner.create({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      phone,
+    });
+
+    // create an empty profile doc alongside the account
+    await OwnerProfile.create({ ownerId: owner._id });
+
+    const token = generateToken(owner._id, 'owner');
+
+    return success(res, 201, 'Owner registered successfully', {
+      token,
+      owner: {
+        id: owner._id,
+        name: owner.name,
+        email: owner.email,
+        phone: owner.phone,
+        role: owner.role,
+      },
+    });
+  } catch (err) {
+    return error(res, 500, err.message || 'Failed to register owner');
   }
-
-  const cleanName = String(name).trim();
-  const cleanEmail = String(email).trim().toLowerCase();
-  const cleanPhone = String(phone).trim();
-
-  // Name validation
-  if (cleanName.length < 2) {
-    res.status(400);
-    throw new Error("Name must contain at least 2 characters");
-  }
-
-  // Phone validation
-  if (cleanPhone.length < 10) {
-    res.status(400);
-    throw new Error("Please enter a valid phone number");
-  }
-
-  // Password validation
-  if (password.length < 6) {
-    res.status(400);
-    throw new Error("Password must be at least 6 characters");
-  }
-
-  // Check existing owner
-  const ownerExists = await Owner.findOne({
-    email: cleanEmail,
-  });
-
-  if (ownerExists) {
-    res.status(409);
-    throw new Error("Owner already exists with this email");
-  }
-
-  // Create owner
-  const owner = await Owner.create({
-    name: cleanName,
-    email: cleanEmail,
-    phone: cleanPhone,
-    password,
-    role: "owner",
-
-    // Admin approval disabled for now
-    // Owner can login immediately
-    status: "approved",
-  });
-
-  res.status(201).json({
-    success: true,
-    message: "Registration successful! You can login now.",
-
-    owner: {
-      _id: owner._id,
-      name: owner.name,
-      email: owner.email,
-      phone: owner.phone,
-      role: owner.role,
-      status: owner.status,
-    },
-  });
-});
-
-// ======================================================
-// LOGIN OWNER / HOST
-// ======================================================
-
-const loginOwner = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  // Required fields
-  if (!email || !password) {
-    res.status(400);
-    throw new Error("Email and password are required");
-  }
-
-  const cleanEmail = String(email).trim().toLowerCase();
-
-  // Find owner
-  const owner = await Owner.findOne({
-    email: cleanEmail,
-  });
-
-  if (!owner) {
-    res.status(401);
-    throw new Error("Invalid email or password");
-  }
-
-  // Check password
-  const passwordMatch = await owner.matchPassword(password);
-
-  if (!passwordMatch) {
-    res.status(401);
-    throw new Error("Invalid email or password");
-  }
-
-  // ======================================================
-  // ADMIN APPROVAL DISABLED
-  // ======================================================
-  //
-  // Pending/rejected checks are intentionally disabled.
-  // All registered owners can login.
-  //
-  // ======================================================
-
-  // Generate JWT
-  const token = generateToken(
-    owner._id.toString(),
-    "owner"
-  );
-
-  // Send response
-  res.status(200).json({
-    success: true,
-    message: "Login successful",
-
-    token,
-
-    owner: {
-      _id: owner._id,
-      name: owner.name,
-      email: owner.email,
-      phone: owner.phone,
-      role: owner.role,
-      status: owner.status,
-    },
-  });
-});
-
-// ======================================================
-// LOGOUT OWNER
-// ======================================================
-
-const logoutOwner = asyncHandler(async (req, res) => {
-  res.cookie("owner_jwt", "", {
-    httpOnly: true,
-    expires: new Date(0),
-    sameSite: "lax",
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "Logged out successfully",
-  });
-});
-
-// ======================================================
-// EXPORT
-// ======================================================
-
-module.exports = {
-  registerOwner,
-  loginOwner,
-  logoutOwner,
 };
+
+/**
+ * @route   POST /api/owner/auth/login
+ * @desc    Log an owner/host in
+ * @access  Public
+ */
+const loginOwner = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return error(res, 400, 'Email and password are required');
+    }
+
+    const owner = await Owner.findOne({ email: email.toLowerCase() }).select('+password');
+    if (!owner) {
+      return error(res, 401, 'Invalid email or password');
+    }
+
+    if (!owner.isActive) {
+      return error(res, 403, 'This account has been deactivated');
+    }
+
+    const isMatch = await bcrypt.compare(password, owner.password);
+    if (!isMatch) {
+      return error(res, 401, 'Invalid email or password');
+    }
+
+    const token = generateToken(owner._id, 'owner');
+
+    return success(res, 200, 'Login successful', {
+      token,
+      owner: {
+        id: owner._id,
+        name: owner.name,
+        email: owner.email,
+        role: owner.role,
+      },
+    });
+  } catch (err) {
+    return error(res, 500, err.message || 'Failed to log in');
+  }
+};
+
+/**
+ * @route   GET /api/owner/auth/me
+ * @desc    Get the currently logged-in owner's profile
+ * @access  Private (owner)
+ */
+const getMe = async (req, res) => {
+  return success(res, 200, 'Owner profile fetched', { owner: req.user });
+};
+
+module.exports = { registerOwner, loginOwner, getMe };
