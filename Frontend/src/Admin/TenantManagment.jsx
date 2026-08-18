@@ -6,28 +6,26 @@ import {
   Mail,
   MapPin,
   CalendarDays,
-  BriefcaseBusiness,
   Eye,
   ArrowLeft,
   Edit3,
   User,
   Home,
   CheckCircle,
-  IndianRupee,
   X,
   Save,
-  ChevronLeft,
-  ChevronRight,
+  Clock,
+  Building2,
+  History,
+  CalendarCheck,
 } from "lucide-react";
 
-/* =========================================================
-   MOCK CUSTOMER DATA
-========================================================= */
 
-const initialCustomers = [
+
+const initialTenants = [
   {
     id: 1,
-    name: "pooja Chauhan",
+    name: "Pooja Chauhan",
     email: "pooja@gmail.com",
     phone: "6201945659",
     address: "Near Hanuman Mandir",
@@ -35,14 +33,31 @@ const initialCustomers = [
     state: "Maharashtra",
     pincode: "442001",
     joined: "14/08/2026",
-    bookings: 1,
-    completed: 0,
-    spent: 0,
+    status: "Active",
+
+    visitHistory: [
+      {
+        id: "VIS-001",
+        propertyName: "Green Valley Apartment",
+        propertyLocation: "Civil Lines, Wardha",
+        date: "18/08/2026",
+        time: "10:30 AM",
+        status: "Completed",
+      },
+      {
+        id: "VIS-002",
+        propertyName: "Sunrise Residency",
+        propertyLocation: "Maganwadi, Wardha",
+        date: "22/08/2026",
+        time: "04:00 PM",
+        status: "Approved",
+      },
+    ],
   },
 
   {
     id: 2,
-    name: "neha singh",
+    name: "Neha Singh",
     email: "nehasingh@gmail.com",
     phone: "9022469699",
     address: "Wardha",
@@ -50,9 +65,34 @@ const initialCustomers = [
     state: "Maharashtra",
     pincode: "442001",
     joined: "29/07/2026",
-    bookings: 2,
-    completed: 1,
-    spent: 5200,
+    status: "Active",
+
+    visitHistory: [
+      {
+        id: "VIS-003",
+        propertyName: "Royal Heights",
+        propertyLocation: "Arvi Road, Wardha",
+        date: "05/08/2026",
+        time: "11:00 AM",
+        status: "Completed",
+      },
+      {
+        id: "VIS-004",
+        propertyName: "Lake View Homes",
+        propertyLocation: "Bachelor Road, Wardha",
+        date: "15/08/2026",
+        time: "03:30 PM",
+        status: "Approved",
+      },
+      {
+        id: "VIS-005",
+        propertyName: "Green Valley Apartment",
+        propertyLocation: "Civil Lines, Wardha",
+        date: "25/08/2026",
+        time: "05:00 PM",
+        status: "Pending",
+      },
+    ],
   },
 
   {
@@ -65,9 +105,18 @@ const initialCustomers = [
     state: "Maharashtra",
     pincode: "442001",
     joined: "25/07/2026",
-    bookings: 1,
-    completed: 1,
-    spent: 2800,
+    status: "Active",
+
+    visitHistory: [
+      {
+        id: "VIS-006",
+        propertyName: "Shree Residency",
+        propertyLocation: "Ram Nagar, Wardha",
+        date: "02/08/2026",
+        time: "12:00 PM",
+        status: "Completed",
+      },
+    ],
   },
 
   {
@@ -80,14 +129,31 @@ const initialCustomers = [
     state: "Maharashtra",
     pincode: "442001",
     joined: "20/07/2026",
-    bookings: 1,
-    completed: 0,
-    spent: 0,
+    status: "Active",
+
+    visitHistory: [
+      {
+        id: "VIS-007",
+        propertyName: "Sai Enclave",
+        propertyLocation: "Sai Nagar, Wardha",
+        date: "12/08/2026",
+        time: "02:00 PM",
+        status: "Rejected",
+      },
+      {
+        id: "VIS-008",
+        propertyName: "Green Valley Apartment",
+        propertyLocation: "Civil Lines, Wardha",
+        date: "28/08/2026",
+        time: "11:30 AM",
+        status: "Pending",
+      },
+    ],
   },
 
   {
     id: 5,
-    name: "saurav thapliyal",
+    name: "Saurav Thapliyal",
     email: "sauravthapliyal2005@gmail.com",
     phone: "7972766519",
     address: "At Kochewahi Post Banathar",
@@ -95,102 +161,109 @@ const initialCustomers = [
     state: "Maharashtra",
     pincode: "442001",
     joined: "23/07/2026",
-    bookings: 1,
-    completed: 0,
-    spent: 1000,
+    status: "Active",
+
+    visitHistory: [
+      {
+        id: "VIS-009",
+        propertyName: "Modern Heights",
+        propertyLocation: "Indira Market, Wardha",
+        date: "09/08/2026",
+        time: "10:00 AM",
+        status: "Completed",
+      },
+      {
+        id: "VIS-010",
+        propertyName: "Royal Heights",
+        propertyLocation: "Arvi Road, Wardha",
+        date: "30/08/2026",
+        time: "04:30 PM",
+        status: "Approved",
+      },
+    ],
   },
 ];
 
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
 
-const CustomerManagement = () => {
-  const [customers, setCustomers] = useState(initialCustomers);
+
+const TenantManagement = () => {
+  const [tenants, setTenants] = useState(initialTenants);
 
   const [search, setSearch] = useState("");
 
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedTenant, setSelectedTenant] = useState(null);
 
   const [isEditing, setIsEditing] = useState(false);
 
   const [editData, setEditData] = useState(null);
 
-  /* =======================================================
-     SEARCH
-  ======================================================= */
 
-  const filteredCustomers = useMemo(() => {
+  const filteredTenants = useMemo(() => {
     const searchValue = search.toLowerCase().trim();
 
     if (!searchValue) {
-      return customers;
+      return tenants;
     }
 
-    return customers.filter((customer) => {
+    return tenants.filter((tenant) => {
       return (
-        customer.name.toLowerCase().includes(searchValue) ||
-        customer.email.toLowerCase().includes(searchValue) ||
-        customer.phone.includes(searchValue) ||
-        customer.address.toLowerCase().includes(searchValue) ||
-        customer.city.toLowerCase().includes(searchValue)
+        tenant.name.toLowerCase().includes(searchValue) ||
+        tenant.email.toLowerCase().includes(searchValue) ||
+        tenant.phone.includes(searchValue) ||
+        tenant.address.toLowerCase().includes(searchValue) ||
+        tenant.city.toLowerCase().includes(searchValue)
       );
     });
-  }, [customers, search]);
+  }, [tenants, search]);
 
-  /* =======================================================
-     STATISTICS
-  ======================================================= */
 
-  const totalCustomers = customers.length;
 
-  const totalBookings = customers.reduce(
-    (total, customer) => total + customer.bookings,
+  const totalTenants = tenants.length;
+
+  const totalVisits = tenants.reduce(
+    (total, tenant) => total + tenant.visitHistory.length,
     0
   );
 
-  const totalCompleted = customers.reduce(
-    (total, customer) => total + customer.completed,
+  const completedVisits = tenants.reduce(
+    (total, tenant) =>
+      total +
+      tenant.visitHistory.filter(
+        (visit) => visit.status === "Completed"
+      ).length,
     0
   );
 
-  const totalSpent = customers.reduce(
-    (total, customer) => total + customer.spent,
+  const pendingVisits = tenants.reduce(
+    (total, tenant) =>
+      total +
+      tenant.visitHistory.filter(
+        (visit) => visit.status === "Pending"
+      ).length,
     0
   );
 
-  /* =======================================================
-     OPEN CUSTOMER DETAIL
-  ======================================================= */
 
-  const openCustomer = (customer) => {
-    setSelectedCustomer(customer);
-    setEditData({ ...customer });
+  const openTenant = (tenant) => {
+    setSelectedTenant(tenant);
+    setEditData({ ...tenant });
     setIsEditing(false);
   };
 
-  /* =======================================================
-     BACK
-  ======================================================= */
 
   const handleBack = () => {
-    setSelectedCustomer(null);
+    setSelectedTenant(null);
     setEditData(null);
     setIsEditing(false);
   };
 
-  /* =======================================================
-     EDIT
-  ======================================================= */
+   
 
   const handleEdit = () => {
-    setEditData({ ...selectedCustomer });
+    setEditData({ ...selectedTenant });
     setIsEditing(true);
   };
 
-  /* =======================================================
-     INPUT CHANGE
-  ======================================================= */
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -201,50 +274,40 @@ const CustomerManagement = () => {
     }));
   };
 
-  /* =======================================================
-     SAVE
-  ======================================================= */
-
+ 
   const handleSave = () => {
-    const updatedCustomer = {
+    const updatedTenant = {
       ...editData,
-      bookings: Number(editData.bookings),
-      completed: Number(editData.completed),
-      spent: Number(editData.spent),
     };
 
-    setCustomers((previousCustomers) =>
-      previousCustomers.map((customer) =>
-        customer.id === updatedCustomer.id
-          ? updatedCustomer
-          : customer
+    setTenants((previousTenants) =>
+      previousTenants.map((tenant) =>
+        tenant.id === updatedTenant.id
+          ? updatedTenant
+          : tenant
       )
     );
 
-    setSelectedCustomer(updatedCustomer);
-    setEditData(updatedCustomer);
+    setSelectedTenant(updatedTenant);
+    setEditData(updatedTenant);
     setIsEditing(false);
   };
 
-  /* =======================================================
-     CANCEL EDIT
-  ======================================================= */
+ 
 
   const handleCancel = () => {
-    setEditData({ ...selectedCustomer });
+    setEditData({ ...selectedTenant });
     setIsEditing(false);
   };
 
-  /* =======================================================
-     DETAIL PAGE
-  ======================================================= */
+ 
 
-  if (selectedCustomer) {
-    const customer = isEditing ? editData : selectedCustomer;
+  if (selectedTenant) {
+    const tenant = isEditing ? editData : selectedTenant;
 
     return (
-      <CustomerDetail
-        customer={customer}
+      <TenantDetail
+        tenant={tenant}
         isEditing={isEditing}
         onBack={handleBack}
         onEdit={handleEdit}
@@ -255,9 +318,7 @@ const CustomerManagement = () => {
     );
   }
 
-  /* =======================================================
-     CUSTOMER MANAGEMENT LIST
-  ======================================================= */
+
 
   return (
     <div className="min-h-screen bg-[#f7f8fc] px-4 py-6 sm:px-6 lg:px-8">
@@ -275,17 +336,17 @@ const CustomerManagement = () => {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-[#0b1736] sm:text-4xl">
-              Customer Management
+              Tenant Management
             </h1>
 
             <span className="rounded-full bg-[#1f7a45] px-4 py-1.5 text-sm font-semibold text-white">
-              {totalCustomers} Total
+              {totalTenants} Total
             </span>
 
           </div>
 
           <p className="mt-2 text-base text-[#52627f]">
-            Click on any customer to view detailed information
+            View tenant information and complete visit history
           </p>
 
         </div>
@@ -295,28 +356,28 @@ const CustomerManagement = () => {
         <div className="mb-7 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
           <StatCard
-            title="Total Customers"
-            value={totalCustomers}
+            title="Total Tenants"
+            value={totalTenants}
             icon={<Users size={22} />}
           />
 
           <StatCard
-            title="Total Bookings"
-            value={totalBookings}
-            icon={<BriefcaseBusiness size={22} />}
+            title="Total Visits"
+            value={totalVisits}
+            icon={<CalendarCheck size={22} />}
           />
 
           <StatCard
-            title="Completed Bookings"
-            value={totalCompleted}
+            title="Completed Visits"
+            value={completedVisits}
             icon={<CheckCircle size={22} />}
             green
           />
 
           <StatCard
-            title="Total Spent"
-            value={`₹${totalSpent.toLocaleString("en-IN")}`}
-            icon={<IndianRupee size={22} />}
+            title="Pending Visits"
+            value={pendingVisits}
+            icon={<Clock size={22} />}
           />
 
         </div>
@@ -344,57 +405,61 @@ const CustomerManagement = () => {
 
         </div>
 
-        {/* CUSTOMER TABLE */}
+        {/* TENANT TABLE */}
 
         <div className="overflow-hidden rounded-xl border border-[#e2e5ea] bg-white shadow-sm">
 
           {/* TABLE HEADER */}
 
-          <div className="hidden grid-cols-[2.4fr_1.1fr_0.7fr_1fr_0.5fr] border-b border-[#e5e7eb] bg-[#fafbfc] px-7 py-5 text-[13px] font-medium tracking-wide text-[#536585] md:grid">
+          <div className="hidden grid-cols-[2.3fr_1.2fr_0.8fr_1fr_0.5fr] border-b border-[#e5e7eb] bg-[#fafbfc] px-7 py-5 text-[13px] font-medium tracking-wide text-[#536585] md:grid">
 
-            <div>CUSTOMER</div>
+            <div>TENANT</div>
+
             <div>CONTACT</div>
-            <div>BOOKINGS</div>
+
+            <div>VISITS</div>
+
             <div>JOINED</div>
+
             <div className="text-center">ACTION</div>
 
           </div>
 
-          {/* CUSTOMER LIST */}
+          {/* TENANT LIST */}
 
-          {filteredCustomers.map((customer) => (
+          {filteredTenants.map((tenant) => (
 
             <div
-              key={customer.id}
-              onClick={() => openCustomer(customer)}
-              className="grid cursor-pointer grid-cols-1 gap-4 border-b border-[#e5e7eb] px-6 py-5 transition duration-200 hover:bg-[#f8fbf9] md:grid-cols-[2.4fr_1.1fr_0.7fr_1fr_0.5fr] md:items-center md:gap-0 md:px-7"
+              key={tenant.id}
+              onClick={() => openTenant(tenant)}
+              className="grid cursor-pointer grid-cols-1 gap-4 border-b border-[#e5e7eb] px-6 py-5 transition duration-200 hover:bg-[#f8fbf9] md:grid-cols-[2.3fr_1.2fr_0.8fr_1fr_0.5fr] md:items-center md:gap-0 md:px-7"
             >
 
-              {/* CUSTOMER */}
+              {/* TENANT */}
 
               <div className="flex items-center gap-4">
 
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#e9f5ed] text-lg font-bold text-[#1f7a45]">
-                  {customer.name.charAt(0)}
+                  {tenant.name.charAt(0).toUpperCase()}
                 </div>
 
                 <div className="min-w-0">
 
                   <p className="truncate font-semibold text-[#0b1736]">
-                    {customer.name}
+                    {tenant.name}
                   </p>
 
                   <div className="mt-1 flex items-center gap-1 text-sm text-[#61718d]">
                     <Mail size={14} />
                     <span className="truncate">
-                      {customer.email}
+                      {tenant.email}
                     </span>
                   </div>
 
                   <div className="mt-1 flex items-center gap-1 text-sm text-[#8793aa]">
                     <MapPin size={14} />
                     <span className="truncate">
-                      {customer.address}
+                      {tenant.address}
                     </span>
                   </div>
 
@@ -412,21 +477,21 @@ const CustomerManagement = () => {
                 />
 
                 <span>
-                  {customer.phone}
+                  {tenant.phone}
                 </span>
 
               </div>
 
-              {/* BOOKINGS */}
+              {/* VISITS */}
 
               <div className="flex items-center gap-2 font-medium text-[#0b1736]">
 
-                <BriefcaseBusiness
+                <CalendarCheck
                   size={18}
                   className="text-[#1f7a45]"
                 />
 
-                {customer.bookings}
+                {tenant.visitHistory.length}
 
               </div>
 
@@ -439,7 +504,7 @@ const CustomerManagement = () => {
                   className="text-[#1f7a45]"
                 />
 
-                {customer.joined}
+                {tenant.joined}
 
               </div>
 
@@ -451,7 +516,7 @@ const CustomerManagement = () => {
                   type="button"
                   onClick={(event) => {
                     event.stopPropagation();
-                    openCustomer(customer);
+                    openTenant(tenant);
                   }}
                   className="rounded-full p-2 text-[#1f7a45] transition hover:bg-[#e9f5ed]"
                 >
@@ -466,7 +531,7 @@ const CustomerManagement = () => {
 
           {/* NO RESULTS */}
 
-          {filteredCustomers.length === 0 && (
+          {filteredTenants.length === 0 && (
 
             <div className="px-6 py-16 text-center">
 
@@ -476,7 +541,7 @@ const CustomerManagement = () => {
               />
 
               <p className="font-medium text-gray-500">
-                No customers found
+                No tenants found
               </p>
 
               <p className="mt-1 text-sm text-gray-400">
@@ -492,8 +557,8 @@ const CustomerManagement = () => {
           <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-5 text-sm text-[#536585]">
 
             <p>
-              Showing 1 to {filteredCustomers.length} of{" "}
-              {totalCustomers} customers
+              Showing 1 to {filteredTenants.length} of{" "}
+              {totalTenants} tenants
             </p>
 
             <div className="flex items-center gap-2">
@@ -502,7 +567,7 @@ const CustomerManagement = () => {
                 type="button"
                 className="rounded-md border border-gray-300 p-2 text-gray-500 transition hover:bg-gray-50"
               >
-                <ChevronLeft size={18} />
+                <ArrowLeft size={18} />
               </button>
 
               <button
@@ -516,7 +581,10 @@ const CustomerManagement = () => {
                 type="button"
                 className="rounded-md border border-gray-300 p-2 text-gray-500 transition hover:bg-gray-50"
               >
-                <ChevronRight size={18} />
+                <ArrowLeft
+                  size={18}
+                  className="rotate-180"
+                />
               </button>
 
             </div>
@@ -531,12 +599,10 @@ const CustomerManagement = () => {
   );
 };
 
-/* =========================================================
-   CUSTOMER DETAIL
-========================================================= */
 
-const CustomerDetail = ({
-  customer,
+
+const TenantDetail = ({
+  tenant,
   isEditing,
   onBack,
   onEdit,
@@ -552,7 +618,7 @@ const CustomerDetail = ({
 
         {/* DETAIL HEADER */}
 
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
 
           <div className="flex items-center gap-4">
 
@@ -566,19 +632,19 @@ const CustomerDetail = ({
 
             <div className="flex items-center gap-3">
 
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-purple-400 to-purple-600 text-xl font-bold text-white">
-                {customer.name.charAt(0)}
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#1f7a45] to-[#43a76c] text-xl font-bold text-white">
+                {tenant.name.charAt(0).toUpperCase()}
               </div>
 
               <div>
 
                 <h1 className="text-xl font-bold text-[#0b1736] sm:text-2xl">
-                  {customer.name}
+                  {tenant.name}
                 </h1>
 
                 <div className="mt-1 flex items-center gap-2 text-sm text-[#64748b]">
                   <Mail size={15} />
-                  {customer.email}
+                  {tenant.email}
                 </div>
 
               </div>
@@ -594,7 +660,7 @@ const CustomerDetail = ({
             <button
               type="button"
               onClick={onEdit}
-              className="flex items-center gap-2 rounded-lg bg-[#6d00ff] px-5 py-3 font-medium text-white shadow-sm transition hover:bg-[#5800d6]"
+              className="flex items-center gap-2 rounded-lg bg-[#1f7a45] px-5 py-3 font-medium text-white shadow-sm transition hover:bg-[#176438]"
             >
               <Edit3 size={18} />
               Edit
@@ -628,20 +694,16 @@ const CustomerDetail = ({
 
         </div>
 
-        {/* MAIN DETAIL CARD */}
+      
 
-        <div className="overflow-hidden rounded-2xl border border-[#e1e5ea] bg-white shadow-sm">
+        <div className="mb-6 overflow-hidden rounded-2xl border border-[#e1e5ea] bg-white shadow-sm">
 
           {isEditing ? (
-
-            /* =================================================
-               EDIT MODE
-            ================================================= */
 
             <div className="p-6 lg:p-8">
 
               <h2 className="mb-7 text-lg font-semibold text-[#536585]">
-                EDIT CUSTOMER INFORMATION
+                EDIT TENANT INFORMATION
               </h2>
 
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -649,80 +711,56 @@ const CustomerDetail = ({
                 <InputField
                   label="Full Name"
                   name="name"
-                  value={customer.name}
+                  value={tenant.name}
                   onChange={onChange}
                 />
 
                 <InputField
                   label="Email Address"
                   name="email"
-                  value={customer.email}
+                  value={tenant.email}
                   onChange={onChange}
                 />
 
                 <InputField
                   label="Phone Number"
                   name="phone"
-                  value={customer.phone}
+                  value={tenant.phone}
                   onChange={onChange}
                 />
 
                 <InputField
                   label="Address"
                   name="address"
-                  value={customer.address}
+                  value={tenant.address}
                   onChange={onChange}
                 />
 
                 <InputField
                   label="City"
                   name="city"
-                  value={customer.city}
+                  value={tenant.city}
                   onChange={onChange}
                 />
 
                 <InputField
                   label="State"
                   name="state"
-                  value={customer.state}
+                  value={tenant.state}
                   onChange={onChange}
                 />
 
                 <InputField
                   label="Pincode"
                   name="pincode"
-                  value={customer.pincode}
+                  value={tenant.pincode}
                   onChange={onChange}
                 />
 
                 <InputField
                   label="Joined Date"
                   name="joined"
-                  value={customer.joined}
-                  onChange={onChange}
-                />
-
-                <InputField
-                  label="Total Bookings"
-                  name="bookings"
-                  type="number"
-                  value={customer.bookings}
-                  onChange={onChange}
-                />
-
-                <InputField
-                  label="Completed Bookings"
-                  name="completed"
-                  type="number"
-                  value={customer.completed}
-                  onChange={onChange}
-                />
-
-                <InputField
-                  label="Total Spent"
-                  name="spent"
-                  type="number"
-                  value={customer.spent}
+                  value={tenant.joined}
                   onChange={onChange}
                 />
 
@@ -732,66 +770,176 @@ const CustomerDetail = ({
 
           ) : (
 
-            /* =================================================
-               VIEW MODE
-            ================================================= */
+            <div className="p-6 lg:p-8">
 
-            <div className="grid grid-cols-1 gap-8 p-6 lg:grid-cols-2 lg:p-8">
+              <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-[#536585]">
+                <User size={20} className="text-[#1f7a45]" />
+                PERSONAL INFORMATION
+              </h2>
 
-              {/* LEFT SIDE */}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                <InfoBox
+                  icon={<User size={21} />}
+                  label="Full Name"
+                  value={tenant.name}
+                />
+
+                <InfoBox
+                  icon={<Mail size={21} />}
+                  label="Email Address"
+                  value={tenant.email}
+                />
+
+                <InfoBox
+                  icon={<Phone size={21} />}
+                  label="Phone Number"
+                  value={tenant.phone}
+                />
+
+                <InfoBox
+                  icon={<Home size={21} />}
+                  label="Address"
+                  value={`${tenant.address}, ${tenant.city}, ${tenant.state} - ${tenant.pincode}`}
+                />
+
+                <InfoBox
+                  icon={<CalendarDays size={21} />}
+                  label="Joined Date"
+                  value={tenant.joined}
+                />
+
+              
+
+              </div>
+
+            </div>
+
+          )}
+
+        </div>
+
+       {/* visit history */}
+
+        <div className="overflow-hidden rounded-2xl border border-[#e1e5ea] bg-white shadow-sm">
+
+          <div className="border-b border-[#e5e7eb] px-6 py-5 lg:px-8">
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
 
               <div>
 
-                <h2 className="mb-5 text-lg font-medium text-[#536585]">
-                  PERSONAL INFORMATION
+                <h2 className="flex items-center gap-2 text-xl font-bold text-[#0b1736]">
+                  <History
+                    size={23}
+                    className="text-[#1f7a45]"
+                  />
+                  Visit History
                 </h2>
 
-                <InfoBox
-                  icon={<User size={22} />}
-                  label="Full Name"
-                  value={customer.name}
-                />
+                <p className="mt-1 text-sm text-[#687896]">
+                  Properties visited or requested by this tenant
+                </p>
 
-                <InfoBox
-                  icon={<Mail size={22} />}
-                  label="Email Address"
-                  value={customer.email}
-                />
+              </div>
 
-                <InfoBox
-                  icon={<Phone size={22} />}
-                  label="Phone Number"
-                  value={customer.phone}
-                />
+              <span className="rounded-full bg-[#e9f5ed] px-4 py-2 text-sm font-semibold text-[#1f7a45]">
+                {tenant.visitHistory.length} Visits
+              </span>
 
-                <InfoBox
-                  icon={<Home size={22} />}
-                  label="Address"
-                  value={customer.address}
-                />
+            </div>
 
-                <h2 className="mb-5 mt-8 text-lg font-medium text-[#536585]">
-                  ACCOUNT STATUS
-                </h2>
+          </div>
 
-                <div className="rounded-xl bg-[#f8f9fc] p-5">
+          {tenant.visitHistory.length > 0 ? (
 
-                  <div className="flex items-center gap-3">
+            <div className="divide-y divide-[#e5e7eb]">
 
-                    <CalendarDays
-                      size={21}
-                      className="text-[#6d00ff]"
-                    />
+              {tenant.visitHistory.map((visit) => (
 
-                    <div>
+                <div
+                  key={visit.id}
+                  className="p-6 transition hover:bg-[#fafcfb] lg:px-8"
+                >
 
-                      <p className="text-sm text-[#687896]">
-                        Joined Date
-                      </p>
+                  <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
-                      <p className="mt-1 font-semibold text-[#0b1736]">
-                        {customer.joined}
-                      </p>
+                    {/* PROPERTY */}
+
+                    <div className="flex items-start gap-4">
+
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#e9f5ed] text-[#1f7a45]">
+                        <Building2 size={22} />
+                      </div>
+
+                      <div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+
+                          <h3 className="font-bold text-[#0b1736]">
+                            {visit.propertyName}
+                          </h3>
+
+                          <VisitStatus status={visit.status} />
+
+                        </div>
+
+                        <div className="mt-2 flex items-center gap-1 text-sm text-[#687896]">
+                          <MapPin size={15} />
+                          {visit.propertyLocation}
+                        </div>
+
+                        <p className="mt-1 text-xs text-[#9aa5b7]">
+                          Visit ID: {visit.id}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                    {/* DATE + TIME */}
+
+                    <div className="grid grid-cols-2 gap-5 sm:flex sm:items-center">
+
+                      <div className="flex items-center gap-2">
+
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f3f7f4] text-[#1f7a45]">
+                          <CalendarDays size={17} />
+                        </div>
+
+                        <div>
+
+                          <p className="text-xs text-[#8a96a9]">
+                            Visit Date
+                          </p>
+
+                          <p className="text-sm font-semibold text-[#263653]">
+                            {visit.date}
+                          </p>
+
+                        </div>
+
+                      </div>
+
+                      <div className="flex items-center gap-2">
+
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f3f7f4] text-[#1f7a45]">
+                          <Clock size={17} />
+                        </div>
+
+                        <div>
+
+                          <p className="text-xs text-[#8a96a9]">
+                            Visit Time
+                          </p>
+
+                          <p className="text-sm font-semibold text-[#263653]">
+                            {visit.time}
+                          </p>
+
+                        </div>
+
+                      </div>
 
                     </div>
 
@@ -799,30 +947,26 @@ const CustomerDetail = ({
 
                 </div>
 
-              </div>
+              ))}
 
-              {/* =================================================
-                 RIGHT SIDE
-                 ONLY TOTAL BOOKINGS
-              ================================================= */}
+            </div>
 
-              <div>
+          ) : (
 
-                <h2 className="mb-5 text-lg font-medium text-[#536585]">
-                  ACTIVITY SUMMARY
-                </h2>
+            <div className="px-6 py-16 text-center">
 
-                <div className="grid grid-cols-1 gap-4">
+              <CalendarCheck
+                size={45}
+                className="mx-auto mb-3 text-gray-300"
+              />
 
-                  <ActivityBox
-                    icon={<BriefcaseBusiness size={21} />}
-                    label="Total Bookings"
-                    value={customer.bookings}
-                  />
+              <p className="font-medium text-gray-500">
+                No visit history
+              </p>
 
-                </div>
-
-              </div>
+              <p className="mt-1 text-sm text-gray-400">
+                This tenant has not booked any property visits yet.
+              </p>
 
             </div>
 
@@ -833,6 +977,36 @@ const CustomerDetail = ({
       </div>
 
     </div>
+  );
+};
+
+
+
+const VisitStatus = ({ status }) => {
+
+  const statusStyles = {
+    Completed:
+      "bg-green-50 text-green-700 border-green-200",
+
+    Approved:
+      "bg-blue-50 text-blue-700 border-blue-200",
+
+    Pending:
+      "bg-yellow-50 text-yellow-700 border-yellow-200",
+
+    Rejected:
+      "bg-red-50 text-red-700 border-red-200",
+  };
+
+  return (
+    <span
+      className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+        statusStyles[status] ||
+        "bg-gray-50 text-gray-600 border-gray-200"
+      }`}
+    >
+      {status}
+    </span>
   );
 };
 
@@ -892,9 +1066,7 @@ const StatCard = ({
   );
 };
 
-/* =========================================================
-   INFO BOX
-========================================================= */
+
 
 const InfoBox = ({
   icon,
@@ -903,9 +1075,9 @@ const InfoBox = ({
 }) => {
 
   return (
-    <div className="mb-4 flex items-center gap-4 rounded-xl bg-[#f8f9fc] p-4">
+    <div className="flex items-center gap-4 rounded-xl bg-[#f8f9fc] p-4">
 
-      <div className="shrink-0 text-[#6d00ff]">
+      <div className="shrink-0 text-[#1f7a45]">
         {icon}
       </div>
 
@@ -925,46 +1097,6 @@ const InfoBox = ({
   );
 };
 
-/* =========================================================
-   ACTIVITY BOX
-========================================================= */
-
-const ActivityBox = ({
-  icon,
-  label,
-  value,
-}) => {
-
-  return (
-    <div className="rounded-xl bg-[#eef3ff] p-5">
-
-      <div className="flex items-center gap-3">
-
-        <div className="text-[#6d00ff]">
-          {icon}
-        </div>
-
-        <div>
-
-          <p className="text-sm text-[#60708f]">
-            {label}
-          </p>
-
-          <p className="mt-1 text-2xl font-bold text-[#6d00ff]">
-            {value}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-  );
-};
-
-/* =========================================================
-   INPUT FIELD
-========================================================= */
 
 const InputField = ({
   label,
@@ -984,7 +1116,7 @@ const InputField = ({
       <input
         type={type}
         name={name}
-        value={value}
+        value={value || ""}
         onChange={onChange}
         className="w-full rounded-lg border border-[#d8dde5] bg-white px-4 py-3 text-[#0b1736] outline-none transition focus:border-[#1f7a45] focus:ring-2 focus:ring-[#1f7a45]/10"
       />
@@ -993,4 +1125,4 @@ const InputField = ({
   );
 };
 
-export default CustomerManagement;
+export default TenantManagement;

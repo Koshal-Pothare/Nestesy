@@ -21,7 +21,7 @@ const navigation = [
  
   { id: 'host', name: 'Host', icon: Users, path: '/admin/hosts' },
    { id: 'properties', name: 'Properties', icon: Building2, path: '/admin/propertyverification' },
-  { id: 'users', name: 'Users', icon: Users, path: '/admin/users' },
+  { id: 'tenants', name: 'Tenants', icon: Users, path: '/admin/tenants' },
   { id: 'bookings', name: 'Bookings Overview', icon: Calendar, path: '/admin/bookings-overview' }, 
   { id: 'reviews', name: 'Reviews', icon: Star, path: '/admin/reviews-management' },
   { id: 'inquiries', name: 'Inquiries', icon: MessageSquare, path: '/admin/inquiry-management' },

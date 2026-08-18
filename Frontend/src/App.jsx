@@ -26,6 +26,7 @@ import PropertyVerificationDetail from './Admin/PropertyVerificationDetail'
 import HostManagement from './Admin/HostManagement'
 import HostDetails from './Admin/HostDetail'
 import BookingOverview from './Admin/BookingOverview'
+import TenantManagement from './Admin/TenantManagment';
 
 // Host 
 import HostDashboard from './Host/HostDashboard'
@@ -50,7 +51,7 @@ import UserWishlist from "./User/UserWishlist";
 import UserProfile from "./User/UserProfile";
 import PrivacyPolicy from '../src/pages/PrivacyPolicy';
 import TermsConditions from '../src/pages/TermsCondition';
-import UserManagement from '../src/pages/UserManagment';
+
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -124,14 +125,14 @@ function App() {
           />
 
           <Route
-            path="users"
-            element={<UserManagement />}
+            path="tenants"
+            element={<TenantManagement />}
           />
 
           <Route path="/admin/propertyverification" element={<PropertyVerificationDetail />} />
            <Route path="/admin/hosts" element={<HostManagement />} />
            <Route path="/admin/hosts/:id" element={<HostDetails />} />
-            <Route path="/admin/bookings" element={<BookingOverview />} />
+            <Route path="/admin/bookings-overview" element={<BookingOverview />} />
 
         </Route>
 
