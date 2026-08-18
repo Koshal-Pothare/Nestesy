@@ -1,7 +1,7 @@
-const Tenant = require('../../tenant/models/Tenant');
-const Booking = require('../../tenant/models/Booking');
-const Favorite = require('../../tenant/models/Favorite');
-const Review = require('../../tenant/models/Review');
+const Tenant = require('../../User/models/Tenant');
+const Booking = require('../../User/models/Booking');
+const Favorite = require('../../User/models/Favorite');
+const Review = require('../../User/models/Review');
 const { success, error } = require('../../common/utils/response');
 
 /**

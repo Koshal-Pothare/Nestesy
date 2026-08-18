@@ -1,4 +1,4 @@
-const Review = require('../../tenant/models/Review');
+const Review = require('../../User/models/Review');
 const { success, error } = require('../../common/utils/response');
 
 /**

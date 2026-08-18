@@ -1,16 +1,20 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 
 const ownerSchema = new mongoose.Schema(
   {
+    // ===============================
+    // OWNER BASIC DETAILS
+    // ===============================
+
     name: {
       type: String,
-      required: [true, "Name is required"],
+      required: true,
       trim: true,
     },
+
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: true,
       unique: true,
       lowercase: true,
       trim: true,
@@ -18,26 +22,54 @@ const ownerSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
       trim: true,
     },
+
+    // ===============================
+    // PASSWORD
+    // ===============================
+
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      select: false,
+    },
+
+    // ===============================
+    // ROLE
+    // ===============================
+
     role: {
       type: String,
-      default: "owner",
       enum: ["owner"],
+      default: "owner",
     },
+
+    // ===============================
+    // OWNER APPROVAL STATUS
+    // ===============================
 
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      default: "approved",
     },
+
+    // ===============================
+    // ACCOUNT ACTIVE STATUS
+    // ===============================
+
     isActive: {
       type: Boolean,
       default: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('Owner', ownerSchema);
+module.exports =
+  mongoose.models.Owner ||
+  mongoose.model("Owner", ownerSchema);

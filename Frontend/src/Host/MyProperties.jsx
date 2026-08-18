@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Plus,
   Eye,
@@ -34,16 +34,10 @@ const MyProperties = () => {
   const [sortBy, setSortBy] = useState("latest");
   const [viewMode, setViewMode] = useState("grid");
   const [showFilters, setShowFilters] = useState(false);
-
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // ============================================================
-  // LOAD OWNER PROPERTIES FROM BACKEND
-  // ============================================================
 
   useEffect(() => {
     const loadProperties = async () => {
@@ -53,7 +47,6 @@ const MyProperties = () => {
 
         const token = localStorage.getItem("ownerToken");
 
-        // No owner token
         if (!token) {
           navigate("/login", { replace: true });
           return;
@@ -75,14 +68,12 @@ const MyProperties = () => {
           data = {};
         }
 
-        // Authentication failed
         if (response.status === 401) {
           localStorage.removeItem("ownerToken");
           navigate("/login", { replace: true });
           return;
         }
 
-        // Owner not approved
         if (response.status === 403) {
           setError(
             data.message ||
@@ -91,15 +82,12 @@ const MyProperties = () => {
           return;
         }
 
-        // Other server errors
         if (!response.ok) {
           throw new Error(
             data.message || "Failed to load properties."
           );
         }
 
-        // Backend can return array directly
-        // or { success: true, data: [...] }
         const propertyData = Array.isArray(data)
           ? data
           : Array.isArray(data.data)
@@ -109,12 +97,10 @@ const MyProperties = () => {
           : [];
 
         setProperties(propertyData);
-      } catch (error) {
-        console.error("Error loading properties:", error);
-
+      } catch (err) {
+        console.error("Error loading properties:", err);
         setError(
-          error.message ||
-            "Failed to load properties from server."
+          err.message || "Failed to load properties from server."
         );
       } finally {
         setLoading(false);
@@ -124,9 +110,10 @@ const MyProperties = () => {
     loadProperties();
   }, [navigate]);
 
-  // ============================================================
-  // PROPERTY TYPES
-  // ============================================================
+  const normalizeStatus = (status) => {
+    if (!status) return "pending";
+    return String(status).toLowerCase();
+  };
 
   const propertyTypes = [
     "all",
@@ -137,31 +124,15 @@ const MyProperties = () => {
     ),
   ];
 
-  // ============================================================
-  // STATUS NORMALIZATION
-  // ============================================================
-
-  const normalizeStatus = (status) => {
-    if (!status) return "pending";
-
-    return String(status).toLowerCase();
-  };
-
-  // ============================================================
-  // FILTER + SORT
-  // ============================================================
-
   const filteredProperties = [...properties]
     .filter((property) => {
       const status = normalizeStatus(property.status);
 
       const matchesStatus =
-        filterStatus === "all" ||
-        status === filterStatus;
+        filterStatus === "all" || status === filterStatus;
 
       const matchesType =
-        filterType === "all" ||
-        property.type === filterType;
+        filterType === "all" || property.type === filterType;
 
       return matchesStatus && matchesType;
     })
@@ -180,25 +151,15 @@ const MyProperties = () => {
           );
 
         case "price-high":
-          return (
-            Number(b.price || 0) -
-            Number(a.price || 0)
-          );
+          return Number(b.price || 0) - Number(a.price || 0);
 
         case "price-low":
-          return (
-            Number(a.price || 0) -
-            Number(b.price || 0)
-          );
+          return Number(a.price || 0) - Number(b.price || 0);
 
         default:
           return 0;
       }
     });
-
-  // ============================================================
-  // STATUS BADGE
-  // ============================================================
 
   const getStatusBadge = (status) => {
     switch (normalizeStatus(status)) {
@@ -221,10 +182,6 @@ const MyProperties = () => {
     }
   };
 
-  // ============================================================
-  // STATUS ICON
-  // ============================================================
-
   const getStatusIcon = (status) => {
     switch (normalizeStatus(status)) {
       case "approved":
@@ -245,10 +202,6 @@ const MyProperties = () => {
         return <AlertCircle className="w-4 h-4" />;
     }
   };
-
-  // ============================================================
-  // DISPLAY STATUS
-  // ============================================================
 
   const getStatusLabel = (status) => {
     switch (normalizeStatus(status)) {
@@ -275,45 +228,26 @@ const MyProperties = () => {
     }
   };
 
-  // ============================================================
-  // ADD PROPERTY
-  // ============================================================
-
   const handleAddProperty = () => {
     navigate("/host/add-property");
   };
-
-  // ============================================================
-  // VIEW DETAILS
-  // ============================================================
 
   const handleViewDetails = (property) => {
     setSelectedProperty(property);
     setShowDetailModal(true);
   };
 
-  // ============================================================
-  // PROPERTY DETAILS PAGE
-  // ============================================================
-
   const handlePropertyClick = (propertyId) => {
+    if (!propertyId) return;
     navigate(`/host/property/${propertyId}`);
   };
-
-  // ============================================================
-  // GET STATS
-  // ============================================================
 
   const getStats = () => {
     const total = properties.length;
 
     const active = properties.filter((property) => {
       const status = normalizeStatus(property.status);
-
-      return (
-        status === "approved" ||
-        status === "active"
-      );
+      return status === "approved" || status === "active";
     }).length;
 
     const pending = properties.filter(
@@ -332,8 +266,7 @@ const MyProperties = () => {
     ).length;
 
     const totalInquiries = properties.reduce(
-      (sum, property) =>
-        sum + Number(property.inquiries || 0),
+      (sum, property) => sum + Number(property.inquiries || 0),
       0
     );
 
@@ -349,16 +282,11 @@ const MyProperties = () => {
 
   const stats = getStats();
 
-  // ============================================================
-  // LOADING
-  // ============================================================
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-
           <p className="text-gray-500">
             Loading your properties...
           </p>
@@ -367,24 +295,17 @@ const MyProperties = () => {
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
-
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
 
           <h3 className="text-lg font-semibold text-red-700 mb-2">
             Error Loading Properties
           </h3>
 
-          <p className="text-red-600">
-            {error}
-          </p>
+          <p className="text-red-600">{error}</p>
 
           <button
             onClick={() => window.location.reload()}
@@ -399,22 +320,14 @@ const MyProperties = () => {
           >
             Dashboard
           </button>
-
         </div>
       </div>
     );
   }
 
-  // ============================================================
-  // MAIN PAGE
-  // ============================================================
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
-
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
             My Properties
@@ -432,102 +345,69 @@ const MyProperties = () => {
           <Plus className="w-5 h-5" />
           List New Property
         </button>
-
       </div>
 
-      {/* Stats */}
       {properties.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
-
           <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <p className="text-xs text-gray-500">
-              Total
-            </p>
+            <p className="text-xs text-gray-500">Total</p>
             <p className="text-2xl font-bold text-gray-900">
               {stats.total}
             </p>
-            <p className="text-xs text-gray-400">
-              Properties
-            </p>
+            <p className="text-xs text-gray-400">Properties</p>
           </div>
 
           <div className="bg-white rounded-xl p-4 border border-green-100 shadow-sm">
-            <p className="text-xs text-green-600">
-              Approved
-            </p>
+            <p className="text-xs text-green-600">Approved</p>
             <p className="text-2xl font-bold text-green-700">
               {stats.active}
             </p>
-            <p className="text-xs text-green-500">
-              Listings
-            </p>
+            <p className="text-xs text-green-500">Listings</p>
           </div>
 
           <div className="bg-white rounded-xl p-4 border border-yellow-100 shadow-sm">
-            <p className="text-xs text-yellow-600">
-              Pending
-            </p>
+            <p className="text-xs text-yellow-600">Pending</p>
             <p className="text-2xl font-bold text-yellow-700">
               {stats.pending}
             </p>
-            <p className="text-xs text-yellow-500">
-              Approvals
-            </p>
+            <p className="text-xs text-yellow-500">Approvals</p>
           </div>
 
           <div className="bg-white rounded-xl p-4 border border-red-100 shadow-sm">
-            <p className="text-xs text-red-600">
-              Rejected
-            </p>
+            <p className="text-xs text-red-600">Rejected</p>
             <p className="text-2xl font-bold text-red-700">
               {stats.rejected}
             </p>
-            <p className="text-xs text-red-500">
-              Listings
-            </p>
+            <p className="text-xs text-red-500">Listings</p>
           </div>
 
           <div className="bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
-            <p className="text-xs text-blue-600">
-              Rented
-            </p>
+            <p className="text-xs text-blue-600">Rented</p>
             <p className="text-2xl font-bold text-blue-700">
               {stats.rented}
             </p>
-            <p className="text-xs text-blue-500">
-              Properties
-            </p>
+            <p className="text-xs text-blue-500">Properties</p>
           </div>
-
         </div>
       )}
 
-      {/* Filters */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
-
         <div className="flex flex-col lg:flex-row gap-4">
-
           <button
-            onClick={() =>
-              setShowFilters(!showFilters)
-            }
+            onClick={() => setShowFilters(!showFilters)}
             className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2"
           >
             <Filter className="w-4 h-4" />
-
             Filters
 
             <ChevronDown
               className={`w-4 h-4 transition-transform ${
-                showFilters
-                  ? "rotate-180"
-                  : ""
+                showFilters ? "rotate-180" : ""
               }`}
             />
           </button>
 
           <div className="flex bg-gray-50 rounded-xl p-1 border border-gray-200">
-
             <button
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded-lg transition-all ${
@@ -549,30 +429,18 @@ const MyProperties = () => {
             >
               <List className="w-4 h-4" />
             </button>
-
           </div>
         </div>
 
         <AnimatePresence>
           {showFilters && (
             <motion.div
-              initial={{
-                opacity: 0,
-                height: 0,
-              }}
-              animate={{
-                opacity: 1,
-                height: "auto",
-              }}
-              exit={{
-                opacity: 0,
-                height: 0,
-              }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 mt-4 border-t border-gray-100">
-
-                {/* Status */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1">
                     Status
@@ -585,29 +453,16 @@ const MyProperties = () => {
                     }
                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none"
                   >
-                    <option value="all">
-                      All Status
-                    </option>
-
-                    <option value="approved">
-                      Approved
-                    </option>
-
-                    <option value="pending">
-                      Pending
-                    </option>
-
-                    <option value="rejected">
-                      Rejected
-                    </option>
-
-                    <option value="rented">
-                      Rented
-                    </option>
+                    <option value="all">All Status</option>
+                    <option value="approved">Approved</option>
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="rented">Rented</option>
                   </select>
                 </div>
 
-                {/* Type */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1">
                     Property Type
@@ -621,10 +476,7 @@ const MyProperties = () => {
                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none"
                   >
                     {propertyTypes.map((type) => (
-                      <option
-                        key={type}
-                        value={type}
-                      >
+                      <option key={type} value={type}>
                         {type === "all"
                           ? "All Types"
                           : type}
@@ -633,7 +485,6 @@ const MyProperties = () => {
                   </select>
                 </div>
 
-                {/* Sort */}
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1">
                     Sort By
@@ -663,14 +514,12 @@ const MyProperties = () => {
                     </option>
                   </select>
                 </div>
-
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Result Count */}
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-500">
           Showing{" "}
@@ -681,10 +530,8 @@ const MyProperties = () => {
         </p>
       </div>
 
-      {/* Empty */}
       {filteredProperties.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-
           <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
 
           <h3 className="text-xl font-semibold text-gray-600">
@@ -707,432 +554,299 @@ const MyProperties = () => {
               List New Property
             </button>
           )}
+        </div>
+      ) : viewMode === "grid" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProperties.map((property, index) => {
+            const propertyId = property._id || property.id;
 
+            return (
+              <PropertyCard
+                key={propertyId}
+                property={property}
+                index={index}
+                onClick={() =>
+                  handlePropertyClick(propertyId)
+                }
+              />
+            );
+          })}
         </div>
       ) : (
-        <>
-          {/* GRID */}
-          {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-4">
+          {filteredProperties.map((property, index) => {
+            const propertyId = property._id || property.id;
 
-              {filteredProperties.map(
-                (property, index) => (
-                  <PropertyCard
-                    key={
-                      property._id ||
-                      property.id
-                    }
-                    property={property}
-                    index={index}
-                    onClick={() =>
-                      handlePropertyClick(
-                        property._id ||
-                          property.id
-                      )
-                    }
-                  />
-                )
-              )}
-
-            </div>
-          ) : (
-            /* LIST */
-            <div className="space-y-4">
-
-              {filteredProperties.map(
-                (property, index) => {
-
-                  const propertyId =
-                    property._id ||
-                    property.id;
-
-                  return (
-                    <motion.div
-                      key={propertyId}
-                      initial={{
-                        opacity: 0,
-                        x: -20,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        x: 0,
-                      }}
-                      transition={{
-                        delay: index * 0.05,
-                      }}
-                      onClick={() =>
-                        handlePropertyClick(
-                          propertyId
-                        )
-                      }
-                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
-                    >
-
-                      <div className="flex flex-col sm:flex-row">
-
-                        {/* Image */}
-                        <div className="sm:w-64 h-48 sm:h-auto relative overflow-hidden">
-
-                          <img
-                            src={
-                              property.outerImages?.[0] ||
-                              property.images?.[0] ||
-                              "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400"
-                            }
-                            alt={
-                              property.title ||
-                              "Property"
-                            }
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-
-                          <div className="absolute top-3 left-3">
-
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 border ${getStatusBadge(
-                                property.status
-                              )}`}
-                            >
-                              {getStatusIcon(
-                                property.status
-                              )}
-
-                              {getStatusLabel(
-                                property.status
-                              )}
-                            </span>
-
-                          </div>
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 p-4 flex flex-col justify-between">
-
-                          <div>
-
-                            <div className="flex items-start justify-between">
-
-                              <div>
-
-                                <h4 className="font-semibold text-gray-800 text-lg">
-                                  {property.title ||
-                                    "Untitled Property"}
-                                </h4>
-
-                                <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-
-                                  <MapPin className="w-4 h-4" />
-
-                                  {property.location ||
-                                    "Location not available"}
-
-                                  {property.type && (
-                                    <span className="px-2 py-0.5 bg-gray-100 rounded-full text-xs">
-                                      {property.type}
-                                    </span>
-                                  )}
-
-                                </div>
-
-                              </div>
-
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-
-                                  handleViewDetails(
-                                    property
-                                  );
-                                }}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                              >
-                                <Eye className="w-4 h-4 text-gray-500" />
-                              </button>
-
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-6 text-sm mt-3">
-
-                              <span className="flex items-center gap-1">
-                                <Bed className="w-4 h-4 text-gray-400" />
-
-                                {property.bedrooms ??
-                                  "N/A"}{" "}
-                                Beds
-                              </span>
-
-                              <span className="flex items-center gap-1">
-                                <Bath className="w-4 h-4 text-gray-400" />
-
-                                {property.bathrooms ??
-                                  "N/A"}{" "}
-                                Baths
-                              </span>
-
-                              <span className="flex items-center gap-1">
-                                <Square className="w-4 h-4 text-gray-400" />
-
-                                {property.area ??
-                                  "N/A"}{" "}
-                                sq.ft
-                              </span>
-
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4 text-gray-400" />
-
-                                {property.createdAt
-                                  ? new Date(
-                                      property.createdAt
-                                    ).toLocaleDateString()
-                                  : "N/A"}
-                              </span>
-
-                            </div>
-
-                            <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                              {property.description ||
-                                "No description available."}
-                            </p>
-
-                          </div>
-
-                          <div className="flex flex-wrap items-center justify-between pt-3 mt-3 border-t border-gray-100">
-
-                            <div>
-                              <span className="text-xl font-bold text-gray-900">
-                                ₹
-                                {Number(
-                                  property.price || 0
-                                ).toLocaleString(
-                                  "en-IN"
-                                )}
-                              </span>
-
-                              <span className="text-sm text-gray-500">
-                                /mo
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
-
-                              <Heart className="w-4 h-4" />
-
-                              {property.inquiries ||
-                                0}{" "}
-                              inquiries
-
-                            </div>
-
-                          </div>
-
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                }
-              )}
-
-            </div>
-          )}
-        </>
-      )}
-
-      {/* DETAIL MODAL */}
-      <AnimatePresence>
-        {showDetailModal &&
-          selectedProperty && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              onClick={() =>
-                setShowDetailModal(false)
-              }
-            >
-
+            return (
               <motion.div
-                initial={{
-                  scale: 0.9,
-                  y: 20,
-                }}
-                animate={{
-                  scale: 1,
-                  y: 0,
-                }}
-                exit={{
-                  scale: 0.9,
-                  y: 20,
-                }}
-                className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-                onClick={(e) =>
-                  e.stopPropagation()
+                key={propertyId}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() =>
+                  handlePropertyClick(propertyId)
                 }
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
               >
+                <div className="flex flex-col sm:flex-row">
+                  <div className="sm:w-64 h-48 sm:h-auto relative overflow-hidden">
+                    <img
+                      src={
+                        property.outerImages?.[0] ||
+                        property.images?.[0] ||
+                        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400"
+                      }
+                      alt={property.title || "Property"}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
 
-                {/* Image */}
-                <div className="relative h-64">
-
-                  <img
-                    src={
-                      selectedProperty.outerImages?.[0] ||
-                      selectedProperty.images?.[0] ||
-                      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400"
-                    }
-                    alt={
-                      selectedProperty.title ||
-                      "Property"
-                    }
-                    className="w-full h-full object-cover"
-                  />
-
-                  <button
-                    onClick={() =>
-                      setShowDetailModal(false)
-                    }
-                    className="absolute top-4 right-4 p-2 bg-white/90 rounded-lg hover:bg-white"
-                  >
-                    <X className="w-5 h-5 text-gray-700" />
-                  </button>
-
-                  <div className="absolute bottom-4 left-4">
-
-                    <span
-                      className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-1 border ${getStatusBadge(
-                        selectedProperty.status
-                      )}`}
-                    >
-                      {getStatusIcon(
-                        selectedProperty.status
-                      )}
-
-                      {getStatusLabel(
-                        selectedProperty.status
-                      )}
-                    </span>
-
-                  </div>
-                </div>
-
-                {/* Modal Content */}
-                <div className="p-6">
-
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                    {selectedProperty.title}
-                  </h3>
-
-                  <div className="flex items-center gap-2 text-gray-500 mb-4">
-                    <MapPin className="w-4 h-4" />
-
-                    {selectedProperty.location ||
-                      "Location not available"}
+                    <div className="absolute top-3 left-3">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 border ${getStatusBadge(
+                          property.status
+                        )}`}
+                      >
+                        {getStatusIcon(property.status)}
+                        {getStatusLabel(property.status)}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-6 text-sm mb-4">
+                  <div className="flex-1 p-4 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-800 text-lg">
+                            {property.title ||
+                              "Untitled Property"}
+                          </h4>
 
-                    <span className="flex items-center gap-1">
-                      <Bed className="w-4 h-4 text-gray-400" />
-                      {selectedProperty.bedrooms ??
-                        "N/A"}{" "}
-                      Beds
-                    </span>
+                          <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
+                            <MapPin className="w-4 h-4" />
 
-                    <span className="flex items-center gap-1">
-                      <Bath className="w-4 h-4 text-gray-400" />
-                      {selectedProperty.bathrooms ??
-                        "N/A"}{" "}
-                      Baths
-                    </span>
-
-                    <span className="flex items-center gap-1">
-                      <Square className="w-4 h-4 text-gray-400" />
-                      {selectedProperty.area ??
-                        "N/A"}{" "}
-                      sq.ft
-                    </span>
-
-                  </div>
-
-                  <div className="flex items-center gap-1 mb-4">
-
-                    <IndianRupee className="w-6 h-6 text-green-600" />
-
-                    <span className="text-3xl font-bold text-gray-800">
-                      {Number(
-                        selectedProperty.price || 0
-                      ).toLocaleString("en-IN")}
-                    </span>
-
-                    <span className="text-gray-500">
-                      /month
-                    </span>
-
-                  </div>
-
-                  {/* Description */}
-                  <div className="border-t border-gray-100 pt-4 mt-4">
-
-                    <h4 className="font-semibold text-gray-800 mb-2">
-                      Description
-                    </h4>
-
-                    <p className="text-gray-600 text-sm">
-                      {selectedProperty.description ||
-                        "No description available."}
-                    </p>
-
-                  </div>
-
-                  {/* Amenities */}
-                  {selectedProperty.amenities?.length >
-                    0 && (
-                    <div className="border-t border-gray-100 pt-4 mt-4">
-
-                      <h4 className="font-semibold text-gray-800 mb-2">
-                        Amenities
-                      </h4>
-
-                      <div className="flex flex-wrap gap-2">
-
-                        {selectedProperty.amenities.map(
-                          (amenity, index) => (
-                            <span
-                              key={`${amenity}-${index}`}
-                              className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
-                            >
-                              {amenity}
+                            <span>
+                              {property.location ||
+                                "Location not available"}
                             </span>
-                          )
-                        )}
 
+                            {property.type && (
+                              <span className="px-2 py-0.5 bg-gray-100 rounded-full text-xs">
+                                {property.type}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(property);
+                          }}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <Eye className="w-4 h-4 text-gray-500" />
+                        </button>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-6 text-sm mt-3">
+                        <span className="flex items-center gap-1">
+                          <Bed className="w-4 h-4 text-gray-400" />
+                          {property.bedrooms ?? "N/A"} Beds
+                        </span>
+
+                        <span className="flex items-center gap-1">
+                          <Bath className="w-4 h-4 text-gray-400" />
+                          {property.bathrooms ?? "N/A"} Baths
+                        </span>
+
+                        <span className="flex items-center gap-1">
+                          <Square className="w-4 h-4 text-gray-400" />
+                          {property.area ?? "N/A"} sq.ft
+                        </span>
+
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          {property.createdAt
+                            ? new Date(
+                                property.createdAt
+                              ).toLocaleDateString()
+                            : "N/A"}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                        {property.description ||
+                          "No description available."}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between pt-3 mt-3 border-t border-gray-100">
+                      <div>
+                        <span className="text-xl font-bold text-gray-900">
+                          ₹
+                          {Number(
+                            property.price || 0
+                          ).toLocaleString("en-IN")}
+                        </span>
+
+                        <span className="text-sm text-gray-500">
+                          /mo
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <Heart className="w-4 h-4" />
+                        {property.inquiries || 0} inquiries
                       </div>
                     </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="border-t border-gray-100 pt-4 mt-4 flex justify-end">
-
-                    <button
-                      onClick={() => {
-                        setShowDetailModal(false);
-
-                        handlePropertyClick(
-                          selectedProperty._id ||
-                            selectedProperty.id
-                        );
-                      }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                    >
-                      <Eye className="w-4 h-4" />
-                      Full Details
-                    </button>
-
                   </div>
-
                 </div>
               </motion.div>
+            );
+          })}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {showDetailModal && selectedProperty && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowDetailModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative h-64">
+                <img
+                  src={
+                    selectedProperty.outerImages?.[0] ||
+                    selectedProperty.images?.[0] ||
+                    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400"
+                  }
+                  alt={selectedProperty.title || "Property"}
+                  className="w-full h-full object-cover"
+                />
+
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="absolute top-4 right-4 p-2 bg-white/90 rounded-lg hover:bg-white"
+                >
+                  <X className="w-5 h-5 text-gray-700" />
+                </button>
+
+                <div className="absolute bottom-4 left-4">
+                  <span
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-1 border ${getStatusBadge(
+                      selectedProperty.status
+                    )}`}
+                  >
+                    {getStatusIcon(selectedProperty.status)}
+                    {getStatusLabel(selectedProperty.status)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                  {selectedProperty.title ||
+                    "Untitled Property"}
+                </h3>
+
+                <div className="flex items-center gap-2 text-gray-500 mb-4">
+                  <MapPin className="w-4 h-4" />
+                  {selectedProperty.location ||
+                    "Location not available"}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-6 text-sm mb-4">
+                  <span className="flex items-center gap-1">
+                    <Bed className="w-4 h-4 text-gray-400" />
+                    {selectedProperty.bedrooms ?? "N/A"} Beds
+                  </span>
+
+                  <span className="flex items-center gap-1">
+                    <Bath className="w-4 h-4 text-gray-400" />
+                    {selectedProperty.bathrooms ?? "N/A"} Baths
+                  </span>
+
+                  <span className="flex items-center gap-1">
+                    <Square className="w-4 h-4 text-gray-400" />
+                    {selectedProperty.area ?? "N/A"} sq.ft
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1 mb-4">
+                  <IndianRupee className="w-6 h-6 text-green-600" />
+
+                  <span className="text-3xl font-bold text-gray-800">
+                    {Number(
+                      selectedProperty.price || 0
+                    ).toLocaleString("en-IN")}
+                  </span>
+
+                  <span className="text-gray-500">
+                    /month
+                  </span>
+                </div>
+
+                <div className="border-t border-gray-100 pt-4 mt-4">
+                  <h4 className="font-semibold text-gray-800 mb-2">
+                    Description
+                  </h4>
+
+                  <p className="text-gray-600 text-sm">
+                    {selectedProperty.description ||
+                      "No description available."}
+                  </p>
+                </div>
+
+                {selectedProperty.amenities?.length > 0 && (
+                  <div className="border-t border-gray-100 pt-4 mt-4">
+                    <h4 className="font-semibold text-gray-800 mb-2">
+                      Amenities
+                    </h4>
+
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProperty.amenities.map(
+                        (amenity, index) => (
+                          <span
+                            key={`${amenity}-${index}`}
+                            className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                          >
+                            {amenity}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="border-t border-gray-100 pt-4 mt-4 flex justify-end">
+                  <button
+                    onClick={() => {
+                      setShowDetailModal(false);
+                      handlePropertyClick(
+                        selectedProperty._id ||
+                          selectedProperty.id
+                      );
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Full Details
+                  </button>
+                </div>
+              </div>
             </motion.div>
-          )}
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

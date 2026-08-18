@@ -13,8 +13,15 @@ import {
 } from "lucide-react";
 
 const HostVisitManagement = () => {
+  // =========================================================
+  // STATES
+  // =========================================================
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const [loading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [visits, setVisits] = useState([
     {
@@ -74,54 +81,99 @@ const HostVisitManagement = () => {
     },
   ]);
 
-  const updateVisitStatus = (id, status) => {
-    setVisits((prevVisits) =>
-      prevVisits.map((visit) =>
-        visit.id === id ? { ...visit, status } : visit
-      )
+  // =========================================================
+  // HELPERS
+  // =========================================================
+
+  const getVisitId = (visit) => {
+    return visit?._id || visit?.id;
+  };
+
+  const getVisitorName = (visit) => {
+    return (
+      visit?.visitorName ||
+      visit?.tenantName ||
+      visit?.tenant?.name ||
+      "Unknown Visitor"
     );
   };
 
+  const getVisitorEmail = (visit) => {
+    return (
+      visit?.email ||
+      visit?.tenantEmail ||
+      visit?.tenant?.email ||
+      "No email"
+    );
+  };
+
+  const getPropertyName = (visit) => {
+    return (
+      visit?.propertyName ||
+      visit?.property?.title ||
+      visit?.property?.name ||
+      "Property"
+    );
+  };
+
+  const getLocation = (visit) => {
+    return (
+      visit?.location ||
+      visit?.property?.location ||
+      "Location not available"
+    );
+  };
+
+  const getVisitDate = (visit) => {
+    return visit?.visitDate || visit?.date || "Date not available";
+  };
+
+  const getVisitTime = (visit) => {
+    return visit?.visitTime || visit?.time || "Time not available";
+  };
+
+  // =========================================================
+  // UPDATE STATUS
+  // =========================================================
+
+  const updateVisitStatus = (id, status) => {
+    setVisits((prevVisits) =>
+      prevVisits.map((visit) => {
+        const visitId = getVisitId(visit);
+
+        if (String(visitId) === String(id)) {
+          return {
+            ...visit,
+            status,
+          };
+        }
+
+        return visit;
+      })
+    );
+  };
+
+  // =========================================================
+  // FILTER VISITS
+  // =========================================================
+
   const filteredVisits = useMemo(() => {
+    const search = searchTerm.toLowerCase().trim();
+
     return visits.filter((visit) => {
-      const search = searchTerm.toLowerCase().trim();
-
-      const visitorName = (
-        visit.visitorName ||
-        visit.tenantName ||
-        visit.tenant?.name ||
-        ""
-      ).toLowerCase();
-
-      const email = (
-        visit.email ||
-        visit.tenantEmail ||
-        visit.tenant?.email ||
-        ""
-      ).toLowerCase();
-
-      const propertyName = (
-        visit.propertyName ||
-        visit.property?.title ||
-        visit.property?.name ||
-        ""
-      ).toLowerCase();
-
-      const location = (
-        visit.location ||
-        visit.property?.location ||
-        ""
-      ).toLowerCase();
+      const visitorName = getVisitorName(visit).toLowerCase();
+      const email = getVisitorEmail(visit).toLowerCase();
+      const propertyName = getPropertyName(visit).toLowerCase();
+      const location = getLocation(visit).toLowerCase();
 
       const matchesSearch =
-        visit.visitorName.toLowerCase().includes(search) ||
-        visit.email.toLowerCase().includes(search) ||
-        visit.propertyName.toLowerCase().includes(search) ||
-        visit.location.toLowerCase().includes(search);
+        visitorName.includes(search) ||
+        email.includes(search) ||
+        propertyName.includes(search) ||
+        location.includes(search);
 
       const matchesStatus =
-        statusFilter === "all" ||
-        visit.status === statusFilter;
+        statusFilter === "all" || visit.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -151,60 +203,11 @@ const HostVisitManagement = () => {
   };
 
   const formatStatus = (status) => {
-    if (!status) return "Unknown";
+    if (!status) {
+      return "Unknown";
+    }
 
     return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-
-  // =========================================================
-  // VISIT HELPERS
-  // =========================================================
-
-  const getVisitId = (visit) => {
-    return visit._id || visit.id;
-  };
-
-  const getVisitorName = (visit) => {
-    return (
-      visit.visitorName ||
-      visit.tenantName ||
-      visit.tenant?.name ||
-      "Unknown Visitor"
-    );
-  };
-
-  const getVisitorEmail = (visit) => {
-    return (
-      visit.email ||
-      visit.tenantEmail ||
-      visit.tenant?.email ||
-      "No email"
-    );
-  };
-
-  const getPropertyName = (visit) => {
-    return (
-      visit.propertyName ||
-      visit.property?.title ||
-      visit.property?.name ||
-      "Property"
-    );
-  };
-
-  const getLocation = (visit) => {
-    return (
-      visit.location ||
-      visit.property?.location ||
-      "Location not available"
-    );
-  };
-
-  const getVisitDate = (visit) => {
-    return visit.visitDate || visit.date || "Date not available";
-  };
-
-  const getVisitTime = (visit) => {
-    return visit.visitTime || visit.time || "Time not available";
   };
 
   // =========================================================
@@ -233,7 +236,7 @@ const HostVisitManagement = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
 
-        {/* Header */}
+        {/* HEADER */}
         <div className="mb-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -242,7 +245,8 @@ const HostVisitManagement = () => {
               </h1>
 
               <p className="mt-2 text-sm text-gray-500 sm:text-base">
-                Manage property visit requests and keep track of scheduled visits.
+                Manage property visit requests and keep track of scheduled
+                visits.
               </p>
             </div>
 
@@ -265,7 +269,7 @@ const HostVisitManagement = () => {
           </div>
         </div>
 
-        {/* Error Message */}
+        {/* ERROR */}
         {errorMessage && (
           <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             <span>{errorMessage}</span>
@@ -280,7 +284,7 @@ const HostVisitManagement = () => {
           </div>
         )}
 
-        {/* Statistics */}
+        {/* STATISTICS */}
         <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
 
           {/* Pending */}
@@ -386,10 +390,9 @@ const HostVisitManagement = () => {
               </div>
             </div>
           </motion.div>
-
         </div>
 
-        {/* Search + Filter */}
+        {/* SEARCH + FILTER */}
         <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row">
 
@@ -404,14 +407,12 @@ const HostVisitManagement = () => {
                 type="text"
                 placeholder="Search visitor, property or location..."
                 value={searchTerm}
-                onChange={(e) =>
-                  setSearchTerm(e.target.value)
-                }
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-700 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
               />
             </div>
 
-            {/* Status Filter */}
+            {/* Filter */}
             <div className="relative sm:w-52">
               <Filter
                 size={17}
@@ -420,9 +421,7 @@ const HostVisitManagement = () => {
 
               <select
                 value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(e.target.value)
-                }
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-9 text-sm font-medium text-gray-700 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
               >
                 <option value="all">All Status</option>
@@ -436,21 +435,16 @@ const HostVisitManagement = () => {
                 ▼
               </span>
             </div>
-
           </div>
         </div>
 
-        {/* =====================================================
-            DESKTOP TABLE
-        ====================================================== */}
-
+        {/* DESKTOP TABLE */}
         <div className="hidden overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:block">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1000px]">
 
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/80">
-
                   <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-400">
                     Visitor
                   </th>
@@ -474,26 +468,27 @@ const HostVisitManagement = () => {
                   <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-400">
                     Action
                   </th>
-
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-100">
 
-                <AnimatePresence>
-                  {filteredVisits.map((visit) => (
-                    <motion.tr
-                      key={visit.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="transition hover:bg-gray-50/70"
-                    >
+                <AnimatePresence mode="popLayout">
+                  {filteredVisits.map((visit) => {
+                    const id = getVisitId(visit);
+
+                    return (
+                      <motion.tr
+                        key={id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="transition hover:bg-gray-50/70"
+                      >
 
                         {/* Visitor */}
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
-
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600">
                               <User size={19} />
                             </div>
@@ -507,7 +502,6 @@ const HostVisitManagement = () => {
                                 {getVisitorEmail(visit)}
                               </p>
                             </div>
-
                           </div>
                         </td>
 
@@ -562,50 +556,44 @@ const HostVisitManagement = () => {
                         <td className="px-6 py-5">
                           <div className="flex justify-center gap-2">
 
-                          {visit.status === "pending" && (
-                            <>
-                              <button
-                                onClick={() =>
-                                  updateVisitStatus(
-                                    visit.id,
-                                    "approved"
-                                  )
-                                }
-                                className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-600"
-                              >
-                                <Check size={14} />
-                                Approve
-                              </button>
+                            {visit.status === "pending" && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    updateVisitStatus(id, "approved")
+                                  }
+                                  className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-600"
+                                >
+                                  <Check size={14} />
+                                  Approve
+                                </button>
 
-                              <button
-                                onClick={() =>
-                                  updateVisitStatus(
-                                    visit.id,
-                                    "rejected"
-                                  )
-                                }
-                                className="flex items-center gap-1.5 rounded-lg bg-red-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-600"
-                              >
-                                <X size={14} />
-                                Reject
-                              </button>
-                            </>
-                          )}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    updateVisitStatus(id, "rejected")
+                                  }
+                                  className="flex items-center gap-1.5 rounded-lg bg-red-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-600"
+                                >
+                                  <X size={14} />
+                                  Reject
+                                </button>
+                              </>
+                            )}
 
-                          {visit.status === "approved" && (
-                            <button
-                              onClick={() =>
-                                updateVisitStatus(
-                                  visit.id,
-                                  "completed"
-                                )
-                              }
-                              className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary-600"
-                            >
-                              <CheckCircle2 size={14} />
-                              Mark Done
-                            </button>
-                          )}
+                            {visit.status === "approved" && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateVisitStatus(id, "completed")
+                                }
+                                className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary-600"
+                              >
+                                <CheckCircle2 size={14} />
+                                Mark Done
+                              </button>
+                            )}
 
                             {visit.status === "completed" && (
                               <span className="text-xs font-semibold text-green-600">
@@ -621,7 +609,6 @@ const HostVisitManagement = () => {
 
                           </div>
                         </td>
-
                       </motion.tr>
                     )
                   )};
@@ -631,6 +618,7 @@ const HostVisitManagement = () => {
             </table>
           </div>
 
+          {/* Desktop Empty State */}
           {filteredVisits.length === 0 && (
             <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
@@ -648,15 +636,11 @@ const HostVisitManagement = () => {
           )}
         </div>
 
-        {/* =====================================================
-            MOBILE CARDS
-        ====================================================== */}
-
+        {/* MOBILE CARDS */}
         <div className="space-y-4 lg:hidden">
 
           {filteredVisits.length === 0 ? (
             <div className="rounded-2xl border border-gray-100 bg-white px-6 py-16 text-center shadow-sm">
-
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
                 <CalendarDays size={28} />
               </div>
@@ -668,19 +652,28 @@ const HostVisitManagement = () => {
               <p className="mt-1 text-sm text-gray-400">
                 Try changing your search or status filter.
               </p>
-
             </div>
           ) : (
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
+
               {filteredVisits.map((visit) => {
                 const id = getVisitId(visit);
 
                 return (
                   <motion.div
                     key={id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
+                    initial={{
+                      opacity: 0,
+                      y: 15,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: -15,
+                    }}
                     className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
                   >
 
@@ -688,7 +681,6 @@ const HostVisitManagement = () => {
                     <div className="flex items-start justify-between gap-3">
 
                       <div className="flex items-center gap-3">
-
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600">
                           <User size={19} />
                         </div>
@@ -702,7 +694,6 @@ const HostVisitManagement = () => {
                             {getVisitorEmail(visit)}
                           </p>
                         </div>
-
                       </div>
 
                       <span
@@ -712,12 +703,10 @@ const HostVisitManagement = () => {
                       >
                         {formatStatus(visit.status)}
                       </span>
-
                     </div>
 
                     {/* Property */}
                     <div className="mt-4 rounded-xl bg-gray-50 p-3">
-
                       <p className="text-sm font-bold text-gray-800">
                         {getPropertyName(visit)}
                       </p>
@@ -726,12 +715,12 @@ const HostVisitManagement = () => {
                         <MapPin size={13} />
                         {getLocation(visit)}
                       </div>
-
                     </div>
 
                     {/* Visit Info */}
                     <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
 
+                      {/* Date */}
                       <div className="flex items-center gap-2">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-primary-500">
                           <CalendarDays size={16} />
@@ -748,6 +737,7 @@ const HostVisitManagement = () => {
                         </div>
                       </div>
 
+                      {/* Time */}
                       <div className="flex items-center gap-2">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-primary-500">
                           <Clock size={16} />
@@ -769,51 +759,48 @@ const HostVisitManagement = () => {
                     {/* Actions */}
                     <div className="mt-4 flex gap-2">
 
-                    {visit.status === "pending" && (
-                      <>
+                      {/* Pending */}
+                      {visit.status === "pending" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateVisitStatus(id, "approved")
+                            }
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-green-500 py-2.5 text-xs font-bold text-white transition hover:bg-green-600"
+                          >
+                            <Check size={15} />
+                            Approve
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateVisitStatus(id, "rejected")
+                            }
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-500 py-2.5 text-xs font-bold text-white transition hover:bg-red-600"
+                          >
+                            <X size={15} />
+                            Reject
+                          </button>
+                        </>
+                      )}
+
+                      {/* Approved */}
+                      {visit.status === "approved" && (
                         <button
+                          type="button"
                           onClick={() =>
-                            updateVisitStatus(
-                              visit.id,
-                              "approved"
-                            )
+                            updateVisitStatus(id, "completed")
                           }
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-green-500 py-2.5 text-xs font-bold text-white transition hover:bg-green-600"
+                          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 py-2.5 text-xs font-bold text-white transition hover:bg-primary-600"
                         >
-                          <Check size={15} />
-                          Approve
+                          <CheckCircle2 size={15} />
+                          Mark Visit as Done
                         </button>
+                      )}
 
-                        <button
-                          onClick={() =>
-                            updateVisitStatus(
-                              visit.id,
-                              "rejected"
-                            )
-                          }
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-500 py-2.5 text-xs font-bold text-white transition hover:bg-red-600"
-                        >
-                          <X size={15} />
-                          Reject
-                        </button>
-                      </>
-                    )}
-
-                    {visit.status === "approved" && (
-                      <button
-                        onClick={() =>
-                          updateVisitStatus(
-                            visit.id,
-                            "completed"
-                          )
-                        }
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 py-2.5 text-xs font-bold text-white transition hover:bg-primary-600"
-                      >
-                        <CheckCircle2 size={15} />
-                        Mark Visit as Done
-                      </button>
-                    )}
-
+                      {/* Completed */}
                       {visit.status === "completed" && (
                         <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-50 py-2.5 text-xs font-bold text-green-600">
                           <CheckCircle2 size={15} />
@@ -821,6 +808,7 @@ const HostVisitManagement = () => {
                         </div>
                       )}
 
+                      {/* Rejected */}
                       {visit.status === "rejected" && (
                         <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-50 py-2.5 text-xs font-bold text-red-500">
                           <X size={15} />
@@ -829,15 +817,14 @@ const HostVisitManagement = () => {
                       )}
 
                     </div>
-
                   </motion.div>
                 );
               })}
+
             </AnimatePresence>
           )}
 
         </div>
-
       </div>
     </div>
   );

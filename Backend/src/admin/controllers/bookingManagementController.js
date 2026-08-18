@@ -1,4 +1,4 @@
-const Booking = require('../../tenant/models/Booking');
+const Booking = require('../../User/models/Booking');
 const { success, error } = require('../../common/utils/response');
 
 /**

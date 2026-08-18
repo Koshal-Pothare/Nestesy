@@ -1,12 +1,26 @@
 const express = require("express");
 
+const {
+  registerOwner,
+  loginOwner,
+} = require("../controllers/ownerAuthController");
+
 const router = express.Router();
 
-const { registerOwner, loginOwner, getMe } = require('../controllers/ownerAuthController');
-const { protect, authorize } = require('../../common/middleware/authMiddleware');
+// =====================================
+// OWNER AUTH ROUTES
+// =====================================
 
-router.post('/register', registerOwner);
-router.post('/login', loginOwner);
-router.get('/me', protect, authorize('owner'), getMe);
+// Register
+router.post(
+  "/register",
+  registerOwner
+);
+
+// Login
+router.post(
+  "/login",
+  loginOwner
+);
 
 module.exports = router;

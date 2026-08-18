@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const API = axios.create({
@@ -9,14 +8,21 @@ const API = axios.create({
   },
 });
 
-// Attach owner JWT to every request
+// =====================================
+// ATTACH OWNER JWT
+// =====================================
+
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("ownerToken");
+    const token =
+      localStorage.getItem("ownerToken");
 
     if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers =
+        config.headers || {};
+
+      config.headers.Authorization =
+        `Bearer ${token}`;
     }
 
     return config;
@@ -26,20 +32,34 @@ API.interceptors.request.use(
   }
 );
 
-// Handle authentication errors
+// =====================================
+// RESPONSE INTERCEPTOR
+// =====================================
+
 API.interceptors.response.use(
   (response) => response,
 
   (error) => {
-    const status = error.response?.status;
+    const status =
+      error.response?.status;
 
-    if (status === 401 || status === 403) {
-      localStorage.removeItem("ownerToken");
-      localStorage.removeItem("owner");
+    console.error("API Error:", {
+      status,
+      message:
+        error.response?.data?.message,
+      data: error.response?.data,
+      url: error.config?.url,
+    });
 
-      console.error(
-        `Owner authentication failed (${status})`,
-        error.response?.data
+    // Only clear token when authentication
+    // is actually invalid.
+    if (status === 401) {
+      localStorage.removeItem(
+        "ownerToken"
+      );
+
+      localStorage.removeItem(
+        "owner"
       );
     }
 
@@ -48,4 +68,3 @@ API.interceptors.response.use(
 );
 
 export default API;
-

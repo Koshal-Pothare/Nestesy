@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const Admin = require('../../admin/models/Admin');
 const Owner = require('../../owner/models/Owner');
-const Tenant = require('../../tenant/models/Tenant');
+const Tenant = require('../../User/models/Tenant');
 const generateToken = require('../utils/generateToken');
 const { success, error } = require('../utils/response');
 

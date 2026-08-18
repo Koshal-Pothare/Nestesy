@@ -1,12 +1,12 @@
 import API from "./api";
 
-// ===============================
+// =====================================
 // OWNER AUTH
-// ===============================
+// =====================================
 
 export const registerOwner = (ownerData) => {
   return API.post(
-    "/owners/register",
+    "/owner/auth/register",
     ownerData
   );
 };
@@ -16,7 +16,7 @@ export const loginOwner = (
   password
 ) => {
   return API.post(
-    "/owners/login",
+    "/owner/auth/login",
     {
       email,
       password,
@@ -24,16 +24,26 @@ export const loginOwner = (
   );
 };
 
-export const logoutOwner = () => {
-  return API.post("/owners/logout");
+export const getOwnerMe = () => {
+  return API.get(
+    "/owner/auth/me"
+  );
 };
 
-// ===============================
+export const logoutOwner = () => {
+  return API.post(
+    "/owner/auth/logout"
+  );
+};
+
+// =====================================
 // OWNER PROPERTIES
-// ===============================
+// =====================================
 
 export const getMyProperties = () => {
-  return API.get("/owners/properties");
+  return API.get(
+    "/owners/properties"
+  );
 };
 
 export const getPropertyById = (id) => {
@@ -54,15 +64,13 @@ export const updatePropertyStatus = (
 ) => {
   return API.patch(
     `/owners/properties/${id}/status`,
-    {
-      status,
-    }
+    { status }
   );
 };
 
-// ===============================
+// =====================================
 // OWNER DASHBOARD
-// ===============================
+// =====================================
 
 export const getDashboardStats = () => {
   return API.get(
@@ -70,12 +78,14 @@ export const getDashboardStats = () => {
   );
 };
 
-// ===============================
+// =====================================
 // OWNER PROFILE
-// ===============================
+// =====================================
 
 export const getOwnerProfile = () => {
-  return API.get("/owners/profile");
+  return API.get(
+    "/owners/profile"
+  );
 };
 
 export const updateOwnerProfile = (

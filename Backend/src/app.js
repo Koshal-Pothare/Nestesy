@@ -4,28 +4,36 @@ const cors = require("cors");
 
 const connectDB = require("./config/database");
 
-const { notFound, errorHandler } = require('./common/middleware/errorMiddleware');
+const {
+  notFound,
+  errorHandler,
+} = require("./common/middleware/errorMiddleware");
 
-// Admin routes
-const adminAuthRoutes = require('./admin/routes/adminAuthRoutes');
+const commonAuthRoutes = require("./common/routes/commonAuthRoutes");
 
-// Owner routes
-const ownerAuthRoutes = require('./owner/routes/ownerAuthRoutes');
+const adminAuthRoutes = require("./admin/routes/adminAuthRoutes");
+const adminDashboardRoutes = require("./admin/routes/adminDashboardRoutes");
+const ownerManagementRoutes = require("./admin/routes/ownerManagementRoutes");
+const tenantManagementRoutes = require("./admin/routes/tenantManagementRoutes");
+const propertyManagementRoutes = require("./admin/routes/propertyManagementRoutes");
+const bookingManagementRoutes = require("./admin/routes/bookingManagementRoutes");
+const reviewManagementRoutes = require("./admin/routes/reviewManagementRoutes");
 
-// Tenant routes
-const tenantAuthRoutes = require('./tenant/routes/tenantAuthRoutes');
+const ownerAuthRoutes = require("./owner/routes/ownerAuthRoutes");
+const propertyRoutes = require("./owner/routes/propertyRoutes");
+const ownerDashboardRoutes = require("./owner/routes/ownerDashboardRoutes");
+const visitRoutes = require("./owner/routes/visitRoutes");
+const analyticsRoutes = require("./owner/routes/analyticsRoutes");
+const roomRoutes = require("./owner/routes/roomRoutes");
+const ownerProfileRoutes = require("./owner/routes/ownerProfileRoutes");
+
+const tenantAuthRoutes = require("./User/routes/tenantAuthRoutes");
+
+const publicPropertyRoutes = require("./public/routes/publicPropertyRoutes");
 
 const app = express();
 
-// ===============================
-// DATABASE
-// ===============================
-
 connectDB();
-
-// ===============================
-// CORS
-// ===============================
 
 app.use(
   cors({
@@ -34,22 +42,10 @@ app.use(
   })
 );
 
-// ===============================
-// BODY PARSERS
-// ===============================
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ===============================
-// COOKIE PARSER
-// ===============================
-
 app.use(cookieParser());
-
-// ===============================
-// ROOT
-// ===============================
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -58,10 +54,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// ===============================
-// HEALTH CHECK
-// ===============================
-
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
@@ -69,46 +61,29 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// --- Role-based routes ---
-app.use('/api/admin/auth', adminAuthRoutes);
-app.use('/api/owner/auth', ownerAuthRoutes);
-app.use('/api/tenant/auth', tenantAuthRoutes);
+app.use("/api/auth", commonAuthRoutes);
 
-// ==================================================
-// OWNER ROOMS
-// ==================================================
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/admin/dashboard", adminDashboardRoutes);
+app.use("/api/admin/owners", ownerManagementRoutes);
+app.use("/api/admin/tenants", tenantManagementRoutes);
+app.use("/api/admin/properties", propertyManagementRoutes);
+app.use("/api/admin/bookings", bookingManagementRoutes);
+app.use("/api/admin/reviews", reviewManagementRoutes);
 
-app.use(
-  "/api/owners",
-  roomRoutes
-);
+app.use("/api/owner/auth", ownerAuthRoutes);
+app.use("/api/owners/properties", propertyRoutes);
+app.use("/api/owners/dashboard", ownerDashboardRoutes);
+app.use("/api/owners/visits", visitRoutes);
+app.use("/api/owners/analytics", analyticsRoutes);
+app.use("/api/owners", roomRoutes);
+app.use("/api/owners", ownerProfileRoutes);
 
-// ==================================================
-// OWNER PROFILE
-// ==================================================
+app.use("/api/tenant/auth", tenantAuthRoutes);
 
-app.use(
-  "/api/owners",
-  ownerProfileRoutes
-);
-
-// ==================================================
-// PUBLIC PROPERTIES
-// ==================================================
-
-app.use(
-  "/api/properties",
-  publicPropertyRoutes
-);
-
-// ==================================================
-// 404
-// ==================================================
+app.use("/api/properties", publicPropertyRoutes);
 
 app.use(notFound);
-
-
-
 app.use(errorHandler);
 
 module.exports = app;
