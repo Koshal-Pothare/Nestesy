@@ -21,11 +21,6 @@ const AdminPropertyVerification = () => {
     rejected: 0
   });
   const [actionLoading, setActionLoading] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectNotes, setRejectNotes] = useState('');
-  const [selectedPropertyId, setSelectedPropertyId] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deletePropertyId, setDeletePropertyId] = useState(null);
 
   // Load properties from localStorage
   useEffect(() => {
@@ -108,73 +103,14 @@ const AdminPropertyVerification = () => {
     setFilteredProperties(filtered);
   }, [filterStatus, searchTerm, properties]);
 
-  // Handle verification action - KEEP property after verification
+  // COMMENTED OUT: Verification actions - removed as per requirement
+  // Only keeping property view functionality
+  /*
   const handleVerificationAction = (propertyId, action, notes = '') => {
-    setActionLoading(true);
-    
-    setTimeout(() => {
-      const stored = localStorage.getItem('hostProperties');
-      if (stored) {
-        const allProperties = JSON.parse(stored);
-        const updatedProperties = allProperties.map(p => {
-          if (p.id === propertyId) {
-            if (action === 'verify') {
-              return {
-                ...p,
-                status: 'Active',
-                verification: {
-                  ...p.verification,
-                  verified: true,
-                  verifiedAt: new Date().toISOString(),
-                  adminNotes: notes || 'Property verified by admin',
-                  status: 'approved'
-                },
-                liveDate: new Date().toISOString().split('T')[0]
-              };
-            } else if (action === 'reject') {
-              return {
-                ...p,
-                status: 'Inactive',
-                verification: {
-                  ...p.verification,
-                  verified: false,
-                  verifiedAt: new Date().toISOString(),
-                  adminNotes: notes || 'Property rejected by admin',
-                  status: 'rejected'
-                }
-              };
-            } else if (action === 'delete') {
-              return null; // Only delete if admin explicitly clicks delete
-            }
-          }
-          return p;
-        }).filter(p => p !== null);
-        
-        localStorage.setItem('hostProperties', JSON.stringify(updatedProperties));
-        loadProperties();
-        
-        // Show success message
-        const message = action === 'verify' ? '✅ Property Verified Successfully!' :
-                       action === 'reject' ? '❌ Property Rejected' :
-                       '🗑️ Property Deleted';
-        alert(message);
-      }
-      setActionLoading(false);
-      setShowDetailModal(false);
-      setShowRejectModal(false);
-      setShowDeleteConfirm(false);
-      setRejectNotes('');
-      setSelectedPropertyId(null);
-      setDeletePropertyId(null);
-    }, 1000);
+    // This function handled verify/reject/delete actions
+    // Now removed to keep only property details viewing
   };
-
-  // Handle delete with confirmation
-  const handleDelete = (propertyId) => {
-    if (window.confirm('⚠️ Are you sure you want to permanently delete this property? This action cannot be undone!')) {
-      handleVerificationAction(propertyId, 'delete');
-    }
-  };
+  */
 
   const getStatusBadge = (property) => {
     const status = property.status;
@@ -218,7 +154,7 @@ const AdminPropertyVerification = () => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading verification requests...</p>
+          <p className="text-gray-500">Loading properties...</p>
         </div>
       </div>
     );
@@ -231,9 +167,9 @@ const AdminPropertyVerification = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <Shield className="w-8 h-8 text-blue-600" />
-            Property Verification
+            Property Management
           </h1>
-          <p className="text-gray-500 mt-1">Review and verify property listings submitted by hosts</p>
+          <p className="text-gray-500 mt-1">View all property listings</p>
         </div>
         <div className="flex gap-3 mt-4 sm:mt-0">
           <button
@@ -411,7 +347,7 @@ const AdminPropertyVerification = () => {
                       )}
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Action Buttons - Only View Details */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-3 border-t border-gray-100">
                       <button
                         onClick={() => {
@@ -424,40 +360,8 @@ const AdminPropertyVerification = () => {
                         View Details
                       </button>
                       
-                      <div className="flex flex-wrap gap-2">
-                        {property.status === 'Pending' && (
-                          <>
-                            <button
-                              onClick={() => handleVerificationAction(property.id, 'verify')}
-                              disabled={actionLoading}
-                              className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2"
-                            >
-                              <CheckCircle className="w-4 h-4" />
-                              Verify
-                            </button>
-                            <button
-                              onClick={() => {
-                                setSelectedPropertyId(property.id);
-                                setShowRejectModal(true);
-                              }}
-                              disabled={actionLoading}
-                              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors flex items-center gap-2"
-                            >
-                              <XCircle className="w-4 h-4" />
-                              Reject
-                            </button>
-                          </>
-                        )}
-                        {/* Show Delete button for all properties */}
-                        <button
-                          onClick={() => handleDelete(property.id)}
-                          disabled={actionLoading}
-                          className="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors flex items-center gap-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </button>
-                      </div>
+                      {/* COMMENTED OUT: Verification and Delete buttons removed */}
+                      {/* Only keep View Details button */}
                     </div>
                   </div>
                 </div>
@@ -467,57 +371,7 @@ const AdminPropertyVerification = () => {
         </div>
       )}
 
-      {/* Reject Modal */}
-      <AnimatePresence>
-        {showRejectModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowRejectModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-2xl max-w-md w-full p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Reject Property</h3>
-              <p className="text-sm text-gray-500 mb-4">Please provide a reason for rejection:</p>
-              <textarea
-                value={rejectNotes}
-                onChange={(e) => setRejectNotes(e.target.value)}
-                rows="4"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none resize-none"
-                placeholder="Enter rejection reason..."
-              />
-              <div className="flex gap-3 mt-4">
-                <button
-                  onClick={() => {
-                    if (selectedPropertyId) {
-                      handleVerificationAction(selectedPropertyId, 'reject', rejectNotes);
-                    }
-                  }}
-                  disabled={actionLoading}
-                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  {actionLoading ? 'Processing...' : 'Reject Property'}
-                </button>
-                <button
-                  onClick={() => setShowRejectModal(false)}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Detail Modal */}
+      {/* Detail Modal - Only showing property details, no verification actions */}
       <AnimatePresence>
         {showDetailModal && selectedProperty && (
           <motion.div
@@ -536,7 +390,7 @@ const AdminPropertyVerification = () => {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-gray-800">Verification Details</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">Property Details</h2>
                   <button
                     onClick={() => setShowDetailModal(false)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -624,7 +478,7 @@ const AdminPropertyVerification = () => {
                   <div className="border-t border-gray-100 pt-4 mt-4">
                     <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                       <User className="w-5 h-5 text-blue-600" />
-                      Owner Verification Details
+                      Owner Details
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -719,47 +573,13 @@ const AdminPropertyVerification = () => {
                   </div>
                 )}
 
-                {/* Action Buttons */}
+                {/* Close Button Only - No Verification Actions */}
                 <div className="border-t border-gray-100 pt-4 mt-4 flex flex-wrap gap-3">
-                  {selectedProperty.status === 'Pending' && (
-                    <>
-                      <button
-                        onClick={() => handleVerificationAction(selectedProperty.id, 'verify')}
-                        disabled={actionLoading}
-                        className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <CheckCircle className="w-5 h-5" />
-                        Verify & Approve
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedPropertyId(selectedProperty.id);
-                          setShowRejectModal(true);
-                          setShowDetailModal(false);
-                        }}
-                        disabled={actionLoading}
-                        className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <XCircle className="w-5 h-5" />
-                        Reject
-                      </button>
-                    </>
-                  )}
-                  
-                  {/* Delete button always visible */}
                   <button
-                    onClick={() => {
-                      if (window.confirm('⚠️ Are you sure you want to permanently delete this property? This action cannot be undone!')) {
-                        handleVerificationAction(selectedProperty.id, 'delete');
-                      }
-                    }}
-                    disabled={actionLoading}
-                    className={`${
-                      selectedProperty.status === 'Pending' ? 'w-full mt-2' : 'w-full'
-                    } px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors flex items-center justify-center gap-2`}
+                    onClick={() => setShowDetailModal(false)}
+                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                   >
-                    <Trash2 className="w-5 h-5" />
-                    Delete Property
+                    Close
                   </button>
                 </div>
               </div>

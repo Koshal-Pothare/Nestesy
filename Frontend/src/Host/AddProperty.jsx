@@ -28,7 +28,8 @@ import {
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import PropertyVerification from "./PropertyVerification";
+ 
+// import PropertyVerification from "./PropertyVerification";
 
 const AVAILABLE_AMENITIES = [
   "Parking",
@@ -98,13 +99,15 @@ const createInitialFormData = () => ({
   bathroomImages: [],
   balconyImages: [],
   kitchenImages: [],
-  bedroomImages: [],
-  ownerName: "",
-  ownerEmail: "",
-  ownerPhone: "",
-  propertyAddress: "",
-  verificationDocs: {},
-  additionalNotes: "",
+  bedroomImages: [], 
+
+
+  // ownerName: "",
+  // ownerEmail: "",
+  // ownerPhone: "",
+  // propertyAddress: "",
+  // verificationDocs: {},
+  // additionalNotes: "",
 });
 
 const ImagePreview = ({ file, alt = "Property preview" }) => {
@@ -148,7 +151,9 @@ const ImagePreview = ({ file, alt = "Property preview" }) => {
 
 const AddProperty = () => {
   const navigate = useNavigate();
-  const verificationRef = useRef(null);
+
+  //   Verification ref 
+  // const verificationRef = useRef(null);
 
   const [formData, setFormData] = useState(createInitialFormData);
   const [notification, setNotification] = useState(null);
@@ -456,6 +461,8 @@ const AddProperty = () => {
     return true;
   };
 
+  //  Verification validation
+  /*
   const validateVerification = () => {
     if (
       verificationRef.current &&
@@ -466,6 +473,7 @@ const AddProperty = () => {
 
     return true;
   };
+  */
 
   const appendValue = (target, key, value) => {
     if (value !== undefined && value !== null) {
@@ -491,6 +499,8 @@ const AddProperty = () => {
         return;
       }
 
+      //  Verification validation
+      /*
       if (!validateVerification()) {
         showNotification(
           "Please complete all verification fields.",
@@ -499,6 +509,7 @@ const AddProperty = () => {
 
         return;
       }
+      */
 
       const formDataToSend = new FormData();
 
@@ -553,6 +564,8 @@ const AddProperty = () => {
         JSON.stringify(formData.idealFor)
       );
 
+      //  Verification fields
+      /*
       appendValue(
         formDataToSend,
         "ownerName",
@@ -592,6 +605,7 @@ const AddProperty = () => {
           JSON.stringify(formData.verificationDocs)
         );
       }
+      */
 
       formData.outerImages.forEach((file) => {
         if (file instanceof File) {
@@ -648,8 +662,9 @@ const AddProperty = () => {
         );
       }
 
+      // Using the public properties endpoint
       const response = await fetch(
-        "http://localhost:5000/api/owners/properties",
+        "http://localhost:5000/api/properties",
         {
           method: "POST",
           headers: {
@@ -675,20 +690,20 @@ const AddProperty = () => {
       }
 
       showNotification(
-        "Property submitted for verification successfully!",
+        "Property listed successfully!",
         "success"
       );
 
       setTimeout(() => {
         resetForm();
-        navigate("/host/my-properties");
+        navigate("/explore");
       }, 1200);
     } catch (error) {
       console.error("Error submitting property:", error);
 
       showNotification(
         error?.message ||
-          "Failed to save property. Please try again.",
+          "Failed to list property. Please try again.",
         "error"
       );
     } finally {
@@ -909,10 +924,13 @@ const AddProperty = () => {
           </div>
         </div>
 
+        {/*  Verification badge */}
+        {/*
         <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full flex items-center gap-1">
           <Shield className="w-3 h-3" />
           Verification Required
         </span>
+        */}
       </div>
 
       <form
@@ -1297,8 +1315,7 @@ const AddProperty = () => {
                 removeHandler: (index) =>
                   removeImage(
                     "balconyImages",
-                    index
-                  ),
+                    index                  ),
                 icon: (
                   <Grid3x3 className="w-5 h-5 text-gray-400" />
                 ),
@@ -1496,11 +1513,12 @@ const AddProperty = () => {
             </div>
           </section>
 
-          <PropertyVerification
+          {/* COMMENTED OUT: PropertyVerification component */}
+          {/* <PropertyVerification
             ref={verificationRef}
             formData={formData}
             setFormData={setFormData}
-          />
+          /> */}
 
           <section className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -1543,12 +1561,12 @@ const AddProperty = () => {
               {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Submitting...
+                  Listing...
                 </>
               ) : (
                 <>
-                  <Shield className="w-5 h-5" />
-                  Submit for Verification
+                  <Upload className="w-5 h-5" />
+                  List Now
                 </>
               )}
             </button>

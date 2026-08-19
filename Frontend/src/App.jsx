@@ -35,6 +35,7 @@ import HostDetails from "./Admin/HostDetail";
 import HostDashboard from "./Host/HostDashboard";
 import HostLayout from "./Host/HostLayout";
 import AddProperty from "./Host/AddProperty";
+import EditProperty from "./Host/EditProperty";
 import MyProperties from "./Host/MyProperties";
 import HostAnalytics from "./Host/HostAnalytics";
 import HostPropertyDetails from "./Host/HostPropertyDetails";
@@ -77,27 +78,13 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-
         <Route path="/about" element={<About />} />
-
         <Route path="/login" element={<Login />} />
-
-        <Route
-          path="/forgot-password"
-          element={<ForgotPassword />}
-        />
-
-        <Route
-          path="/become-a-host"
-          element={<BecomeHost />}
-        />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/become-a-host" element={<BecomeHost />} />
         <Route path="/explore" element={<Explore />} />
-
         <Route path="/contact" element={<Contact />} />
-
         <Route path="/wishlist" element={<Wishlist />} />
-
         <Route path="/reviews" element={<Review />} />
 
         <Route path="/faq" element={<FAQ />} />
@@ -128,10 +115,7 @@ function App() {
         />
 
         <Route path="/admin" element={<AdminLayout />}>
-          <Route
-            index
-            element={<AdminDashboard />}
-          />
+          <Route index element={<AdminDashboard />} />
 
           <Route
             path="propertyverification"
@@ -160,10 +144,7 @@ function App() {
         />
 
         <Route path="/host" element={<HostLayout />}>
-          <Route
-            index
-            element={<HostDashboard />}
-          />
+          <Route index element={<HostDashboard />} />
 
           <Route
             path="add-property"
@@ -176,13 +157,18 @@ function App() {
           />
 
           <Route
-            path="analytics"
-            element={<HostAnalytics />}
+            path="property/:id"
+            element={<HostPropertyDetails />}
           />
 
           <Route
-            path="property/:id"
-            element={<HostPropertyDetails />}
+            path="edit-property/:id"
+            element={<EditProperty />}
+          />
+
+          <Route
+            path="analytics"
+            element={<HostAnalytics />}
           />
 
           <Route
@@ -192,10 +178,7 @@ function App() {
         </Route>
 
         <Route path="/user" element={<UserLayout />}>
-          <Route
-            index
-            element={<UserDashboard />}
-          />
+          <Route index element={<UserDashboard />} />
 
           <Route
             path="dashboard"

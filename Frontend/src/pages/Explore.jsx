@@ -87,6 +87,23 @@ const Explore = () => {
   }, []);
 
   // =========================================================
+  // AUTO-REFRESH WHEN PAGE BECOMES VISIBLE
+  // =========================================================
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadProperties();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // =========================================================
   // SCROLL TO PROPERTY SECTION
   // =========================================================
   const scrollToProperty = () => {
