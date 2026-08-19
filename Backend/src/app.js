@@ -4,7 +4,6 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-const connectDB = require("./config/database");
 const {
   notFound,
   errorHandler,
@@ -29,6 +28,8 @@ const roomRoutes = require("./owner/routes/roomRoutes");
 const ownerProfileRoutes = require("./owner/routes/ownerProfileRoutes");
 
 const tenantAuthRoutes = require("./User/routes/tenantAuthRoutes");
+const tenantFavoriteRoutes = require("./User/routes/tenantFavoriteRoutes");
+const tenantBookingRoutes = require("./User/routes/tenantBookingRoutes");
 
 const publicPropertyRoutes = require("./public/routes/publicPropertyRoutes");
 
@@ -42,7 +43,14 @@ app.use(
 );
 
 app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "10mb",
+  })
+);
+
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
@@ -70,7 +78,6 @@ app.use("/api/admin/bookings", bookingManagementRoutes);
 app.use("/api/admin/reviews", reviewManagementRoutes);
 
 app.use("/api/owner/auth", ownerAuthRoutes);
-
 app.use("/api/owners/properties", propertyRoutes);
 app.use("/api/owners/dashboard", ownerDashboardRoutes);
 app.use("/api/owners/visits", visitRoutes);
@@ -79,39 +86,12 @@ app.use("/api/owners", roomRoutes);
 app.use("/api/owners", ownerProfileRoutes);
 
 app.use("/api/tenant/auth", tenantAuthRoutes);
+app.use("/api/tenant/favorites", tenantFavoriteRoutes);
+app.use("/api/tenant/bookings", tenantBookingRoutes);
 
 app.use("/api/properties", publicPropertyRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
-
-const PORT = process.env.PORT || 5000;
-
-const startServer = async () => {
-  try {
-    await connectDB();
-    console.log("✅ MongoDB connected");
-
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error("❌ Failed to start server:", error);
-    process.exit(1);
-  }
-};
-
-if (require.main === module) {
-  process.on("unhandledRejection", (reason) => {
-    console.error("Unhandled Rejection:", reason);
-  });
-
-  process.on("uncaughtException", (err) => {
-    console.error("Uncaught Exception:", err);
-    process.exit(1);
-  });
-
-  startServer();
-}
 
 module.exports = app;

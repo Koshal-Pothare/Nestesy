@@ -11,16 +11,19 @@ const bookingSchema = new mongoose.Schema(
     propertyId: {
       type: String,
       required: true,
+      trim: true,
     },
 
     title: {
       type: String,
       required: true,
+      trim: true,
     },
 
     location: {
       type: String,
       required: true,
+      trim: true,
     },
 
     price: {
@@ -30,28 +33,32 @@ const bookingSchema = new mongoose.Schema(
 
     bedrooms: {
       type: Number,
+      default: 0,
     },
 
     bathrooms: {
       type: Number,
+      default: 0,
     },
 
     area: {
       type: Number,
+      default: 0,
     },
 
-    images: [
-      {
-        type: String,
-      },
-    ],
+    images: {
+      type: [String],
+      default: [],
+    },
 
     host: {
       type: String,
+      default: "",
     },
 
     hostPhone: {
       type: String,
+      default: "",
     },
 
     visitDate: {
@@ -83,6 +90,7 @@ const bookingSchema = new mongoose.Schema(
 
     notes: {
       type: String,
+      default: "",
     },
   },
   {
@@ -90,7 +98,4 @@ const bookingSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model(
-  "Booking",
-  bookingSchema
-);
+module.exports = mongoose.model("Booking", bookingSchema);

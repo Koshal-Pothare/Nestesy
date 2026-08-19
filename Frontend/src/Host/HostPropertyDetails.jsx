@@ -25,14 +25,13 @@ import {
 } from "lucide-react";
 
 const API_URL = "http://localhost:5000/api/owners/properties";
+const VISITS_API_URL = "http://localhost:5000/api/owners/visits";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80";
 
 const toNumber = (value, fallback = 0) => {
-  if (value === null || value === undefined || value === "") {
-    return fallback;
-  }
+  if (value === null || value === undefined || value === "") return fallback;
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
 };
@@ -164,6 +163,7 @@ const HostPropertyDetails = () => {
   const navigate = useNavigate();
 
   const [property, setProperty] = useState(null);
+  const [visitors, setVisitors] = useState([]); // <-- Added state for real visitors
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -233,9 +233,35 @@ const HostPropertyDetails = () => {
     }
   }, [id, navigate]);
 
+  // Fetch real visitors/bookings for this property
+  const loadVisitors = useCallback(async () => {
+    if (!id) return;
+    
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${VISITS_API_URL}?propertyId=${id}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      setVisitors(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching visitors:", err);
+    }
+  }, [id]);
+
   useEffect(() => {
     loadProperty();
-  }, [loadProperty]);
+    loadVisitors(); // Fetch visitors when the page loads
+  }, [loadProperty, loadVisitors]);
 
   const handleDelete = async () => {
     if (deleting || !property) return;
@@ -455,15 +481,6 @@ const HostPropertyDetails = () => {
     return property.allImages && property.allImages.length > 0
       ? property.allImages
       : property.outerImages || property.images || [];
-  }, [property]);
-
-  const visitors = useMemo(() => {
-    if (!property) return [];
-    return Array.isArray(property.visitors)
-      ? property.visitors
-      : Array.isArray(property.visits)
-      ? property.visits
-      : [];
   }, [property]);
 
   const currentStatus = property?.status || "pending";
@@ -832,28 +849,36 @@ const HostPropertyDetails = () => {
                 </div>
                 <div className="space-y-3">
                   {(showAllVisitors ? visitors : visitors.slice(0, 3)).map(
-                    (visitor, index) => (
-                      <div
-                        key={visitor.id || visitor.email || visitor.name || index}
-                        className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 p-3"
-                      >
-                        <div>
-                          <p className="font-medium text-gray-800">
-                            {visitor.name || "Visitor"}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {visitor.date || visitor.visitDate || "Recently"}
-                          </p>
+                    (visitor, index) => {
+                      // Extract data from the populated booking object
+                      const visitorName = visitor?.tenant?.name || visitor?.visitorName || "Unknown Visitor";
+                      const visitorEmail = visitor?.tenant?.email || visitor?.email || "No email";
+                      const visitDate = visitor?.visitDate || "Not scheduled";
+                      const visitStatus = visitor?.status || "Pending";
+
+                      return (
+                        <div
+                          key={visitor?._id || index}
+                          className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 p-3"
+                        >
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {visitorName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {visitorEmail} • Visiting on: {visitDate}
+                            </p>
+                          </div>
+                          <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium capitalize text-blue-700">
+                            {visitStatus}
+                          </span>
                         </div>
-                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
-                          {visitor.status || "Interested"}
-                        </span>
-                      </div>
-                    )
+                      );
+                    }
                   )}
                   {visitors.length === 0 && (
                     <p className="text-sm text-gray-500">
-                      No visitors yet for this property.
+                      No visitors have booked a visit for this property yet.
                     </p>
                   )}
                 </div>
