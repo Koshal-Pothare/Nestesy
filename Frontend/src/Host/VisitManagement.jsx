@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
 import {
   Search,
   CalendarDays,
@@ -12,111 +13,174 @@ import {
   Filter,
 } from "lucide-react";
 
-const initialVisits = [
-  {
-    id: 1,
-    visitorName: "Rahul Sharma",
-    email: "rahul@gmail.com",
-    phone: "9876543210",
-    propertyName: "Luxury 2 BHK Apartment",
-    location: "Baner, Pune",
-    visitDate: "2026-08-10",
-    visitTime: "10:00 AM - 11:00 AM",
-    status: "pending",
-  },
-  {
-    id: 2,
-    visitorName: "Priya Patil",
-    email: "priya@gmail.com",
-    phone: "9876543211",
-    propertyName: "Modern 3 BHK Villa",
-    location: "Wakad, Pune",
-    visitDate: "2026-08-11",
-    visitTime: "12:00 PM - 01:00 PM",
-    status: "approved",
-  },
-  {
-    id: 3,
-    visitorName: "Amit Joshi",
-    email: "amit@gmail.com",
-    phone: "9876543212",
-    propertyName: "Premium 1 BHK Flat",
-    location: "Kothrud, Pune",
-    visitDate: "2026-08-12",
-    visitTime: "03:00 PM - 04:00 PM",
-    status: "completed",
-  },
-  {
-    id: 4,
-    visitorName: "Sneha Kulkarni",
-    email: "sneha@gmail.com",
-    phone: "9876543213",
-    propertyName: "Spacious 2 BHK Home",
-    location: "Aundh, Pune",
-    visitDate: "2026-08-13",
-    visitTime: "11:00 AM - 12:00 PM",
-    status: "rejected",
-  },
-  {
-    id: 5,
-    visitorName: "Vishal More",
-    email: "vishal@gmail.com",
-    phone: "9876543214",
-    propertyName: "Elegant 3 BHK Apartment",
-    location: "Hinjewadi, Pune",
-    visitDate: "2026-08-14",
-    visitTime: "05:00 PM - 06:00 PM",
-    status: "pending",
-  },
-];
+import api from "../services/api";
 
 const HostVisitManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [visits, setVisits] = useState(initialVisits);
+  const [visits, setVisits] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
 
-  const getVisitId = (visit) => visit?._id ?? visit?.id;
+  useEffect(() => {
+    const fetchVisits = async () => {
+      try {
+        setLoading(true);
 
-  const getVisitorName = (visit) =>
-    visit?.visitorName ||
-    visit?.tenantName ||
-    visit?.tenant?.name ||
-    "Unknown Visitor";
+        const response = await api.get("/owners/visits");
 
-  const getVisitorEmail = (visit) =>
-    visit?.email ||
-    visit?.tenantEmail ||
-    visit?.tenant?.email ||
-    "No email";
+        setVisits(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Fetch owner visits error:", error);
 
-  const getPropertyName = (visit) =>
-    visit?.propertyName ||
-    visit?.property?.title ||
-    visit?.property?.name ||
-    "Property";
+        toast.error(
+          error.response?.data?.message || "Failed to load visits"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const getLocation = (visit) =>
-    visit?.location ||
-    visit?.property?.location ||
-    "Location not available";
+    fetchVisits();
+  }, []);
 
-  const getVisitDate = (visit) =>
-    visit?.visitDate || visit?.date || "Date not available";
+  const getVisitId = (visit) => {
+    return visit?._id || visit?.id;
+  };
 
-  const getVisitTime = (visit) =>
-    visit?.visitTime || visit?.time || "Time not available";
-
-  const updateVisitStatus = (id, status) => {
-    setVisits((currentVisits) =>
-      currentVisits.map((visit) =>
-        String(getVisitId(visit)) === String(id)
-          ? {
-              ...visit,
-              status,
-            }
-          : visit
-      )
+  const getVisitorName = (visit) => {
+    return (
+      visit?.tenant?.name ||
+      visit?.tenant?.fullName ||
+      visit?.visitorName ||
+      visit?.tenantName ||
+      "Unknown Visitor"
     );
+  };
+
+  const getVisitorEmail = (visit) => {
+    return (
+      visit?.tenant?.email ||
+      visit?.email ||
+      visit?.tenantEmail ||
+      "No email"
+    );
+  };
+
+  const getVisitorPhone = (visit) => {
+    return (
+      visit?.tenant?.phone ||
+      visit?.phone ||
+      visit?.tenantPhone ||
+      "No phone"
+    );
+  };
+
+  const getPropertyName = (visit) => {
+    return (
+      visit?.property?.title ||
+      visit?.property?.name ||
+      visit?.propertyName ||
+      visit?.title ||
+      "Property"
+    );
+  };
+
+  const getLocation = (visit) => {
+    if (typeof visit?.property?.location === "string") {
+      return visit.property.location;
+    }
+
+    if (typeof visit?.location === "string") {
+      return visit.location;
+    }
+
+    if (typeof visit?.property?.address === "string") {
+      return visit.property.address;
+    }
+
+    return "Location not available";
+  };
+
+  const getVisitDate = (visit) => {
+    return (
+      visit?.visitDate ||
+      visit?.date ||
+      visit?.bookingDate ||
+      "Date not available"
+    );
+  };
+
+  const getVisitTime = (visit) => {
+    return (
+      visit?.visitTime ||
+      visit?.time ||
+      visit?.bookingTime ||
+      "Time not available"
+    );
+  };
+
+  const formatDate = (date) => {
+    if (!date || date === "Date not available") {
+      return "Date not available";
+    }
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return date;
+    }
+
+    return parsedDate.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const updateVisitStatus = async (id, status) => {
+    try {
+      setUpdatingId(id);
+
+      const response = await api.put(
+        `/owners/visits/${id}/status`,
+        {
+          status,
+        }
+      );
+
+      const updatedVisit = response.data;
+
+      setVisits((currentVisits) =>
+        currentVisits.map((visit) =>
+          String(getVisitId(visit)) === String(id)
+            ? {
+                ...visit,
+                ...updatedVisit,
+                status: updatedVisit?.status || status,
+              }
+            : visit
+        )
+      );
+
+      const messages = {
+        approved: "Visit approved successfully",
+        rejected: "Visit rejected successfully",
+        completed: "Visit marked as completed",
+        cancelled: "Visit cancelled successfully",
+      };
+
+      toast.success(messages[status] || "Visit status updated");
+    } catch (error) {
+      console.error("Update visit status error:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to update visit status"
+      );
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   const filteredVisits = useMemo(() => {
@@ -125,6 +189,7 @@ const HostVisitManagement = () => {
     return visits.filter((visit) => {
       const visitorName = getVisitorName(visit).toLowerCase();
       const email = getVisitorEmail(visit).toLowerCase();
+      const phone = getVisitorPhone(visit).toLowerCase();
       const propertyName = getPropertyName(visit).toLowerCase();
       const location = getLocation(visit).toLowerCase();
 
@@ -132,30 +197,32 @@ const HostVisitManagement = () => {
         !search ||
         visitorName.includes(search) ||
         email.includes(search) ||
+        phone.includes(search) ||
         propertyName.includes(search) ||
         location.includes(search);
 
       const matchesStatus =
-        statusFilter === "all" || visit.status === statusFilter;
+        statusFilter === "all" ||
+        visit?.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
   }, [visits, searchTerm, statusFilter]);
 
   const pendingCount = visits.filter(
-    (visit) => visit.status === "pending"
+    (visit) => visit?.status === "pending"
   ).length;
 
   const approvedCount = visits.filter(
-    (visit) => visit.status === "approved"
+    (visit) => visit?.status === "approved"
   ).length;
 
   const completedCount = visits.filter(
-    (visit) => visit.status === "completed"
+    (visit) => visit?.status === "completed"
   ).length;
 
   const rejectedCount = visits.filter(
-    (visit) => visit.status === "rejected"
+    (visit) => visit?.status === "rejected"
   ).length;
 
   const getStatusStyle = (status) => {
@@ -172,76 +239,95 @@ const HostVisitManagement = () => {
       case "rejected":
         return "bg-red-50 text-red-600 border-red-200";
 
+      case "cancelled":
+        return "bg-gray-100 text-gray-600 border-gray-200";
+
       default:
         return "bg-gray-50 text-gray-600 border-gray-200";
     }
   };
 
   const formatStatus = (status) => {
-    if (!status) return "Unknown";
+    if (!status) {
+      return "Unknown";
+    }
 
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   const renderActions = (visit, mobile = false) => {
     const id = getVisitId(visit);
+    const isUpdating = String(updatingId) === String(id);
 
-    if (visit.status === "pending") {
+    if (visit?.status === "pending") {
       return (
         <>
           <button
             type="button"
-            onClick={() => updateVisitStatus(id, "approved")}
+            disabled={isUpdating}
+            onClick={() =>
+              updateVisitStatus(id, "approved")
+            }
             className={
               mobile
-                ? "flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-green-500 py-2.5 text-xs font-bold text-white transition hover:bg-green-600"
-                : "flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-600"
+                ? "flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-green-500 py-2.5 text-xs font-bold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+                : "flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
             }
           >
             <Check size={mobile ? 15 : 14} />
-            Approve
+            {isUpdating ? "Updating..." : "Approve"}
           </button>
 
           <button
             type="button"
-            onClick={() => updateVisitStatus(id, "rejected")}
+            disabled={isUpdating}
+            onClick={() =>
+              updateVisitStatus(id, "rejected")
+            }
             className={
               mobile
-                ? "flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-500 py-2.5 text-xs font-bold text-white transition hover:bg-red-600"
-                : "flex items-center gap-1.5 rounded-lg bg-red-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-600"
+                ? "flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-500 py-2.5 text-xs font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                : "flex items-center gap-1.5 rounded-lg bg-red-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
             }
           >
             <X size={mobile ? 15 : 14} />
-            Reject
+            {isUpdating ? "Updating..." : "Reject"}
           </button>
         </>
       );
     }
 
-    if (visit.status === "approved") {
+    if (visit?.status === "approved") {
       return (
         <button
           type="button"
-          onClick={() => updateVisitStatus(id, "completed")}
+          disabled={isUpdating}
+          onClick={() =>
+            updateVisitStatus(id, "completed")
+          }
           className={
             mobile
-              ? "flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 py-2.5 text-xs font-bold text-white transition hover:bg-primary-600"
-              : "flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary-600"
+              ? "flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 py-2.5 text-xs font-bold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+              : "flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
           }
         >
           <CheckCircle2 size={mobile ? 15 : 14} />
-          {mobile ? "Mark Visit as Done" : "Mark Done"}
+          {isUpdating
+            ? "Updating..."
+            : mobile
+            ? "Mark Visit as Done"
+            : "Mark Done"}
         </button>
       );
     }
 
-    if (visit.status === "completed") {
+    if (visit?.status === "completed") {
       return (
         <span
           className={
             mobile
               ? "flex w-full items-center justify-center gap-2 rounded-xl bg-green-50 py-2.5 text-xs font-bold text-green-600"
-              : "text-xs font-semibold text-green-600"
+              : "flex items-center gap-1.5 text-xs font-semibold text-green-600"
           }
         >
           <CheckCircle2 size={mobile ? 15 : 14} />
@@ -250,13 +336,13 @@ const HostVisitManagement = () => {
       );
     }
 
-    if (visit.status === "rejected") {
+    if (visit?.status === "rejected") {
       return (
         <span
           className={
             mobile
               ? "flex w-full items-center justify-center gap-2 rounded-xl bg-red-50 py-2.5 text-xs font-bold text-red-500"
-              : "text-xs font-semibold text-red-500"
+              : "flex items-center gap-1.5 text-xs font-semibold text-red-500"
           }
         >
           <X size={mobile ? 15 : 14} />
@@ -265,8 +351,31 @@ const HostVisitManagement = () => {
       );
     }
 
+    if (visit?.status === "cancelled") {
+      return (
+        <span
+          className={
+            mobile
+              ? "flex w-full items-center justify-center gap-2 rounded-xl bg-gray-50 py-2.5 text-xs font-bold text-gray-500"
+              : "flex items-center gap-1.5 text-xs font-semibold text-gray-500"
+          }
+        >
+          <X size={mobile ? 15 : 14} />
+          Visit Cancelled
+        </span>
+      );
+    }
+
     return null;
   };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center bg-gray-50">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -279,8 +388,7 @@ const HostVisitManagement = () => {
               </h1>
 
               <p className="mt-2 text-sm text-gray-500 sm:text-base">
-                Manage property visit requests and keep track of scheduled
-                visits.
+                Manage property visit requests and keep track of scheduled visits.
               </p>
             </div>
 
@@ -401,7 +509,9 @@ const HostVisitManagement = () => {
                 type="text"
                 placeholder="Search visitor, property or location..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) =>
+                  setSearchTerm(e.target.value)
+                }
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-700 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
               />
             </div>
@@ -414,7 +524,9 @@ const HostVisitManagement = () => {
 
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value)
+                }
                 className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-9 text-sm font-medium text-gray-700 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
               >
                 <option value="all">All Status</option>
@@ -422,6 +534,7 @@ const HostVisitManagement = () => {
                 <option value="approved">Approved</option>
                 <option value="completed">Completed</option>
                 <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
               </select>
 
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -489,6 +602,10 @@ const HostVisitManagement = () => {
                               <p className="mt-0.5 text-xs text-gray-400">
                                 {getVisitorEmail(visit)}
                               </p>
+
+                              <p className="mt-0.5 text-xs text-gray-400">
+                                {getVisitorPhone(visit)}
+                              </p>
                             </div>
                           </div>
                         </td>
@@ -510,7 +627,10 @@ const HostVisitManagement = () => {
                               size={16}
                               className="text-primary-500"
                             />
-                            {getVisitDate(visit)}
+
+                            {formatDate(
+                              getVisitDate(visit)
+                            )}
                           </div>
                         </td>
 
@@ -520,6 +640,7 @@ const HostVisitManagement = () => {
                               size={16}
                               className="text-primary-500"
                             />
+
                             {getVisitTime(visit)}
                           </div>
                         </td>
@@ -527,10 +648,10 @@ const HostVisitManagement = () => {
                         <td className="px-6 py-5">
                           <span
                             className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${getStatusStyle(
-                              visit.status
+                              visit?.status
                             )}`}
                           >
-                            {formatStatus(visit.status)}
+                            {formatStatus(visit?.status)}
                           </span>
                         </td>
 
@@ -558,7 +679,7 @@ const HostVisitManagement = () => {
               </h3>
 
               <p className="mt-1 text-sm text-gray-400">
-                Try changing your search or status filter.
+                No tenant visit bookings are available.
               </p>
             </div>
           )}
@@ -576,7 +697,7 @@ const HostVisitManagement = () => {
               </h3>
 
               <p className="mt-1 text-sm text-gray-400">
-                Try changing your search or status filter.
+                No tenant visit bookings are available.
               </p>
             </div>
           ) : (
@@ -606,15 +727,19 @@ const HostVisitManagement = () => {
                           <p className="text-xs text-gray-400">
                             {getVisitorEmail(visit)}
                           </p>
+
+                          <p className="text-xs text-gray-400">
+                            {getVisitorPhone(visit)}
+                          </p>
                         </div>
                       </div>
 
                       <span
                         className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-bold ${getStatusStyle(
-                          visit.status
+                          visit?.status
                         )}`}
                       >
-                        {formatStatus(visit.status)}
+                        {formatStatus(visit?.status)}
                       </span>
                     </div>
 
@@ -641,7 +766,9 @@ const HostVisitManagement = () => {
                           </p>
 
                           <p className="text-xs font-semibold text-gray-700">
-                            {getVisitDate(visit)}
+                            {formatDate(
+                              getVisitDate(visit)
+                            )}
                           </p>
                         </div>
                       </div>

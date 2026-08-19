@@ -1,34 +1,8 @@
-import Favorite from '../models/Favorite.js';
+const Favorite = require("../models/Favorite");
 
-// Add property to favorites
-export const addFavorite = async (req, res) => {
+const addFavorite = async (req, res) => {
   try {
-    const { propertyId, title, location, price, bedrooms, bathrooms, area, images, description } = req.body;
-    const tenantId = req.user._id;
-
-    // Validation
-    if (!propertyId || !title || !location) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide all required fields',
-      });
-    }
-
-    // Check if already favorited
-    const existingFavorite = await Favorite.findOne({
-      tenant: tenantId,
-      propertyId,
-    });
-
-    if (existingFavorite) {
-      return res.status(409).json({
-        success: false,
-        message: 'Property already in favorites',
-      });
-    }
-
-    const favorite = new Favorite({
-      tenant: tenantId,
+    const {
       propertyId,
       title,
       location,
@@ -38,116 +12,224 @@ export const addFavorite = async (req, res) => {
       area,
       images,
       description,
+    } = req.body;
+
+    const tenantId = req.user?._id;
+
+    if (!tenantId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    if (!propertyId || !title || !location) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required fields",
+      });
+    }
+
+    const existingFavorite = await Favorite.findOne({
+      tenant: tenantId,
+      propertyId: String(propertyId),
     });
 
-    await favorite.save();
+    if (existingFavorite) {
+      return res.status(409).json({
+        success: false,
+        message: "Property already in favorites",
+        favorite: existingFavorite,
+      });
+    }
 
-    res.status(201).json({
+    const favorite = await Favorite.create({
+      tenant: tenantId,
+      propertyId: String(propertyId),
+      title,
+      location,
+      price: Number(price) || 0,
+      bedrooms: Number(bedrooms) || 0,
+      bathrooms: Number(bathrooms) || 0,
+      area: Number(area) || 0,
+      images: Array.isArray(images) ? images : [],
+      description: description || "",
+    });
+
+    return res.status(201).json({
       success: true,
-      message: 'Added to favorites',
+      message: "Added to favorites",
       favorite,
     });
   } catch (error) {
-    console.error('Error adding favorite:', error);
-    res.status(500).json({
+    console.error("Error adding favorite:", error);
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "Property already in favorites",
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while adding favorite',
+      message: error.message || "An error occurred while adding favorite",
     });
   }
 };
 
-// Get all favorites
-export const getFavorites = async (req, res) => {
+const getFavorites = async (req, res) => {
   try {
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
 
-    const favorites = await Favorite.find({ tenant: tenantId }).sort({ addedAt: -1 });
+    if (!tenantId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
 
-    res.status(200).json({
+    const favorites = await Favorite.find({
+      tenant: tenantId,
+    }).sort({
+      addedAt: -1,
+    });
+
+    return res.status(200).json({
       success: true,
       count: favorites.length,
       favorites,
     });
   } catch (error) {
-    console.error('Error fetching favorites:', error);
-    res.status(500).json({
+    console.error("Error fetching favorites:", error);
+
+    return res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while fetching favorites',
+      message: error.message || "An error occurred while fetching favorites",
     });
   }
 };
 
-// Check if property is favorited
-export const isFavorited = async (req, res) => {
+const isFavorited = async (req, res) => {
   try {
     const { propertyId } = req.params;
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
+
+    if (!tenantId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    if (!propertyId) {
+      return res.status(400).json({
+        success: false,
+        message: "Property ID is required",
+      });
+    }
 
     const favorite = await Favorite.findOne({
       tenant: tenantId,
-      propertyId,
+      propertyId: String(propertyId),
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      isFavorited: !!favorite,
+      isFavorited: Boolean(favorite),
     });
   } catch (error) {
-    console.error('Error checking favorite status:', error);
-    res.status(500).json({
+    console.error("Error checking favorite status:", error);
+
+    return res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while checking favorite status',
+      message:
+        error.message ||
+        "An error occurred while checking favorite status",
     });
   }
 };
 
-// Remove from favorites
-export const removeFavorite = async (req, res) => {
+const removeFavorite = async (req, res) => {
   try {
     const { propertyId } = req.params;
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
+
+    if (!tenantId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    if (!propertyId) {
+      return res.status(400).json({
+        success: false,
+        message: "Property ID is required",
+      });
+    }
 
     const favorite = await Favorite.findOneAndDelete({
       tenant: tenantId,
-      propertyId,
+      propertyId: String(propertyId),
     });
 
     if (!favorite) {
       return res.status(404).json({
         success: false,
-        message: 'Favorite not found',
+        message: "Favorite not found",
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: 'Removed from favorites',
+      message: "Removed from favorites",
     });
   } catch (error) {
-    console.error('Error removing favorite:', error);
-    res.status(500).json({
+    console.error("Error removing favorite:", error);
+
+    return res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while removing favorite',
+      message:
+        error.message || "An error occurred while removing favorite",
     });
   }
 };
 
-// Get favorite count
-export const getFavoriteCount = async (req, res) => {
+const getFavoriteCount = async (req, res) => {
   try {
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
 
-    const count = await Favorite.countDocuments({ tenant: tenantId });
+    if (!tenantId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
 
-    res.status(200).json({
+    const count = await Favorite.countDocuments({
+      tenant: tenantId,
+    });
+
+    return res.status(200).json({
       success: true,
       count,
     });
   } catch (error) {
-    console.error('Error fetching favorite count:', error);
-    res.status(500).json({
+    console.error("Error fetching favorite count:", error);
+
+    return res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while fetching favorite count',
+      message:
+        error.message || "An error occurred while fetching favorite count",
     });
   }
+};
+
+module.exports = {
+  addFavorite,
+  getFavorites,
+  removeFavorite,
+  isFavorited,
+  getFavoriteCount,
 };

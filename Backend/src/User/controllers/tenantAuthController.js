@@ -1,171 +1,427 @@
-const bcrypt = require('bcryptjs');
-const Tenant = require('../models/Tenant');
-const TenantProfile = require('../models/TenantProfile');
-const generateToken = require('../../common/utils/generateToken');
-const { success, error } = require('../../common/utils/response');
+const bcrypt = require("bcryptjs");
+const Tenant = require("../models/Tenant");
+const TenantProfile = require("../models/TenantProfile");
+const generateToken = require("../../common/utils/generateToken");
+const { success, error } = require("../../common/utils/response");
 
 /**
- * @route   POST /api/tenant/auth/register
- * @desc    Register a new tenant account
- * @access  Public
+ * POST /api/tenant/auth/register
+ * Register a new tenant
  */
 const registerTenant = async (req, res) => {
   try {
-    const { name, username, email, password, phone, city } = req.body;
+    const {
+      name,
+      username,
+      email,
+      password,
+      phone,
+      city,
+    } = req.body;
+
+    console.log("REGISTER REQUEST:", {
+      name,
+      username,
+      email,
+      phone,
+      city,
+      hasPassword: Boolean(password),
+    });
 
     if (!name || !email || !password) {
-      return error(res, 400, 'Name, email, and password are required');
+      return error(
+        res,
+        400,
+        "Name, email, and password are required"
+      );
     }
 
-    const existingEmail = await Tenant.findOne({ email: email.toLowerCase() });
-    if (existingEmail) {
-      return error(res, 409, 'An account with this email already exists');
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const finalUsername = (
+      username ||
+      normalizedEmail.split("@")[0]
+    )
+      .trim()
+      .toLowerCase();
+
+    if (!finalUsername) {
+      return error(
+        res,
+        400,
+        "Username is required"
+      );
     }
 
-    if (username) {
-      const existingUser = await Tenant.findOne({ username: username.toLowerCase() });
-      if (existingUser) {
-        return error(res, 409, 'Username is already taken');
-      }
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const tenant = await Tenant.create({
-      name,
-      username: username ? username.toLowerCase() : email.split('@')[0].toLowerCase(),
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      phone: phone || '',
-      city: city || '',
+    const existingEmail = await Tenant.findOne({
+      email: normalizedEmail,
     });
 
+    if (existingEmail) {
+      return error(
+        res,
+        409,
+        "An account with this email already exists"
+      );
+    }
+
+    const existingUsername = await Tenant.findOne({
+      username: finalUsername,
+    });
+
+    if (existingUsername) {
+      return error(
+        res,
+        409,
+        "Username is already taken"
+      );
+    }
+
+    /*
+     * IMPORTANT:
+     * Do NOT hash the password here if Tenant.js
+     * contains a pre("save") password hashing hook.
+     */
+    const tenant = await Tenant.create({
+      name: normalizedName,
+      username: finalUsername,
+      email: normalizedEmail,
+      password,
+      phone: phone ? phone.trim() : "",
+      city: city ? city.trim() : "",
+    });
+
+    console.log(
+      "TENANT CREATED:",
+      tenant._id.toString()
+    );
+
+    /*
+     * Create tenant profile.
+     * Registration should not fail if profile creation fails.
+     */
     try {
       if (TenantProfile) {
-        await TenantProfile.create({ tenantId: tenant._id });
+        await TenantProfile.create({
+          tenantId: tenant._id,
+        });
       }
-    } catch (e) {
-      console.warn('TenantProfile creation notice:', e.message);
+    } catch (profileError) {
+      console.warn(
+        "TENANT PROFILE CREATION ERROR:",
+        profileError.message
+      );
     }
 
-    const token = generateToken(tenant._id, 'tenant');
+    /*
+     * Generate JWT
+     */
+    const token = generateToken(
+      tenant._id,
+      "tenant"
+    );
 
-    return success(res, 201, 'Tenant registered successfully', {
-      token,
-      tenant: {
-        id: tenant._id,
-        name: tenant.name,
-        username: tenant.username,
-        email: tenant.email,
-        phone: tenant.phone,
-        city: tenant.city,
-        profileImage: tenant.profileImage,
-        role: tenant.role,
-        isActive: tenant.isActive,
-      },
-    });
+    return success(
+      res,
+      201,
+      "Tenant registered successfully",
+      {
+        token,
+        tenant: {
+          id: tenant._id,
+          name: tenant.name,
+          username: tenant.username,
+          email: tenant.email,
+          phone: tenant.phone || "",
+          city: tenant.city || "",
+          profileImage:
+            tenant.profileImage || null,
+          role: tenant.role,
+          isActive: tenant.isActive,
+          createdAt: tenant.createdAt,
+        },
+      }
+    );
   } catch (err) {
-    return error(res, 500, err.message || 'Failed to register tenant');
+    console.error(
+      "===================================="
+    );
+    console.error("REGISTER TENANT ERROR");
+    console.error(err);
+    console.error(
+      "===================================="
+    );
+
+    return error(
+      res,
+      500,
+      err.message || "Failed to register tenant"
+    );
   }
 };
 
 /**
- * @route   POST /api/tenant/auth/login
- * @desc    Log a tenant in using email or username
- * @access  Public
+ * POST /api/tenant/auth/login
+ * Login using email or username
  */
 const loginTenant = async (req, res) => {
   try {
-    const { email, username, login, password } = req.body;
-    const loginIdentifier = email || username || login;
+    const {
+      email,
+      username,
+      login,
+      password,
+    } = req.body;
+
+    const loginIdentifier =
+      email || username || login;
 
     if (!loginIdentifier || !password) {
-      return error(res, 400, 'Email/Username and password are required');
+      return error(
+        res,
+        400,
+        "Email/Username and password are required"
+      );
     }
 
-    const queryTerm = loginIdentifier.toLowerCase();
+    const queryTerm = loginIdentifier
+      .trim()
+      .toLowerCase();
+
     const tenant = await Tenant.findOne({
-      $or: [{ email: queryTerm }, { username: queryTerm }],
-    }).select('+password');
+      $or: [
+        { email: queryTerm },
+        { username: queryTerm },
+      ],
+    }).select("+password");
 
     if (!tenant) {
-      return error(res, 401, 'Invalid credentials');
+      return error(
+        res,
+        401,
+        "Invalid credentials"
+      );
     }
 
-    if (!tenant.isActive) {
-      return error(res, 403, 'This account has been deactivated');
+    if (tenant.isActive === false) {
+      return error(
+        res,
+        403,
+        "This account has been deactivated"
+      );
     }
 
-    const isMatch = await bcrypt.compare(password, tenant.password);
-    if (!isMatch) {
-      return error(res, 401, 'Invalid credentials');
+    if (!tenant.password) {
+      return error(
+        res,
+        500,
+        "Password is not configured for this account"
+      );
     }
 
-    const token = generateToken(tenant._id, 'tenant');
+    const isPasswordCorrect =
+      await bcrypt.compare(
+        password,
+        tenant.password
+      );
 
-    return success(res, 200, 'Login successful', {
-      token,
-      tenant: {
-        id: tenant._id,
-        name: tenant.name,
-        username: tenant.username,
-        email: tenant.email,
-        phone: tenant.phone,
-        city: tenant.city,
-        profileImage: tenant.profileImage,
-        role: tenant.role,
-        isActive: tenant.isActive,
-      },
-    });
+    if (!isPasswordCorrect) {
+      return error(
+        res,
+        401,
+        "Invalid credentials"
+      );
+    }
+
+    const token = generateToken(
+      tenant._id,
+      "tenant"
+    );
+
+    return success(
+      res,
+      200,
+      "Login successful",
+      {
+        token,
+        tenant: {
+          id: tenant._id,
+          name: tenant.name,
+          username: tenant.username,
+          email: tenant.email,
+          phone: tenant.phone || "",
+          city: tenant.city || "",
+          profileImage:
+            tenant.profileImage || null,
+          role: tenant.role,
+          isActive: tenant.isActive,
+          createdAt: tenant.createdAt,
+        },
+      }
+    );
   } catch (err) {
-    return error(res, 500, err.message || 'Failed to log in');
+    console.error(
+      "LOGIN TENANT ERROR:",
+      err
+    );
+
+    return error(
+      res,
+      500,
+      err.message || "Failed to log in"
+    );
   }
 };
 
 /**
- * @route   GET /api/tenant/auth/me
- * @desc    Get the currently logged-in tenant's profile
- * @access  Private (tenant)
+ * GET /api/tenant/auth/me
+ * Get logged-in tenant
  */
 const getMe = async (req, res) => {
-  return success(res, 200, 'Tenant profile fetched', { tenant: req.user });
+  try {
+    if (!req.user || !req.user._id) {
+      return error(
+        res,
+        401,
+        "Authentication required"
+      );
+    }
+
+    const tenant = await Tenant.findById(
+      req.user._id
+    ).select("-password");
+
+    if (!tenant) {
+      return error(
+        res,
+        404,
+        "Tenant not found"
+      );
+    }
+
+    return success(
+      res,
+      200,
+      "Tenant profile fetched",
+      {
+        tenant: {
+          id: tenant._id,
+          name: tenant.name,
+          username: tenant.username,
+          email: tenant.email,
+          phone: tenant.phone || "",
+          city: tenant.city || "",
+          profileImage:
+            tenant.profileImage || null,
+          role: tenant.role,
+          isActive: tenant.isActive,
+          createdAt: tenant.createdAt,
+        },
+      }
+    );
+  } catch (err) {
+    console.error(
+      "GET TENANT PROFILE ERROR:",
+      err
+    );
+
+    return error(
+      res,
+      500,
+      err.message || "Failed to fetch profile"
+    );
+  }
 };
 
 /**
- * @route   PUT /api/tenant/auth/me
- * @desc    Update tenant profile
- * @access  Private (tenant)
+ * PUT /api/tenant/auth/me
+ * Update tenant profile
  */
 const updateProfile = async (req, res) => {
   try {
-    const { name, phone, city, profileImage } = req.body;
-    const tenant = await Tenant.findById(req.user._id);
+    if (!req.user || !req.user._id) {
+      return error(
+        res,
+        401,
+        "Authentication required"
+      );
+    }
 
-    if (!tenant) return error(res, 404, 'Tenant not found');
+    const {
+      name,
+      phone,
+      city,
+      profileImage,
+    } = req.body;
 
-    if (name) tenant.name = name;
-    if (phone !== undefined) tenant.phone = phone;
-    if (city !== undefined) tenant.city = city;
-    if (profileImage !== undefined) tenant.profileImage = profileImage;
+    const tenant = await Tenant.findById(
+      req.user._id
+    );
+
+    if (!tenant) {
+      return error(
+        res,
+        404,
+        "Tenant not found"
+      );
+    }
+
+    if (name !== undefined) {
+      tenant.name = name.trim();
+    }
+
+    if (phone !== undefined) {
+      tenant.phone = phone.trim();
+    }
+
+    if (city !== undefined) {
+      tenant.city = city.trim();
+    }
+
+    if (profileImage !== undefined) {
+      tenant.profileImage = profileImage;
+    }
 
     await tenant.save();
 
-    return success(res, 200, 'Profile updated successfully', {
-      tenant: {
-        id: tenant._id,
-        name: tenant.name,
-        username: tenant.username,
-        email: tenant.email,
-        phone: tenant.phone,
-        city: tenant.city,
-        profileImage: tenant.profileImage,
-        role: tenant.role,
-      },
-    });
+    return success(
+      res,
+      200,
+      "Profile updated successfully",
+      {
+        tenant: {
+          id: tenant._id,
+          name: tenant.name,
+          username: tenant.username,
+          email: tenant.email,
+          phone: tenant.phone || "",
+          city: tenant.city || "",
+          profileImage:
+            tenant.profileImage || null,
+          role: tenant.role,
+          isActive: tenant.isActive,
+          createdAt: tenant.createdAt,
+        },
+      }
+    );
   } catch (err) {
-    return error(res, 500, err.message || 'Failed to update profile');
+    console.error(
+      "UPDATE TENANT PROFILE ERROR:",
+      err
+    );
+
+    return error(
+      res,
+      500,
+      err.message || "Failed to update profile"
+    );
   }
 };
 
-module.exports = { registerTenant, loginTenant, getMe, updateProfile };
+module.exports = {
+  registerTenant,
+  loginTenant,
+  getMe,
+  updateProfile,
+};

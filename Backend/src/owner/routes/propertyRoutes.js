@@ -1,29 +1,26 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { 
-  createProperty, 
-  getMyProperties, 
-  getPropertyById, 
-  deleteProperty, 
-  updatePropertyStatus 
-} = require('../controllers/propertyController');
-const { protect, requireApprovedOwner } = require('../../common/middleware/authMiddleware');
-
-// IMPORT YOUR MULTTER MIDDLEWARE HERE
-const { propertyImageFields } = require('../../common/middleware/uploadMiddleware'); 
+const {
+  createProperty,
+  getMyProperties,
+  getPropertyById,
+  updateProperty,
+  deleteProperty,
+  updatePropertyStatus,
+} = require("../controllers/propertyController");
+const { protect, requireApprovedOwner } = require("../../common/middleware/authMiddleware");
+const { propertyImageFields } = require("../../common/middleware/uploadMiddleware");
 
 router.use(protect, requireApprovedOwner);
 
-// Apply propertyImageFields to the POST route
-router.route('/')
-  .post(propertyImageFields, createProperty)
-  .get(getMyProperties);
+router.route("/").post(propertyImageFields, createProperty).get(getMyProperties);
 
-router.route('/:id')
+router
+  .route("/:id")
   .get(getPropertyById)
+  .put(propertyImageFields, updateProperty)
   .delete(deleteProperty);
 
-router.route('/:id/status')
-  .put(updatePropertyStatus);
+router.route("/:id/status").put(updatePropertyStatus);
 
 module.exports = router;

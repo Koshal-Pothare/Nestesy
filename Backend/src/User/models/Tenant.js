@@ -9,7 +9,6 @@ const tenantSchema = new mongoose.Schema(
       trim: true,
       minlength: [2, "Name must be at least 2 characters"],
     },
-
     username: {
       type: String,
       required: [true, "Please provide a username"],
@@ -17,7 +16,6 @@ const tenantSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-
     email: {
       type: String,
       required: [true, "Please provide an email"],
@@ -28,29 +26,24 @@ const tenantSchema = new mongoose.Schema(
         "Please provide a valid email",
       ],
     },
-
     password: {
       type: String,
       required: [true, "Please provide a password"],
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
     },
-
     phone: {
       type: String,
       trim: true,
     },
-
     location: {
       type: String,
       trim: true,
     },
-
     profilePicture: {
       type: String,
       default: null,
     },
-
     isVerified: {
       type: Boolean,
       default: false,
@@ -61,41 +54,25 @@ const tenantSchema = new mongoose.Schema(
   }
 );
 
-tenantSchema.pre("save", async function (next) {
+// 🔴 FIXED: Removed `next`. Modern Mongoose handles async natively.
+tenantSchema.pre("save", async function () {
+  // Only hash the password if it has been modified or is new
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(
-      this.password,
-      salt
-    );
-
-    next();
-  } catch (error) {
-    next(error);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
-tenantSchema.methods.comparePassword =
-  async function (enteredPassword) {
-    return bcrypt.compare(
-      enteredPassword,
-      this.password
-    );
-  };
+tenantSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 tenantSchema.methods.toJSON = function () {
   const obj = this.toObject();
-
   delete obj.password;
-
   return obj;
 };
 
-module.exports = mongoose.model(
-  "Tenant",
-  tenantSchema
-);
+module.exports = mongoose.model("Tenant", tenantSchema);

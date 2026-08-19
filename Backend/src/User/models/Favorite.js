@@ -11,43 +11,50 @@ const favoriteSchema = new mongoose.Schema(
     propertyId: {
       type: String,
       required: true,
+      trim: true,
     },
 
     title: {
       type: String,
       required: true,
+      trim: true,
     },
 
     location: {
       type: String,
       required: true,
+      trim: true,
     },
 
     price: {
       type: Number,
       required: true,
+      default: 0,
     },
 
     bedrooms: {
       type: Number,
+      default: 0,
     },
 
     bathrooms: {
       type: Number,
+      default: 0,
     },
 
     area: {
       type: Number,
+      default: 0,
     },
 
-    images: [
-      {
-        type: String,
-      },
-    ],
+    images: {
+      type: [String],
+      default: [],
+    },
 
     description: {
       type: String,
+      default: "",
     },
 
     addedAt: {
@@ -70,7 +77,4 @@ favoriteSchema.index(
   }
 );
 
-module.exports = mongoose.model(
-  "Favorite",
-  favoriteSchema
-);
+module.exports = mongoose.model("Favorite", favoriteSchema);
