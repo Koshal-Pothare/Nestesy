@@ -1,9 +1,10 @@
+require("dotenv").config();
+
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const connectDB = require("./config/database");
-
 const {
   notFound,
   errorHandler,
@@ -33,18 +34,15 @@ const publicPropertyRoutes = require("./public/routes/publicPropertyRoutes");
 
 const app = express();
 
-connectDB();
-
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
@@ -72,6 +70,7 @@ app.use("/api/admin/bookings", bookingManagementRoutes);
 app.use("/api/admin/reviews", reviewManagementRoutes);
 
 app.use("/api/owner/auth", ownerAuthRoutes);
+
 app.use("/api/owners/properties", propertyRoutes);
 app.use("/api/owners/dashboard", ownerDashboardRoutes);
 app.use("/api/owners/visits", visitRoutes);
@@ -85,5 +84,34 @@ app.use("/api/properties", publicPropertyRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+
+const startServer = async () => {
+  try {
+    await connectDB();
+    console.log("✅ MongoDB connected");
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+if (require.main === module) {
+  process.on("unhandledRejection", (reason) => {
+    console.error("Unhandled Rejection:", reason);
+  });
+
+  process.on("uncaughtException", (err) => {
+    console.error("Uncaught Exception:", err);
+    process.exit(1);
+  });
+
+  startServer();
+}
 
 module.exports = app;
