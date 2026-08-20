@@ -78,11 +78,14 @@ const HostRegister = () => {
 
       const data = response.data;
 
-      console.log("Owner registration:", data);
+      if (data?.token && data?.owner) {
+        localStorage.setItem("ownerToken", data.token);
+        localStorage.setItem("owner", JSON.stringify(data.owner));
+      }
 
       setSuccess(
         data?.message ||
-          "Registration successful! Please wait for admin approval."
+          "Registration successful! Redirecting to host dashboard..."
       );
 
       setName("");
@@ -92,10 +95,12 @@ const HostRegister = () => {
       setAgree(false);
 
       setTimeout(() => {
-        navigate("/host/login", {
-          replace: true,
-        });
-      }, 2000);
+        if (data?.token) {
+          navigate("/host", { replace: true });
+        } else {
+          navigate("/host/login", { replace: true });
+        }
+      }, 1500);
     } catch (error) {
       console.error(
         "Host registration error:",
