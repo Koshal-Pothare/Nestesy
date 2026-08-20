@@ -288,34 +288,70 @@ const seedData = async () => {
     console.log('Seeding Bookings...');
     const bookings = await Booking.create([
       {
-        tenantId: tenants[0]._id, // Arjun
-        ownerId: hosts[0]._id, // Rahul
-        propertyId: properties[0]._id, // Baner 2BHK
-        visitDate: new Date('2026-08-20'),
+        tenant: tenants[0]._id,
+        tenantId: tenants[0]._id,
+        propertyId: String(properties[0]._id),
+        title: properties[0].title,
+        location: properties[0].location || 'Baner, Pune',
+        price: properties[0].rent || 28000,
+        bedrooms: properties[0].bhk || 2,
+        bathrooms: properties[0].bathrooms || 2,
+        area: properties[0].area || 1150,
+        images: properties[0].images || [],
+        host: 'Rahul Sharma',
+        hostPhone: '9876543210',
+        visitDate: '2026-08-20',
         visitTime: '10:00 AM',
-        status: 'confirmed',
+        status: 'approved',
       },
       {
-        tenantId: tenants[1]._id, // Neha
-        ownerId: hosts[4]._id, // Vikram
-        propertyId: properties[3]._id, // Whitefield Villa
-        visitDate: new Date('2026-08-22'),
+        tenant: tenants[1]._id,
+        tenantId: tenants[1]._id,
+        propertyId: String(properties[3]._id),
+        title: properties[3].title,
+        location: properties[3].location || 'Whitefield, Bangalore',
+        price: properties[3].rent || 65000,
+        bedrooms: properties[3].bhk || 4,
+        bathrooms: properties[3].bathrooms || 4,
+        area: properties[3].area || 2500,
+        images: properties[3].images || [],
+        host: 'Vikram Joshi',
+        hostPhone: '9876543214',
+        visitDate: '2026-08-22',
         visitTime: '02:30 PM',
         status: 'pending',
       },
       {
-        tenantId: tenants[2]._id, // Rohan
-        ownerId: hosts[1]._id, // Amit
-        propertyId: properties[2]._id, // Sea View Andheri
-        visitDate: new Date('2026-08-15'),
+        tenant: tenants[2]._id,
+        tenantId: tenants[2]._id,
+        propertyId: String(properties[2]._id),
+        title: properties[2].title,
+        location: properties[2].location || 'Andheri West, Mumbai',
+        price: properties[2].rent || 45000,
+        bedrooms: properties[2].bhk || 2,
+        bathrooms: properties[2].bathrooms || 2,
+        area: properties[2].area || 950,
+        images: properties[2].images || [],
+        host: 'Amit Patil',
+        hostPhone: '9876543211',
+        visitDate: '2026-08-15',
         visitTime: '11:00 AM',
         status: 'completed',
       },
       {
-        tenantId: tenants[4]._id, // Vikas
-        ownerId: hosts[0]._id, // Rahul
-        propertyId: properties[1]._id, // Wakad 3BHK
-        visitDate: new Date('2026-08-25'),
+        tenant: tenants[4]._id,
+        tenantId: tenants[4]._id,
+        propertyId: String(properties[1]._id),
+        title: properties[1].title,
+        location: properties[1].location || 'Wakad, Pune',
+        price: properties[1].rent || 32000,
+        bedrooms: properties[1].bhk || 3,
+        bathrooms: properties[1].bathrooms || 3,
+        area: properties[1].area || 1400,
+        images: properties[1].images || [],
+        host: 'Rahul Sharma',
+        hostPhone: '9876543210',
+        visitDate: '2026-08-25',
         visitTime: '05:00 PM',
         status: 'pending',
       },
@@ -324,16 +360,20 @@ const seedData = async () => {
     console.log('Seeding Reviews...');
     await Review.create([
       {
-        propertyId: properties[2]._id,
+        tenant: tenants[2]._id,
         tenantId: tenants[2]._id,
+        propertyId: String(properties[0]._id),
+        title: 'Great Property',
+        description: 'Great property! Modern fixtures, great host, and very smooth visit experience.',
         rating: 5,
-        comment: 'Great property! Modern fixtures, great host, and very smooth visit experience.',
       },
       {
-        propertyId: properties[0]._id,
+        tenant: tenants[0]._id,
         tenantId: tenants[0]._id,
+        propertyId: String(properties[1]._id),
+        title: 'Clean and Cooperative',
+        description: 'Clean flat in a prime location. Owner Rahul was very cooperative.',
         rating: 4,
-        comment: 'Clean flat in a prime location. Owner Rahul was very cooperative.',
       },
     ]);
 
