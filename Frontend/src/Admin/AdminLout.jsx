@@ -50,14 +50,25 @@ const AdminLayout = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
  
+  // Auth guard
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const session = localStorage.getItem('adminSession');
+    if (!token || !session) {
+      navigate('/admin-login', { replace: true });
+    }
+  }, [navigate]);
+
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
     }
   }, [location, isMobile]);
 
-  const handleLogout = () => { 
-    navigate('/login');
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('adminSession');
+    navigate('/admin-login');
   };
 
   const toggleSidebar = () => {

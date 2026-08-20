@@ -33,6 +33,7 @@ const tenantAuthRoutes = require("./User/routes/tenantAuthRoutes");
 const tenantFavoriteRoutes = require("./User/routes/tenantFavoriteRoutes");
 const tenantBookingRoutes = require("./User/routes/tenantBookingRoutes");
 const tenantReviewRoutes = require("./User/routes/reviewRoutes");
+const tenantProfileRoutes = require("./User/routes/tenantProfileRoutes");
 
 const publicPropertyRoutes = require("./public/routes/publicPropertyRoutes");
 
@@ -44,17 +45,10 @@ connectDB();
 // CORS
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (
-        !origin ||
-        /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-        origin === process.env.CLIENT_URL
-      ) {
-        return callback(null, true);
-      }
-      return callback(null, true);
-    },
+    origin: true,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
@@ -107,12 +101,14 @@ app.use("/api/owners/analytics", analyticsRoutes);
 app.use("/api/owner/analytics", analyticsRoutes);
 app.use("/api/owners", roomRoutes);
 app.use("/api/owners", ownerProfileRoutes);
+app.use("/api/owner", ownerProfileRoutes);
 
 // Tenant / User Routes
 app.use("/api/tenant/auth", tenantAuthRoutes);
 app.use("/api/tenant/favorites", tenantFavoriteRoutes);
 app.use("/api/tenant/bookings", tenantBookingRoutes);
 app.use("/api/tenant/reviews", tenantReviewRoutes);
+app.use("/api/tenant/profile", tenantProfileRoutes);
 
 // Public Routes
 app.use("/api/properties", publicPropertyRoutes);

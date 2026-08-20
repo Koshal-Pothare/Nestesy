@@ -21,10 +21,7 @@ const getBookings = async (req, res) => {
     }
 
     const bookingsDocs = await Booking.find(query)
-      .sort({ createdAt: -1 })
-      .populate('tenantId', 'name email phone profileImage')
-      .populate('ownerId', 'name email phone')
-      .populate('propertyId', 'title locality city rent images');
+      .sort({ createdAt: -1 });
 
     // Perform search in populated data if search term provided
     let filtered = bookingsDocs;
@@ -48,24 +45,24 @@ const getBookings = async (req, res) => {
     const paginated = filtered.slice(skip, skip + limit);
 
     const formattedBookings = paginated.map((b) => {
-      const tenant = b.tenantId || {};
-      const owner = b.ownerId || {};
-      const property = b.propertyId || {};
-
       return {
         id: b._id,
         _id: b._id,
-        user: tenant.name || 'Anonymous User',
-        email: tenant.email || 'N/A',
-        phone: tenant.phone || 'N/A',
-        property: property.title || 'Property',
-        location: property.locality && property.city ? `${property.locality}, ${property.city}` : 'N/A',
-        propertyImage: property.images && property.images.length > 0 ? property.images[0] : '',
-        hostName: owner.name || 'N/A',
-        date: b.visitDate ? new Date(b.visitDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A',
+        user: b.tenantName || 'Anonymous User',
+        email: b.tenantEmail || 'N/A',
+        phone: b.tenantPhone || 'N/A',
+        property: b.title || 'Property',
+        location: b.location || 'N/A',
+        propertyImage: b.images && b.images.length > 0 ? b.images[0] : '',
+        hostName: b.host || 'N/A',
+        date: b.visitDate
+          ? new Date(b.visitDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+          : 'N/A',
         visitDate: b.visitDate,
         time: b.visitTime || '10:00 AM',
         status: b.status,
+        price: b.price || 0,
+        bedrooms: b.bedrooms || 0,
         rescheduleReason: b.rescheduleReason || '',
         adminNotes: b.adminNotes || '',
         createdAt: b.createdAt,

@@ -16,6 +16,7 @@ router.get("/property/:propertyId", getPropertyReviews);
 router.get("/rating/summary/:propertyId", getPropertyRatingSummary);
 
 // Protected routes
+router.get("/", protect, getUserReviews);
 router.post("/", protect, createReview);
 router.get("/user/all", protect, getUserReviews);
 router.put("/:id", protect, updateReview);

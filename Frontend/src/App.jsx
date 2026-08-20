@@ -32,6 +32,9 @@ import PropertyVerificationDetail from "./Admin/PropertyVerificationDetail";
 import HostManagement from "./Admin/HostManagement";
 import HostDetails from "./Admin/HostDetail";
 import BookingOverview from "./Admin/BookingOverview";
+import TenantManagement from "./Admin/TenantManagment";
+import ReviewManagement from "./Admin/ReviewManagement";
+import InquiryManagement from "./Admin/InquiryManagement";
 
 import HostDashboard from "./Host/HostDashboard";
 import HostLayout from "./Host/HostLayout";
@@ -115,6 +118,11 @@ function App() {
           element={<AdminLogin />}
         />
 
+        <Route
+          path="/admin/login"
+          element={<AdminLogin />}
+        />
+
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
 
@@ -141,6 +149,21 @@ function App() {
           <Route
             path="bookings"
             element={<BookingOverview />}
+          />
+
+          <Route
+            path="tenants"
+            element={<TenantManagement />}
+          />
+
+          <Route
+            path="reviews-management"
+            element={<ReviewManagement />}
+          />
+
+          <Route
+            path="inquiry-management"
+            element={<InquiryManagement />}
           />
         </Route>
 

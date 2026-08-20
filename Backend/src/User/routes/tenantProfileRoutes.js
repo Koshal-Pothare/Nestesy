@@ -1,31 +1,16 @@
-import express from 'express';
-import {
-  getProfile,
-  updateProfile,
-  changePassword,
-  getProfileCompletion,
-  deleteAccount,
-} from '../controllers/tenantProfileController.js';
-import { protect } from '../middleware/authMiddleware.js';
+const express = require("express");
+const { getMe, updateProfile } = require("../controllers/tenantAuthController");
+const { protect } = require("../../common/middleware/authMiddleware");
 
 const router = express.Router();
 
-// All routes are protected
+// All routes protected
 router.use(protect);
 
-// Get profile
-router.get('/', getProfile);
+// GET /api/tenant/profile → returns logged-in tenant profile
+router.get("/", getMe);
 
-// Update profile
-router.put('/', updateProfile);
+// PUT /api/tenant/profile → update tenant profile fields
+router.put("/", updateProfile);
 
-// Get profile completion percentage
-router.get('/completion/status', getProfileCompletion);
-
-// Change password
-router.post('/change-password', changePassword);
-
-// Delete account
-router.delete('/account/delete', deleteAccount);
-
-export default router;
+module.exports = router;

@@ -13,13 +13,12 @@ const getOwnerProfile = asyncHandler(async (req, res) => {
     throw new Error('Owner not found');
   }
 
-  // Find or create extended profile
-  let profile = await OwnerProfile.findOne({ owner: req.user._id });
-  
-  if (!profile) {
-    // Create an empty profile if it doesn't exist yet
-    profile = await OwnerProfile.create({ owner: req.user._id });
-  }
+  // Find or create extended profile (upsert avoids duplicate key errors)
+  let profile = await OwnerProfile.findOneAndUpdate(
+    { owner: req.user._id },
+    { $setOnInsert: { owner: req.user._id } },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
 
   res.json({
     // From Owner Model
