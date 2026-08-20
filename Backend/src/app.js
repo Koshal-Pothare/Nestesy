@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const connectDB = require("./config/database");
 
 const {
   notFound,
@@ -30,11 +31,16 @@ const ownerProfileRoutes = require("./owner/routes/ownerProfileRoutes");
 const tenantAuthRoutes = require("./User/routes/tenantAuthRoutes");
 const tenantFavoriteRoutes = require("./User/routes/tenantFavoriteRoutes");
 const tenantBookingRoutes = require("./User/routes/tenantBookingRoutes");
+const tenantReviewRoutes = require("./User/routes/reviewRoutes");
 
 const publicPropertyRoutes = require("./public/routes/publicPropertyRoutes");
 
 const app = express();
 
+// DATABASE
+connectDB();
+
+// CORS
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
@@ -42,17 +48,17 @@ app.use(
   })
 );
 
+// BODY & COOKIE PARSERS
 app.use(express.json({ limit: "10mb" }));
-
 app.use(
   express.urlencoded({
     extended: true,
     limit: "10mb",
   })
 );
-
 app.use(cookieParser());
 
+// ROOT & HEALTH CHECK
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -67,8 +73,10 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// UNIFIED & ROLE-BASED ROUTE MOUNTS
 app.use("/api/auth", commonAuthRoutes);
 
+// Admin Routes
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/owners", ownerManagementRoutes);
@@ -77,20 +85,29 @@ app.use("/api/admin/properties", propertyManagementRoutes);
 app.use("/api/admin/bookings", bookingManagementRoutes);
 app.use("/api/admin/reviews", reviewManagementRoutes);
 
+// Owner Routes
 app.use("/api/owner/auth", ownerAuthRoutes);
 app.use("/api/owners/properties", propertyRoutes);
+app.use("/api/owner/properties", propertyRoutes);
 app.use("/api/owners/dashboard", ownerDashboardRoutes);
+app.use("/api/owner/dashboard", ownerDashboardRoutes);
 app.use("/api/owners/visits", visitRoutes);
+app.use("/api/owner/visits", visitRoutes);
 app.use("/api/owners/analytics", analyticsRoutes);
+app.use("/api/owner/analytics", analyticsRoutes);
 app.use("/api/owners", roomRoutes);
 app.use("/api/owners", ownerProfileRoutes);
 
+// Tenant / User Routes
 app.use("/api/tenant/auth", tenantAuthRoutes);
 app.use("/api/tenant/favorites", tenantFavoriteRoutes);
 app.use("/api/tenant/bookings", tenantBookingRoutes);
+app.use("/api/tenant/reviews", tenantReviewRoutes);
 
+// Public Routes
 app.use("/api/properties", publicPropertyRoutes);
 
+// ERROR HANDLING
 app.use(notFound);
 app.use(errorHandler);
 

@@ -20,6 +20,11 @@ const ownerSchema = new mongoose.Schema(
       trim: true,
     },
 
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      select: false,
+    },
     phone: {
       type: String,
       trim: true,

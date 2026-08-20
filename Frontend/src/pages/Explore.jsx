@@ -20,6 +20,7 @@ import PropertyCard from "../Ui/PropertyCard";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import SortBy from "../Ui/SortBy";
+import { Properties as staticDefaultProperties } from "../Data/Data";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -197,15 +198,27 @@ const Explore = () => {
       const normalized = raw
         .map(normalizeProperty)
         .filter(Boolean)
-        .filter(isApprovedProperty); // client-side safety filter
+        .filter(isApprovedProperty);
 
-      setAllProperties(normalized);
-      setFilteredProperties(normalized);
+      const defaultNormalized = (staticDefaultProperties || [])
+        .map(normalizeProperty)
+        .filter(Boolean);
+
+      const finalProperties =
+        normalized.length > 0 ? normalized : defaultNormalized;
+
+      setAllProperties(finalProperties);
+      setFilteredProperties(finalProperties);
     } catch (error) {
       console.error("Error loading properties:", error);
       setPropertyError(error?.message || "Unable to load properties.");
-      setAllProperties([]);
-      setFilteredProperties([]);
+
+      const defaultNormalized = (staticDefaultProperties || [])
+        .map(normalizeProperty)
+        .filter(Boolean);
+
+      setAllProperties(defaultNormalized);
+      setFilteredProperties(defaultNormalized);
     } finally {
       setPropertyLoading(false);
     }

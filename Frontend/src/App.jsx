@@ -31,6 +31,7 @@ import AdminDashboard from "./Admin/AdminDashboard";
 import PropertyVerificationDetail from "./Admin/PropertyVerificationDetail";
 import HostManagement from "./Admin/HostManagement";
 import HostDetails from "./Admin/HostDetail";
+import BookingOverview from "./Admin/BookingOverview";
 
 import HostDashboard from "./Host/HostDashboard";
 import HostLayout from "./Host/HostLayout";
@@ -130,6 +131,16 @@ function App() {
           <Route
             path="hosts/:id"
             element={<HostDetails />}
+          />
+
+          <Route
+            path="bookings-overview"
+            element={<BookingOverview />}
+          />
+
+          <Route
+            path="bookings"
+            element={<BookingOverview />}
           />
         </Route>
 

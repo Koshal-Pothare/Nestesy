@@ -1,23 +1,30 @@
-import Review from '../models/Review.js';
+const Review = require("../models/Review");
 
 // Create a review
-export const createReview = async (req, res) => {
+const createReview = async (req, res) => {
   try {
     const { propertyId, title, description, rating, cleanliness, communication, accuracy, checkIn, value } = req.body;
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
+
+    if (!tenantId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
 
     // Validation
     if (!propertyId || !title || !description || !rating) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide all required fields',
+        message: "Please provide all required fields",
       });
     }
 
     if (rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
-        message: 'Rating must be between 1 and 5',
+        message: "Rating must be between 1 and 5",
       });
     }
 
@@ -30,7 +37,7 @@ export const createReview = async (req, res) => {
     if (existingReview) {
       return res.status(409).json({
         success: false,
-        message: 'You have already reviewed this property',
+        message: "You have already reviewed this property",
       });
     }
 
@@ -52,20 +59,20 @@ export const createReview = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Review created successfully',
+      message: "Review created successfully",
       review,
     });
   } catch (error) {
-    console.error('Error creating review:', error);
+    console.error("Error creating review:", error);
     res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while creating review',
+      message: error.message || "An error occurred while creating review",
     });
   }
 };
 
 // Get all reviews for a property
-export const getPropertyReviews = async (req, res) => {
+const getPropertyReviews = async (req, res) => {
   try {
     const { propertyId } = req.params;
     const { page = 1, limit = 10 } = req.query;
@@ -73,7 +80,7 @@ export const getPropertyReviews = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const reviews = await Review.find({ propertyId })
-      .populate('tenant', 'name profilePicture')
+      .populate("tenant", "name profilePicture")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -89,18 +96,25 @@ export const getPropertyReviews = async (req, res) => {
       reviews,
     });
   } catch (error) {
-    console.error('Error fetching property reviews:', error);
+    console.error("Error fetching property reviews:", error);
     res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while fetching property reviews',
+      message: error.message || "An error occurred while fetching property reviews",
     });
   }
 };
 
 // Get user reviews
-export const getUserReviews = async (req, res) => {
+const getUserReviews = async (req, res) => {
   try {
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
+
+    if (!tenantId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
 
     const reviews = await Review.find({ tenant: tenantId }).sort({ createdAt: -1 });
 
@@ -110,16 +124,16 @@ export const getUserReviews = async (req, res) => {
       reviews,
     });
   } catch (error) {
-    console.error('Error fetching user reviews:', error);
+    console.error("Error fetching user reviews:", error);
     res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while fetching user reviews',
+      message: error.message || "An error occurred while fetching user reviews",
     });
   }
 };
 
 // Get property rating summary
-export const getPropertyRatingSummary = async (req, res) => {
+const getPropertyRatingSummary = async (req, res) => {
   try {
     const { propertyId } = req.params;
 
@@ -128,13 +142,13 @@ export const getPropertyRatingSummary = async (req, res) => {
       {
         $group: {
           _id: null,
-          averageRating: { $avg: '$rating' },
+          averageRating: { $avg: "$rating" },
           totalReviews: { $sum: 1 },
-          averageCleanliness: { $avg: '$cleanliness' },
-          averageCommunication: { $avg: '$communication' },
-          averageAccuracy: { $avg: '$accuracy' },
-          averageCheckIn: { $avg: '$checkIn' },
-          averageValue: { $avg: '$value' },
+          averageCleanliness: { $avg: "$cleanliness" },
+          averageCommunication: { $avg: "$communication" },
+          averageAccuracy: { $avg: "$accuracy" },
+          averageCheckIn: { $avg: "$checkIn" },
+          averageValue: { $avg: "$value" },
         },
       },
     ]);
@@ -162,19 +176,19 @@ export const getPropertyRatingSummary = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching property rating summary:', error);
+    console.error("Error fetching property rating summary:", error);
     res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while fetching property rating summary',
+      message: error.message || "An error occurred while fetching property rating summary",
     });
   }
 };
 
 // Update review
-export const updateReview = async (req, res) => {
+const updateReview = async (req, res) => {
   try {
     const { id } = req.params;
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
     const { title, description, rating } = req.body;
 
     const review = await Review.findOne({ _id: id, tenant: tenantId });
@@ -182,7 +196,7 @@ export const updateReview = async (req, res) => {
     if (!review) {
       return res.status(404).json({
         success: false,
-        message: 'Review not found',
+        message: "Review not found",
       });
     }
 
@@ -192,7 +206,7 @@ export const updateReview = async (req, res) => {
       if (rating < 1 || rating > 5) {
         return res.status(400).json({
           success: false,
-          message: 'Rating must be between 1 and 5',
+          message: "Rating must be between 1 and 5",
         });
       }
       review.rating = rating;
@@ -202,42 +216,51 @@ export const updateReview = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Review updated successfully',
+      message: "Review updated successfully",
       review,
     });
   } catch (error) {
-    console.error('Error updating review:', error);
+    console.error("Error updating review:", error);
     res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while updating review',
+      message: error.message || "An error occurred while updating review",
     });
   }
 };
 
 // Delete review
-export const deleteReview = async (req, res) => {
+const deleteReview = async (req, res) => {
   try {
     const { id } = req.params;
-    const tenantId = req.user._id;
+    const tenantId = req.user?._id;
 
     const review = await Review.findOneAndDelete({ _id: id, tenant: tenantId });
 
     if (!review) {
       return res.status(404).json({
         success: false,
-        message: 'Review not found',
+        message: "Review not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Review deleted successfully',
+      message: "Review deleted successfully",
     });
   } catch (error) {
-    console.error('Error deleting review:', error);
+    console.error("Error deleting review:", error);
     res.status(500).json({
       success: false,
-      message: error.message || 'An error occurred while deleting review',
+      message: error.message || "An error occurred while deleting review",
     });
   }
+};
+
+module.exports = {
+  createReview,
+  getPropertyReviews,
+  getUserReviews,
+  getPropertyRatingSummary,
+  updateReview,
+  deleteReview,
 };

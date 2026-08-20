@@ -1,24 +1,24 @@
-import express from 'express';
-import {
+const express = require("express");
+const {
   createReview,
   getPropertyReviews,
   getUserReviews,
   getPropertyRatingSummary,
   updateReview,
   deleteReview,
-} from '../controllers/reviewController.js';
-import { protect, optionalAuth } from '../middleware/authMiddleware.js';
+} = require("../controllers/reviewController");
+const { protect } = require("../../common/middleware/authMiddleware");
 
 const router = express.Router();
 
 // Public routes
-router.get('/property/:propertyId', optionalAuth, getPropertyReviews);
-router.get('/rating/summary/:propertyId', optionalAuth, getPropertyRatingSummary);
+router.get("/property/:propertyId", getPropertyReviews);
+router.get("/rating/summary/:propertyId", getPropertyRatingSummary);
 
 // Protected routes
-router.post('/', protect, createReview);
-router.get('/user/all', protect, getUserReviews);
-router.put('/:id', protect, updateReview);
-router.delete('/:id', protect, deleteReview);
+router.post("/", protect, createReview);
+router.get("/user/all", protect, getUserReviews);
+router.put("/:id", protect, updateReview);
+router.delete("/:id", protect, deleteReview);
 
-export default router;
+module.exports = router;

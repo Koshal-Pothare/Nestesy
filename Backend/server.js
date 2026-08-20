@@ -37,8 +37,7 @@ const startServer = async () => {
     const cloudinaryReady = await verifyCloudinaryConfig();
 
     if (!cloudinaryReady) {
-      console.error("❌ Cloudinary verification failed.");
-      process.exit(1);
+      console.warn("⚠️ Cloudinary verification failed or credentials not set. App running in local dev mode.");
     }
 
     const server = app.listen(PORT, () => {

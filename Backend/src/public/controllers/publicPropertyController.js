@@ -54,9 +54,9 @@ const normalizeProperty = (property) => {
     data.address ||
     "Location not available";
 
-  const host = data.verification?.ownerName || "Host";
-  const hostPhone = data.verification?.ownerPhone || "Not provided";
-  const hostEmail = data.verification?.ownerEmail || "Not provided";
+  const host = data.verification?.ownerName || data.ownerId?.name || "Host";
+  const hostPhone = data.verification?.ownerPhone || data.ownerId?.phone || "Not provided";
+  const hostEmail = data.verification?.ownerEmail || data.ownerId?.email || "Not provided";
 
   return {
     ...data,
@@ -117,7 +117,7 @@ const normalizeProperty = (property) => {
 };
 
 const APPROVED_FILTER = {
-  status: { $in: ["approved", "active"] },
+  status: { $in: ["approved", "active", "Active"] },
   availability: { $ne: false },
 };
 
@@ -186,6 +186,7 @@ const getPublicProperties = asyncHandler(async (req, res) => {
   }
 
   const properties = await Property.find(filter)
+    .populate("ownerId", "name email phone")
     .sort({ createdAt: -1 })
     .lean();
 
@@ -209,7 +210,9 @@ const getPublicPropertyById = asyncHandler(async (req, res) => {
   const property = await Property.findOne({
     _id: id,
     ...APPROVED_FILTER,
-  }).lean();
+  })
+    .populate("ownerId", "name email phone")
+    .lean();
 
   if (!property) {
     res.status(404);

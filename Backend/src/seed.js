@@ -5,10 +5,10 @@ const bcrypt = require('bcryptjs');
 const connectDB = require('./config/database');
 const Admin = require('./admin/models/Admin');
 const Owner = require('./owner/models/Owner');
-const Tenant = require('./tenant/models/Tenant');
+const Tenant = require('./User/models/Tenant');
 const Property = require('./owner/models/Property');
-const Booking = require('./tenant/models/Booking');
-const Review = require('./tenant/models/Review');
+const Booking = require('./User/models/Booking');
+const Review = require('./User/models/Review');
 
 const seedData = async () => {
   try {
