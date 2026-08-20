@@ -8,6 +8,11 @@ const favoriteSchema = new mongoose.Schema(
       required: true,
     },
 
+    tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tenant",
+    },
+
     propertyId: {
       type: String,
       required: true,
@@ -66,6 +71,13 @@ const favoriteSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+favoriteSchema.pre("save", function (next) {
+  if (this.tenant && !this.tenantId) {
+    this.tenantId = this.tenant;
+  }
+  next();
+});
 
 favoriteSchema.index(
   {

@@ -1,9 +1,18 @@
-const SibApiV3Sdk = require('sib-api-v3-sdk');
+let SibApiV3Sdk = null;
+let transactionalEmailApi = null;
 
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY;
+try {
+  SibApiV3Sdk = require("sib-api-v3-sdk");
 
-const transactionalEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+  if (process.env.BREVO_API_KEY) {
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    const apiKey = defaultClient.authentications["api-key"];
+    apiKey.apiKey = process.env.BREVO_API_KEY;
+
+    transactionalEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+  }
+} catch (err) {
+  console.warn("⚠️ Brevo SDK (sib-api-v3-sdk) not installed. Email sending will run in mock mode.");
+}
 
 module.exports = { transactionalEmailApi, SibApiV3Sdk };

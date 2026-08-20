@@ -12,8 +12,34 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) return;
-    setLoading(true);
-   
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to process request");
+      }
+      await Swal.fire({
+        title: "Password Reset Sent!",
+        text: data.message || "Check your email for password reset instructions.",
+        icon: "success",
+        confirmButtonColor: "#1e3a5f",
+      });
+      setEmail("");
+    } catch (err) {
+      Swal.fire({
+        title: "Error",
+        text: err.message || "Failed to send password reset request.",
+        icon: "error",
+        confirmButtonColor: "#1e3a5f",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

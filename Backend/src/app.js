@@ -11,6 +11,7 @@ const {
 } = require("./common/middleware/errorMiddleware");
 
 const commonAuthRoutes = require("./common/routes/commonAuthRoutes");
+const contactRoutes = require("./common/routes/contactRoutes");
 
 const adminAuthRoutes = require("./admin/routes/adminAuthRoutes");
 const adminDashboardRoutes = require("./admin/routes/adminDashboardRoutes");
@@ -106,6 +107,7 @@ app.use("/api/tenant/reviews", tenantReviewRoutes);
 
 // Public Routes
 app.use("/api/properties", publicPropertyRoutes);
+app.use("/api/contact", contactRoutes);
 
 // ERROR HANDLING
 app.use(notFound);
