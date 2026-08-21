@@ -98,7 +98,7 @@ const HostRegister = () => {
         if (data?.token) {
           navigate("/host", { replace: true });
         } else {
-          navigate("/host/login", { replace: true });
+          navigate("/become-a-host", { replace: true });
         }
       }, 1500);
     } catch (error) {

@@ -113,11 +113,11 @@ const normalizeProperty = (property = {}) => {
       ? property.location
       : generatedLocation ||
         property?.address ||
-        property?.verification?.propertyAddress ||
+        // property?.verification?.propertyAddress || // COMMENTED: Verification
         "Location not available";
 
   const normalizedStatus = normalizeStatus(
-    property?.status || property?.approvalStatus || property?.verification?.status
+    property?.status || property?.approvalStatus // || property?.verification?.status // COMMENTED: Verification
   );
 
   return {
@@ -127,7 +127,7 @@ const normalizeProperty = (property = {}) => {
     title: property?.title || property?.name || "Untitled Property",
     description: property?.description || property?.details || "",
     location,
-    address: property?.address || property?.verification?.propertyAddress || "",
+    address: property?.address /* || property?.verification?.propertyAddress */, // COMMENTED: Verification
     locality: property?.locality || "",
     city: property?.city || "",
     state: property?.state || "",
@@ -141,7 +141,7 @@ const normalizeProperty = (property = {}) => {
     propertyType: property?.propertyType || property?.type || "Property",
     status: normalizedStatus,
     approvalStatus: normalizedStatus,
-    verification: property?.verification || null,
+    // verification: property?.verification || null, // COMMENTED: Verification
     inquiries: toNumber(property?.inquiries, 0),
     views: toNumber(property?.views, 0),
     images,
@@ -163,7 +163,7 @@ const HostPropertyDetails = () => {
   const navigate = useNavigate();
 
   const [property, setProperty] = useState(null);
-  const [visitors, setVisitors] = useState([]); // <-- Added state for real visitors
+  const [visitors, setVisitors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -233,7 +233,6 @@ const HostPropertyDetails = () => {
     }
   }, [id, navigate]);
 
-  // Fetch real visitors/bookings for this property
   const loadVisitors = useCallback(async () => {
     if (!id) return;
     
@@ -260,7 +259,7 @@ const HostPropertyDetails = () => {
 
   useEffect(() => {
     loadProperty();
-    loadVisitors(); // Fetch visitors when the page loads
+    loadVisitors();
   }, [loadProperty, loadVisitors]);
 
   const handleDelete = async () => {
@@ -400,8 +399,8 @@ const HostPropertyDetails = () => {
     }
 
     const status = property.status || "pending";
-    const verificationStatus = property?.verification?.status;
-    const verified = property?.verification?.verified === true;
+    // const verificationStatus = property?.verification?.status; 
+    // const verified = property?.verification?.verified === true;  
 
     if (status === "rented") {
       return {
@@ -412,7 +411,7 @@ const HostPropertyDetails = () => {
       };
     }
 
-    if (status === "active" || (status === "approved" && verified)) {
+    if (status === "active" || status === "approved" /* && verified */) {  
       return {
         bg: "bg-green-100",
         text: "text-green-800",
@@ -421,7 +420,7 @@ const HostPropertyDetails = () => {
       };
     }
 
-    if (status === "rejected" || status === "inactive" || verificationStatus === "rejected") {
+    if (status === "rejected" || status === "inactive" /* || verificationStatus === "rejected" */) {  
       return {
         bg: "bg-red-100",
         text: "text-red-800",
@@ -437,7 +436,8 @@ const HostPropertyDetails = () => {
       label: "Pending Verification",
     };
   }, [property]);
-
+ 
+  /*
   const verificationStatus = useMemo(() => {
     if (!property?.verification) {
       return {
@@ -475,6 +475,7 @@ const HostPropertyDetails = () => {
       border: "border-yellow-200",
     };
   }, [property]);
+  */
 
   const images = useMemo(() => {
     if (!property) return [];
@@ -485,8 +486,8 @@ const HostPropertyDetails = () => {
 
   const currentStatus = property?.status || "pending";
   const isVerified =
-    property?.verification?.verified === true ||
-    property?.verification?.status === "approved" ||
+    property?.verification?.verified === true || //  Verification
+    property?.verification?.status === "approved" || // Verification
     currentStatus === "approved" ||
     currentStatus === "active";
 
@@ -710,7 +711,8 @@ const HostPropertyDetails = () => {
                   </div>
                 </section>
               )}
-
+ 
+              {/*
               {property.verification && (
                 <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
                   <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
@@ -809,6 +811,7 @@ const HostPropertyDetails = () => {
                     )}
                 </section>
               )}
+              */}
 
               <section className="mt-5 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
                 <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
@@ -850,7 +853,6 @@ const HostPropertyDetails = () => {
                 <div className="space-y-3">
                   {(showAllVisitors ? visitors : visitors.slice(0, 3)).map(
                     (visitor, index) => {
-                      // Extract data from the populated booking object
                       const visitorName = visitor?.tenant?.name || visitor?.visitorName || "Unknown Visitor";
                       const visitorEmail = visitor?.tenant?.email || visitor?.email || "No email";
                       const visitDate = visitor?.visitDate || "Not scheduled";

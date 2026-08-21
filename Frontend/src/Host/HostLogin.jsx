@@ -372,7 +372,7 @@ const HostLogin = ({ onLoginSuccess }) => {
         <button
           type="button"
           onClick={() =>
-            navigate("/host/register")
+            navigate("/become-a-host")
           }
           disabled={loading}
           className="text-primary-600 font-semibold hover:underline disabled:opacity-50"

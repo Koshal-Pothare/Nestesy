@@ -655,22 +655,22 @@ const MyProperties = () => {
     return {
       total: properties.length,
 
-      approved: properties.filter(
-        (property) =>
-          property.status ===
-            "approved" ||
-          property.status === "active"
-      ).length,
+      // approved: properties.filter(
+      //   (property) =>
+      //     property.status ===
+      //       "approved" ||
+      //     property.status === "active"
+      // ).length,
 
-      pending: properties.filter(
-        (property) =>
-          property.status === "pending"
-      ).length,
+      // pending: properties.filter(
+      //   (property) =>
+      //     property.status === "pending"
+      // ).length,
 
-      rejected: properties.filter(
-        (property) =>
-          property.status === "rejected"
-      ).length,
+      // rejected: properties.filter(
+      //   (property) =>
+      //     property.status === "rejected"
+      // ).length,
 
       rented: properties.filter(
         (property) =>
@@ -1002,7 +1002,7 @@ const MyProperties = () => {
           text="Properties"
         />
 
-        <StatCard
+        {/* <StatCard
           label="Approved"
           value={stats.approved}
           text="Listings"
@@ -1021,7 +1021,7 @@ const MyProperties = () => {
           value={stats.rejected}
           text="Listings"
           color="red"
-        />
+        /> */}
 
         <StatCard
           label="Rented"
