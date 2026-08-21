@@ -189,21 +189,7 @@ const AdminPropertyVerification = () => {
           <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
           <p className="text-xs text-gray-400">All Properties</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-yellow-100 shadow-sm">
-          <p className="text-xs text-yellow-600">Pending</p>
-          <p className="text-2xl font-bold text-yellow-700">{stats.pending}</p>
-          <p className="text-xs text-yellow-500">Need Review</p>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-green-100 shadow-sm">
-          <p className="text-xs text-green-600">Verified</p>
-          <p className="text-2xl font-bold text-green-700">{stats.verified}</p>
-          <p className="text-xs text-green-500">Approved</p>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-red-100 shadow-sm">
-          <p className="text-xs text-red-600">Rejected</p>
-          <p className="text-2xl font-bold text-red-700">{stats.rejected}</p>
-          <p className="text-xs text-red-500">Declined</p>
-        </div>
+       
       </div>
 
       {/* Filters and Search */}

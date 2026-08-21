@@ -311,11 +311,11 @@ const EditProperty = () => {
       fd.append("idealFor", JSON.stringify(formData.idealFor));
 
       // Verification text fields
-      fd.append("ownerName", formData.ownerName);
-      fd.append("ownerEmail", formData.ownerEmail);
-      fd.append("ownerPhone", formData.ownerPhone);
-      fd.append("propertyAddress", formData.propertyAddress);
-      fd.append("additionalNotes", formData.additionalNotes);
+      // fd.append("ownerName", formData.ownerName);
+      // fd.append("ownerEmail", formData.ownerEmail);
+      // fd.append("ownerPhone", formData.ownerPhone);
+      // fd.append("propertyAddress", formData.propertyAddress);
+      // fd.append("additionalNotes", formData.additionalNotes);
 
       // Non-bedroom images: existing URLs as JSON + new files
       const outer = splitImages(formData.outerImages);
@@ -909,7 +909,7 @@ const EditProperty = () => {
           )}
 
           {/* Verification Details (text only — documents already uploaded) */}
-          <section className="border-t border-gray-100 pt-6">
+          {/* <section className="border-t border-gray-100 pt-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-blue-600" />
               Verification Details
@@ -966,7 +966,7 @@ const EditProperty = () => {
                 />
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Amenities */}
           <section className="border-t border-gray-100 pt-6">

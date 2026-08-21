@@ -235,14 +235,14 @@ const normalizeProperty = (property = {}) => {
           .join(", ")
       : generatedLocation ||
         property?.address ||
-        property?.verification
-          ?.propertyAddress ||
+        // property?.verification
+        //   ?.propertyAddress ||
         "Location not available";
 
   const normalizedStatus = normalizeStatus(
     property?.status ||
-      property?.approvalStatus ||
-      property?.verification?.status
+      property?.approvalStatus
+      // property?.verification?.status
   );
 
   return {
@@ -268,8 +268,8 @@ const normalizeProperty = (property = {}) => {
 
     address:
       property?.address ||
-      property?.verification
-        ?.propertyAddress ||
+      // property?.verification
+      //   ?.propertyAddress ||
       "",
 
     locality:
@@ -362,9 +362,9 @@ const normalizeProperty = (property = {}) => {
     approvalStatus:
       normalizedStatus,
 
-    verification:
-      property?.verification ||
-      null,
+    // verification:
+    //   property?.verification ||
+    //   null,
 
     inquiries: toNumber(
       property?.inquiries,

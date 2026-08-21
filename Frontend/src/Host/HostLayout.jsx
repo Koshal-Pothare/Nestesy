@@ -94,7 +94,7 @@ const HostLayout = () => {
     localStorage.removeItem("ownerToken");
     localStorage.removeItem("owner");
 
-    navigate("/host/login", {
+    navigate("/become-a-host", {
       replace: true,
     });
   };

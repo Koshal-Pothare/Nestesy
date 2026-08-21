@@ -403,18 +403,354 @@ const UserDashboard = () => {
         </motion.div>
       </section>
 
-      {/* KEEP YOUR EXISTING:
-          UPCOMING VISITS
-          BOOKING HISTORY
-          FAVORITE PROPERTIES
-          PROFILE & PRIVACY
-          JSX HERE
-      */}
+
+{/* property section */}
+
+  <section className=" grid grid-cols-1 md:grid-cols-2 gap-5 p-5 h-auto mt-10 ">
+      
+      {/* upcoming visits */}
+      <div className="h-full border border-gray-300 p-3 rounded-2xl shadow-sm bg-white">
+        <div className="w-full flex justify-between items-center ">
+            <h3 className="text-lg text-gray-800 font-semibold ml-5">Upcoming Visits</h3>
+        <button
+        onClick={()=>navigate("/user/upcoming-visits")}
+        className="text-primary-500 text-sm font-semibold mr-5 cursor-pointer">View all</button>
+        </div>
+      {visits.length === 0 ? (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="flex min-h-[150px] flex-col items-center justify-center rounded-2xl bg-gray-50 px-4 text-center"
+  >
+    <CalendarDays size={32} className="text-gray-300" />
+    <p className="mt-2 text-sm font-semibold text-gray-500">
+      No upcoming visits
+    </p>
+    <p className="mt-1 text-xs text-gray-400">
+      Your scheduled property visits will appear here.
+    </p>
+  </motion.div>
+) : (
+  <div className="mt-4 space-y-3">
+    {visits.slice(0, 2).map((visit, index) => (
+       <motion.div
+      key={visit.id}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      whileHover={{ y: -2 }}
+      className="group w-full rounded-2xl border border-gray-100 bg-gray-50/70 p-3 transition-all duration-300 hover:bg-white hover:shadow-md"
+    >
+      <div className="flex items-center gap-3 sm:gap-4">
+        {/* Image */}
+        <div className="h-20 w-20 sm:h-25 sm:w-30 shrink-0 overflow-hidden rounded-xl">
+          <img
+            src={visit.images?.[0]}
+            alt={visit.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        </div>
+
+        {/* Property Details */}
+        <div className="min-w-0 flex-1">
+          <div className="flex justify-between">
+          <h2 className="truncate text-sm sm:text-base font-semibold text-gray-800">
+            {visit.title}
+          </h2>
+            <div className="  flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-primary-700 shadow-sm backdrop-blur-sm sm:text-[12px]">
+                    <span className="h-2 w-2 rounded-full bg-primary-500" />
+                    Upcoming
+                  </div>
+          </div>
+
+          <p className="mt-1 truncate text-xs sm:text-sm text-gray-500">
+            {visit.location}
+          </p>
+
+          {/* Date & Time */}
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs">
+            <span className="rounded-lg bg-primary-50 px-2 py-1 font-medium text-primary-700">
+              {visit.visitDate}
+            </span>
+
+            <span className="rounded-lg bg-gray-100 px-2 py-1 font-medium text-gray-600">
+              {visit.visitTime}
+            </span>
+          </div>
+          
+        </div>
+        
+      </div>
+       
+    </motion.div>
+    ))}
+  </div>
+)}
+      </div>
+
+      {/* booking history */}
+       <div className="h-full border border-gray-300 p-3 rounded-2xl shadow-sm bg-white">
+        <div className="w-full flex justify-between items-center ">
+            <h3 className="text-lg text-gray-800 font-semibold ml-5">Booking History</h3>
+        <button 
+        onClick={()=>navigate("/user/booking-history")}
+        className="text-primary-500 text-sm font-semibold mr-5 cursor-pointer">View all</button>
+        </div>
+             {activeBookings.length === 0 ? (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="flex min-h-[150px] flex-col items-center justify-center rounded-2xl bg-gray-50 px-4 text-center"
+  >
+    <CalendarDays size={32} className="text-gray-300" />
+    <p className="mt-2 text-sm font-semibold text-gray-500">
+      No Active Booking
+    </p>
+    <p className="mt-1 text-xs text-gray-400">
+      Your active booking property visits will appear here.
+    </p>
+  </motion.div>
+) : (
+  <div className="mt-4 space-y-3">
+    {activeBookings.slice(0, 2).map((booking, index) => (
+       <motion.div
+      key={booking.id}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      whileHover={{ y: -2 }}
+      className="group w-full rounded-2xl border border-gray-100 bg-gray-50/70 p-3 transition-all duration-300 hover:bg-white hover:shadow-md"
+    >
+      <div className="flex items-center gap-3 sm:gap-4">
+        {/* Image */}
+        <div className="h-20 w-20 sm:h-25 sm:w-30 shrink-0 overflow-hidden rounded-xl">
+          <img
+            src={booking.images?.[0]}
+            alt={booking.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        </div>
+
+        {/* Property Details */}
+        <div className="min-w-0 flex-1">
+          <div className="flex justify-between">
+          <h2 className="truncate text-sm sm:text-base font-semibold text-gray-800">
+            {booking.title}
+          </h2>
+            <div className="  flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-primary-700 shadow-sm backdrop-blur-sm sm:text-[12px]">
+                    <span className="h-2 w-2 rounded-full bg-primary-500" />
+                    Upcoming
+                  </div>
+          </div>
+
+          <p className="mt-1 truncate text-xs sm:text-sm text-gray-500">
+            {booking.location}
+          </p>
+
+          {/* Date & Time */}
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs">
+            <span className="rounded-lg bg-primary-50 px-2 py-1 font-medium text-primary-700">
+              {booking.visitDate}
+            </span>
+
+            <span className="rounded-lg bg-gray-100 px-2 py-1 font-medium text-gray-600">
+              {booking.visitTime}
+            </span>
+          </div>
+          
+        </div>
+        
+      </div>
+       
+    </motion.div>
+    ))}
+  </div>
+)}
+      
+       </div>
+    </section>
+
 
       {/* PROFILE CARD EXAMPLE */}
       <section className="mt-10 grid grid-cols-1 gap-5 xl:grid-cols-3">
         <div className="xl:col-span-2">
-          {/* Your existing Favorites JSX */}
+        <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="xl:col-span-2 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm"
+  >
+    {/* Header */}
+    <div className="flex items-center justify-between mb-4">
+      <div>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+          Favorite Properties
+        </h3>
+
+        <p className="mt-1 text-xs text-gray-400">
+          Properties you've saved for later
+        </p>
+      </div>
+
+     
+    </div>
+
+    {/* No Favorites */}
+    {favorite.length === 0 ? (
+      <div className="flex min-h-[300px] flex-col items-center justify-center text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
+          <Heart size={30} className="text-primary-500" />
+        </div>
+
+        <h3 className="mt-4 text-base font-semibold text-gray-600">
+          No saved properties
+        </h3>
+
+        <p className="mt-1 max-w-xs text-xs text-gray-400">
+          Properties you save will appear here.
+        </p>
+
+        <motion.button
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={()=>navigate("/explore")}
+          className="mt-5 flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-primary-600/20"
+        >
+          Explore Properties
+
+          <motion.div
+            animate={{ x: [0, 4, 0] }}
+            transition={{ repeat: Infinity, duration: 1.2 }}
+          >
+            <ArrowRight size={16} />
+          </motion.div>
+        </motion.button>
+      </div>
+    ) : (
+        <>
+
+     {/* favorite cards */}
+      <motion.div
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+      >
+        {favorite.slice(0, 3).map((property, index) => (
+
+          <motion.div
+            key={property.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.35,
+              delay: index * 0.08,
+            }}
+            whileHover={{ y: -5 }}
+            className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+          >
+
+            {/* Image */}
+            <div className="relative h-36 sm:h-32 lg:h-36 w-full overflow-hidden">
+              <img
+                src={property.images?.[0]}
+                alt={property.title}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+
+              {/* Gradient */}
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent" />
+
+              {/* Wishlist */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md"
+              >
+                <Heart
+                  size={15}
+                  className="fill-red-500 text-red-500"
+                />
+              </motion.button>
+            </div>
+
+            {/* Content */}
+            <div className="p-3 sm:p-3.5">
+
+              {/* Title */}
+              <h3 className="truncate text-sm font-bold text-gray-800">
+                {property.title}
+              </h3>
+
+              {/* Location */}
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
+                <MapPin
+                  size={13}
+                  className="shrink-0 text-primary-600"
+                />
+
+                <span className="truncate">
+                  {property.location}
+                </span>
+              </div>
+
+              {/* Property Info */}
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[10px] text-gray-500">
+                <span>{property.bedrooms} Beds</span>
+
+                <span className="text-gray-300">•</span>
+
+                <span>{property.bathrooms} Bath</span>
+
+                <span className="text-gray-300">•</span>
+
+                <span>{property.area} sq.ft</span>
+              </div>
+
+              {/* Price */}
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-base font-bold text-primary-700">
+                  ₹{property.price?.toLocaleString()}
+                </span>
+
+                <span className="text-[9px] text-gray-400">
+                  / month
+                </span>
+              </div>
+
+              {/* Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                className="mt-3 w-full rounded-xl border border-primary-600 py-2 text-xs font-semibold text-primary-600 transition-all duration-300 hover:bg-primary-600 hover:text-white"
+              >
+                View Property
+              </motion.button>
+
+            </div>
+          </motion.div>
+        ))}
+         
+      </motion.div>
+
+        <div className="w-full flex justify-center mt-10">
+     <motion.button 
+      initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.35,
+              delay: 0.5,
+            }}
+     onClick={()=>navigate("/user/wishlist")}
+     className="bg-primary-600 text-lg text-white font-semibold hover:bg-primary-700 transition px-10 py-2 rounded-xl">
+        View all
+      </motion.button>
+      </div>
+
+      </>
+    )}
+   
+  </motion.div>
+
         </div>
 
         <motion.div

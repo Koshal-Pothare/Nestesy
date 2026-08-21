@@ -35,7 +35,7 @@ const statsData = [
     id: 1,
     title: "Total Properties",
     value: "12,847",
-    change: "+12.5%",
+    
     icon: Building2,
     color: "text-green-600",
     bgColor: "bg-green-100",
@@ -45,7 +45,7 @@ const statsData = [
     id: 2,
     title: "Total Users",
     value: "8,234",
-    change: "+8.2%",
+   
     icon: Users,
     color: "text-blue-600",
     bgColor: "bg-blue-100",
@@ -53,24 +53,15 @@ const statsData = [
   },
   {
     id: 3,
-    title: "Active Listings",
-    value: "4,521",
-    change: "+3.1%",
-    icon: Home,
+    title: "Total Host",
+    value: "521",
+    
+    icon: Users,
     color: "text-purple-600",
     bgColor: "bg-purple-100",
     trend: "up"
   },
-  {
-    id: 4,
-    title: "Revenue",
-    value: "₹85.4L",
-    change: "-2.3%",
-    icon: DollarSign,
-    color: "text-orange-600",
-    bgColor: "bg-orange-100",
-    trend: "down"
-  }
+
 ];
  
 const chartData = [
@@ -285,7 +276,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {statsCards}
         </div>
 
