@@ -1,32 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Building2,
-  Users,
-  Home,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
+  Users, 
   UserCheck,
-  Calendar,
-  Star,
+  Calendar, 
   MessageSquare,
   ArrowUpRight,
-  ArrowDownRight,
-  MoreVertical,
+  ArrowDownRight, 
   Eye,
   Edit,
   Trash2,
   Clock,
   CheckCircle,
   AlertCircle,
-  XCircle,
-  BarChart3,
-  PieChart,
-  Activity,
-  Download,
-  Filter,
-  Plus,
-  FileText,
+  XCircle, 
+  Download, 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
  
@@ -64,14 +52,11 @@ const statsData = [
 
 ];
  
-const chartData = [
-  { day: "Mon", value: 65 },
-  { day: "Tue", value: 45 },
-  { day: "Wed", value: 78 },
-  { day: "Thu", value: 55 },
-  { day: "Fri", value: 90 },
-  { day: "Sat", value: 70 },
-  { day: "Sun", value: 85 }
+// Pie chart data
+const pieChartData = [
+  { label: "Total Listings", value: 12847, color: "#10b981" },
+  { label: "Total Hosts", value: 521, color: "#8b5cf6" },
+  { label: "Total Tenants", value: 8234, color: "#3b82f6" }
 ];
 
 const recentProperties = [
@@ -163,7 +148,7 @@ const recentUsers = [
 const AdminDashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [hoveredStat, setHoveredStat] = useState(null);
-  const [hoveredBar, setHoveredBar] = useState(null);
+  const [hoveredPieSlice, setHoveredPieSlice] = useState(null);
 
   const [dashboardStats, setDashboardStats] = useState(statsData);
   const [dashboardRecentProps, setDashboardRecentProps] = useState(recentProperties);
@@ -194,10 +179,9 @@ const AdminDashboard = () => {
       .catch((err) => console.log('Dashboard stats fetch fallback to default:', err));
   }, []);
 
-  // Calculate max value for chart  
-  const maxValue = useMemo(() => {
-    const max = Math.max(...chartData.map(item => item.value));
-    return max * 1.1;
+  // Calculate total for percentage
+  const totalPieValue = useMemo(() => {
+    return pieChartData.reduce((sum, item) => sum + item.value, 0);
   }, []);
 
   // Stats cards
@@ -237,6 +221,95 @@ const AdminDashboard = () => {
       </motion.div>
     )), []
   );
+
+  // Pie Chart Component
+  const PieChart = ({ data, total, hoveredIndex, setHoveredIndex }) => {
+    const radius = 120;
+    const center = 130;
+    let currentAngle = 0;
+
+    return (
+      <div className="relative" style={{ width: '260px', height: '260px' }}>
+        <svg viewBox="0 0 260 260" className="w-full h-full">
+          {data.map((item, index) => {
+            const percentage = (item.value / total) * 100;
+            const angle = (percentage / 100) * 360;
+            const startAngle = currentAngle;
+            const endAngle = currentAngle + angle;
+            currentAngle = endAngle;
+
+            // Calculate SVG arc path
+            const startRad = (startAngle - 90) * (Math.PI / 180);
+            const endRad = (endAngle - 90) * (Math.PI / 180);
+            
+            const x1 = center + radius * Math.cos(startRad);
+            const y1 = center + radius * Math.sin(startRad);
+            const x2 = center + radius * Math.cos(endRad);
+            const y2 = center + radius * Math.sin(endRad);
+            
+            const largeArcFlag = angle > 180 ? 1 : 0;
+            
+            const path = `
+              M ${center} ${center}
+              L ${x1} ${y1}
+              A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}
+              Z
+            `;
+
+            const isHovered = hoveredIndex === index;
+
+            return (
+              <g key={index}>
+                <path
+                  d={path}
+                  fill={item.color}
+                  className="transition-all duration-300 cursor-pointer"
+                  opacity={isHovered ? 1 : (hoveredIndex !== null && hoveredIndex !== index ? 0.6 : 1)}
+                  transform={isHovered ? `scale(1.05) translate(-${center * 0.05}, -${center * 0.05})` : ''}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                />
+                {isHovered && (
+                  <text
+                    x={center}
+                    y={center - 10}
+                    textAnchor="middle"
+                    className="text-xs font-bold fill-white"
+                  >
+                    {percentage.toFixed(1)}%
+                  </text>
+                )}
+              </g>
+            );
+          })}
+          {/* Inner circle for donut effect */}
+          <circle
+            cx={center}
+            cy={center}
+            r={60}
+            fill="white"
+            className="transition-all duration-300"
+          />
+          <text
+            x={center}
+            y={center - 8}
+            textAnchor="middle"
+            className="text-lg font-bold fill-gray-800"
+          >
+            {total.toLocaleString()}
+          </text>
+          <text
+            x={center}
+            y={center + 16}
+            textAnchor="middle"
+            className="text-xs fill-gray-500"
+          >
+            Total
+          </text>
+        </svg>
+      </div>
+    );
+  };
 
   const getStatusColor = (status) => {
     switch(status.toLowerCase()) {
@@ -282,72 +355,61 @@ const AdminDashboard = () => {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Activity Chart */}
+          {/* Pie Chart - Distribution */}
           <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-bold text-gray-800">Activity Overview</h3>
-                <p className="text-sm text-gray-500">Weekly property listings and inquiries</p>
+                <h3 className="text-lg font-bold text-gray-800">Platform Distribution</h3>
+                <p className="text-sm text-gray-500">Total Listings vs Hosts vs Tenants</p>
               </div>
               <div className="flex items-center gap-2">
-                <select 
-                  className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-600 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
-                  value={selectedPeriod}
-                  onChange={(e) => setSelectedPeriod(e.target.value)}
-                >
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
                 <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Filter className="w-4 h-4 text-gray-500" />
+                  <Download className="w-4 h-4 text-gray-500" />
                 </button>
               </div>
             </div>
             
-            {/* Dynamic Chart Bars */}
-            <div className="h-64 flex items-end justify-between gap-2">
-              {chartData.map((item, index) => {
-                const heightPercentage = Math.max((item.value / maxValue) * 100, 10);
-                
-                return (
-                  <div key={index} className="flex-1 flex flex-col items-center gap-2 group h-full">
-                    <div className="relative w-full h-full flex items-end">
-                      <motion.div 
-                        className="w-full bg-gradient-to-t from-green-500 to-green-300 rounded-lg transition-all duration-300 origin-bottom cursor-pointer relative"
-                        style={{ minHeight: '20px' }}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${heightPercentage}%` }}
-                        transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.05 }}
-                        onMouseEnter={() => setHoveredBar(index)}
-                        onMouseLeave={() => setHoveredBar(null)}
-                      >
-                        <div className={`absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded transition-all duration-200 whitespace-nowrap ${
-                          hoveredBar === index ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-                        }`}>
-                          {item.value} listings
-                        </div>
-                      </motion.div>
-                    </div>
-                    <span className="text-xs text-gray-500 font-medium">{item.day}</span>
-                  </div>
-                );
-              })}
-            </div>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+              {/* Pie Chart */}
+              <PieChart 
+                data={pieChartData} 
+                total={totalPieValue}
+                hoveredIndex={hoveredPieSlice}
+                setHoveredIndex={setHoveredPieSlice}
+              />
 
-            {/* Chart Legend */}
-            <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-gray-100">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-t from-green-500 to-green-300"></div>
-                <span className="text-xs text-gray-500">Listings</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-                <span className="text-xs text-gray-500">Inquiries</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-purple-400"></div>
-                <span className="text-xs text-gray-500">Bookings</span>
+              {/* Legend */}
+              <div className="flex flex-col gap-3">
+                {pieChartData.map((item, index) => {
+                  const percentage = ((item.value / totalPieValue) * 100).toFixed(1);
+                  const isHovered = hoveredPieSlice === index;
+                  
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={`flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
+                        isHovered ? 'bg-gray-50 shadow-sm' : 'hover:bg-gray-50'
+                      }`}
+                      onMouseEnter={() => setHoveredPieSlice(index)}
+                      onMouseLeave={() => setHoveredPieSlice(null)}
+                    >
+                      <div 
+                        className="w-4 h-4 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-700">{item.label}</p>
+                        <p className="text-xs text-gray-500">{item.value.toLocaleString()} users</p>
+                      </div>
+                      <span className="text-sm font-bold" style={{ color: item.color }}>
+                        {percentage}%
+                      </span>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
