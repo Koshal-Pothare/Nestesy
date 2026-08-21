@@ -10,25 +10,25 @@ const getReviews = async (req, res) => {
   try {
     const reviewsDocs = await Review.find()
       .sort({ createdAt: -1 })
-      .populate('tenantId', 'name email profileImage')
-      .populate('propertyId', 'title city locality images');
+      .populate('tenant', 'name email profileImage');
 
     const formattedReviews = reviewsDocs.map((r) => ({
       id: r._id,
       _id: r._id,
       rating: r.rating,
-      comment: r.comment,
+      comment: r.description || r.comment || '',
+      title: r.title || '',
       createdAt: r.createdAt,
       tenant: {
-        id: r.tenantId ? r.tenantId._id : null,
-        name: r.tenantId ? r.tenantId.name : 'Anonymous',
-        email: r.tenantId ? r.tenantId.email : 'N/A',
-        profileImage: r.tenantId ? r.tenantId.profileImage : '',
+        id: r.tenant ? r.tenant._id : null,
+        name: r.tenant ? r.tenant.name : 'Anonymous',
+        email: r.tenant ? r.tenant.email : 'N/A',
+        profileImage: r.tenant ? r.tenant.profileImage : '',
       },
       property: {
-        id: r.propertyId ? r.propertyId._id : null,
-        title: r.propertyId ? r.propertyId.title : 'Deleted Property',
-        location: r.propertyId ? `${r.propertyId.locality}, ${r.propertyId.city}` : 'N/A',
+        id: r.propertyId || null,
+        title: 'Property',
+        location: 'N/A',
       },
     }));
 
@@ -40,6 +40,7 @@ const getReviews = async (req, res) => {
     return error(res, 500, err.message || 'Failed to fetch reviews');
   }
 };
+
 
 /**
  * @route   DELETE /api/admin/reviews/:id
