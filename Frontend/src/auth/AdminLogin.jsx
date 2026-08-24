@@ -72,6 +72,7 @@ const AdminLogin = () => {
       }
 
       // Store the real JWT returned by the server, plus session info
+      localStorage.setItem('adminToken', data.token);
       localStorage.setItem('token', data.token);
       localStorage.setItem(
         'adminSession',

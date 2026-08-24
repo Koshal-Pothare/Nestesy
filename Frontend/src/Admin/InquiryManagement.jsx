@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Eye,
@@ -87,7 +87,8 @@ const mockInquiries = [
 ];
 
 const InquiryManagement = () => {
-  const [inquiries, setInquiries] = useState(mockInquiries);
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedInquiry, setSelectedInquiry] = useState(null);
@@ -96,18 +97,41 @@ const InquiryManagement = () => {
 
   const inquiriesPerPage = 5;
 
+  const fetchInquiries = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    try {
+      const res = await fetch("/api/admin/inquiries", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.inquiries)) {
+        setInquiries(data.inquiries);
+      }
+    } catch (err) {
+      console.log("Inquiry fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInquiries();
+  }, []);
+
   // ---------------- FILTER ----------------
 
   const filteredInquiries = inquiries.filter((inquiry) => {
     const searchValue = search.toLowerCase();
 
     const matchesSearch =
-      inquiry.name.toLowerCase().includes(searchValue) ||
-      inquiry.email.toLowerCase().includes(searchValue) ||
-      inquiry.subject.toLowerCase().includes(searchValue);
+      inquiry.name?.toLowerCase().includes(searchValue) ||
+      inquiry.email?.toLowerCase().includes(searchValue) ||
+      inquiry.subject?.toLowerCase().includes(searchValue) ||
+      inquiry.message?.toLowerCase().includes(searchValue);
 
     const matchesStatus =
-      statusFilter === "all" || inquiry.status === statusFilter;
+      statusFilter === "all" || inquiry.status?.toLowerCase() === statusFilter.toLowerCase();
 
     return matchesSearch && matchesStatus;
   });
@@ -164,28 +188,52 @@ const InquiryManagement = () => {
 
   // ---------------- DELETE ----------------
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this inquiry?"
     );
 
     if (!confirmed) return;
 
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    try {
+      await fetch(`/api/admin/inquiries/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
+      console.error("Delete inquiry API error:", err);
+    }
+
     setInquiries((prev) =>
-      prev.filter((inquiry) => inquiry.id !== id)
+      prev.filter((inquiry) => inquiry.id !== id && inquiry._id !== id)
     );
 
-    if (selectedInquiry?.id === id) {
+    if (selectedInquiry?.id === id || selectedInquiry?._id === id) {
       setSelectedInquiry(null);
     }
   };
 
   // ---------------- UPDATE STATUS ----------------
 
-  const handleStatusChange = (id, status) => {
+  const handleStatusChange = async (id, status) => {
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    try {
+      await fetch(`/api/admin/inquiries/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+    } catch (err) {
+      console.error("Update status API error:", err);
+    }
+
     setInquiries((prev) =>
       prev.map((inquiry) =>
-        inquiry.id === id
+        (inquiry.id === id || inquiry._id === id)
           ? { ...inquiry, status }
           : inquiry
       )

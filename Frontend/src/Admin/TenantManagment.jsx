@@ -191,7 +191,7 @@ const TenantManagement = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
     if (!token) { setLoading(false); return; }
 
     fetch('/api/admin/tenants?limit=100', {
@@ -199,7 +199,7 @@ const TenantManagement = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.tenants && data.tenants.length > 0) {
+        if (data.success && Array.isArray(data.tenants)) {
           // Map API response to match component expectations
           const mapped = data.tenants.map((t) => ({
             id: String(t._id || t.id),
@@ -219,13 +219,13 @@ const TenantManagement = () => {
           }));
           setTenants(mapped);
         } else {
-          setTenants(initialTenants);
+          setTenants([]);
         }
         setLoading(false);
       })
       .catch((err) => {
-        console.log('Tenant fetch error, using mock data:', err);
-        setTenants(initialTenants);
+        console.log('Tenant fetch error:', err);
+        setTenants([]);
         setLoading(false);
       });
   }, []);

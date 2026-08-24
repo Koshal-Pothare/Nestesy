@@ -88,6 +88,7 @@ app.use("/api/admin/tenants", tenantManagementRoutes);
 app.use("/api/admin/properties", propertyManagementRoutes);
 app.use("/api/admin/bookings", bookingManagementRoutes);
 app.use("/api/admin/reviews", reviewManagementRoutes);
+app.use("/api/admin/inquiries", contactRoutes);
 
 // Owner Routes
 app.use("/api/owner/auth", ownerAuthRoutes);

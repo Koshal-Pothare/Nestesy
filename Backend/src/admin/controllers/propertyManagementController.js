@@ -421,7 +421,7 @@ const getProperties = async (req, res) => {
       }),
 
       Property.countDocuments({
-        status: "active",
+        status: { $in: ["approved", "active"] },
       }),
 
       Property.countDocuments({
@@ -442,6 +442,7 @@ const getProperties = async (req, res) => {
       pending: pendingCount,
       active: activeCount,
       approved: activeCount,
+      verified: activeCount,
       rejected: rejectedCount,
       inactive: inactiveCount,
       rented: rentedCount,

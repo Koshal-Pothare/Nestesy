@@ -165,7 +165,7 @@ const AdminDashboard = () => {
   const [liveStats, setLiveStats] = useState({ newUsers: 0, newListings: 0 });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
     if (!token) { setLoading(false); return; }
 
     fetch('/api/admin/dashboard/stats', {
@@ -261,7 +261,7 @@ const AdminDashboard = () => {
       <div className="relative" style={{ width: '260px', height: '260px' }}>
         <svg viewBox="0 0 260 260" className="w-full h-full">
           {data.map((item, index) => {
-            const percentage = (item.value / total) * 100;
+            const percentage = total > 0 ? (item.value / total) * 100 : 0;
             const angle = (percentage / 100) * 360;
             const startAngle = currentAngle;
             const endAngle = currentAngle + angle;
@@ -410,7 +410,7 @@ const AdminDashboard = () => {
               {/* Legend */}
               <div className="flex flex-col gap-3">
                 {pieChartData.map((item, index) => {
-                  const percentage = ((item.value / totalPieValue) * 100).toFixed(1);
+                  const percentage = totalPieValue > 0 ? ((item.value / totalPieValue) * 100).toFixed(1) : '0.0';
                   const isHovered = hoveredPieSlice === index;
                   
                   return (

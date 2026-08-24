@@ -155,22 +155,30 @@ const HostManagement = () => {
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [hostsList, setHostsList] = useState(mockHosts);
+  const [hostsList, setHostsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-    fetch('/api/admin/owners', {
+    fetch('/api/admin/owners?limit=100', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.hosts && data.hosts.length > 0) {
+        if (data.success && Array.isArray(data.hosts)) {
           setHostsList(data.hosts);
         }
+        setLoading(false);
       })
-      .catch((err) => console.log('Host fetch fallback to default:', err));
+      .catch((err) => {
+        console.log('Host fetch error:', err);
+        setLoading(false);
+      });
   }, []);
 
   const hostsPerPage = 5;

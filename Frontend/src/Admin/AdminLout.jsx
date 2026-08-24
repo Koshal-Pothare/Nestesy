@@ -52,7 +52,7 @@ const AdminLayout = () => {
  
   // Auth guard
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
     const session = localStorage.getItem('adminSession');
     if (!token || !session) {
       navigate('/admin-login', { replace: true });
@@ -66,6 +66,7 @@ const AdminLayout = () => {
   }, [location, isMobile]);
 
   const handleLogout = () => {
+    localStorage.removeItem('adminToken');
     localStorage.removeItem('token');
     localStorage.removeItem('adminSession');
     navigate('/admin-login');

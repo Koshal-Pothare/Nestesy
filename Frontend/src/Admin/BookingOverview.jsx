@@ -16,22 +16,30 @@ const BookingOverview = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [bookingList, setBookingList] = useState(null);
+  const [bookingList, setBookingList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-    fetch('/api/admin/bookings', {
+    fetch('/api/admin/bookings?limit=100', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.bookings && data.bookings.length > 0) {
+        if (data.success && Array.isArray(data.bookings)) {
           setBookingList(data.bookings);
         }
+        setLoading(false);
       })
-      .catch((err) => console.log('Booking fetch fallback to default:', err));
+      .catch((err) => {
+        console.log('Booking fetch error:', err);
+        setLoading(false);
+      });
   }, []);
 
   const bookingsPerPage = 5;

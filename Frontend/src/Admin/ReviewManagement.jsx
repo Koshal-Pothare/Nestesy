@@ -81,14 +81,14 @@ const mockReviews = [
 ];
 
 const ReviewManagement = () => {
-  const [reviews, setReviews] = useState(mockReviews);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
     if (!token) { setLoading(false); return; }
 
     fetch('/api/admin/reviews', {
@@ -96,7 +96,7 @@ const ReviewManagement = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.reviews && data.reviews.length > 0) {
+        if (data.success && Array.isArray(data.reviews)) {
           const mapped = data.reviews.map((r) => ({
             id: String(r._id || r.id),
             reviewer: r.tenant?.name || 'Anonymous',

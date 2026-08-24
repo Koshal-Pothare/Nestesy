@@ -29,20 +29,25 @@ const AdminPropertyVerification = () => {
 
   const loadProperties = async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
 
     if (token) {
       try {
-        const res = await fetch('/api/admin/properties', {
+        const res = await fetch('/api/admin/properties?limit=100', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
 
-        if (res.ok && data.success && data.properties && data.properties.length > 0) {
+        if (res.ok && data.success && Array.isArray(data.properties)) {
           setProperties(data.properties);
           setFilteredProperties(data.properties);
           if (data.stats) {
-            setStats(data.stats);
+            setStats({
+              total: data.stats.total || data.properties.length,
+              pending: data.stats.pending || 0,
+              verified: data.stats.active || data.stats.approved || 0,
+              rejected: data.stats.rejected || 0,
+            });
           } else {
             updateStats(data.properties);
           }
