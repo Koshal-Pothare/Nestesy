@@ -7,6 +7,7 @@ import ExploreSidebar from '../components/ExploreSidebar';
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, BedDouble, Bath, Ruler, ArrowRight } from 'lucide-react'
 import { getFavorites } from "../utils/favorite";
+import { WishlistService } from "../services/UserServices";
 import PropertyCard from '../Ui/PropertyCard'
 import Pagination from '../components/Pagination'
 import { useNavigate } from 'react-router-dom';
@@ -25,22 +26,30 @@ const Wishlist = () => {
     loadFavorites();
   }, []);
 
-  const loadFavorites = () => {
+  const loadFavorites = async () => {
     setLoading(true);
     try {
-      // Check if user is logged in
-      const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
-      if (!user) {
-        setFavorites([]);
-        setLoading(false);
-        return;
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        try {
+          const data = await WishlistService.getFavorites();
+          if (data && Array.isArray(data.favorites)) {
+            setFavorites(data.favorites);
+            setLoading(false);
+            return;
+          }
+        } catch (apiErr) {
+          console.log("API wishlist fetch error, trying local:", apiErr);
+        }
       }
-      
+
       const favs = getFavorites();
-      setFavorites(favs);
+      setFavorites(favs || []);
     } catch (error) {
       console.error('Error loading favorites:', error);
-      setFavorites([]);
+      const favs = getFavorites();
+      setFavorites(favs || []);
     } finally {
       setLoading(false);
     }

@@ -1,37 +1,54 @@
+const getItemId = (item) => {
+  if (!item) return "";
+  if (typeof item === "string") return item;
+  return String(item.propertyId || item._id || item.id || "");
+};
+
 const getFavoriteKey = () => {
-  const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
+  try {
+    const user =
+      JSON.parse(localStorage.getItem("nestesyLoggedInUser")) ||
+      JSON.parse(localStorage.getItem("nestesyUser"));
 
-  if (!user) return null;
+    if (user && user.email) {
+      return `favorites_${user.email}`;
+    }
+  } catch {
+    // fallback
+  }
 
-  return `favorites_${user.email}`;
+  return "favorites_guest";
 };
 
 export const getFavorites = () => {
   const key = getFavoriteKey();
-
-  if (!key) return [];
-
-  return JSON.parse(localStorage.getItem(key)) || [];
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
 };
 
 export const addToFavorites = (property) => {
   const key = getFavoriteKey();
-
-  if (!key) return false;
+  const propertyId = getItemId(property);
+  if (!propertyId) return false;
 
   const favorites = getFavorites();
-
-  const exists = favorites.some(
-    (item) => item.id === property.id
-  );
+  const exists = favorites.some((item) => getItemId(item) === propertyId);
 
   if (!exists) {
-    favorites.push(property);
+    favorites.push({
+      ...property,
+      id: propertyId,
+      _id: propertyId,
+      propertyId: propertyId,
+    });
 
-    localStorage.setItem(
-      key,
-      JSON.stringify(favorites)
-    );
+    localStorage.setItem(key, JSON.stringify(favorites));
+
+    window.dispatchEvent(new CustomEvent("favoritesUpdated"));
   }
 
   return true;
@@ -39,59 +56,46 @@ export const addToFavorites = (property) => {
 
 export const removeFromFavorites = (id) => {
   const key = getFavoriteKey();
+  const targetId = getItemId(id);
+  if (!targetId) return;
 
-  if (!key) return;
+  const favorites = getFavorites().filter((item) => getItemId(item) !== targetId);
 
-  const favorites = getFavorites().filter(
-    (item) => item.id !== id
-  );
+  localStorage.setItem(key, JSON.stringify(favorites));
 
-  localStorage.setItem(
-    key,
-    JSON.stringify(favorites)
-  );
+  window.dispatchEvent(new CustomEvent("favoritesUpdated"));
 };
 
 export const isFavorite = (id) => {
-  const key = getFavoriteKey();
+  const targetId = getItemId(id);
+  if (!targetId) return false;
 
-  if (!key) return false;
-
-  return getFavorites().some(
-    (item) => item.id === id
-  );
+  return getFavorites().some((item) => getItemId(item) === targetId);
 };
 
 export const toggleFavorite = (property) => {
   const key = getFavoriteKey();
-
-  if (!key) return null;
+  const propertyId = getItemId(property);
+  if (!propertyId) return null;
 
   const favorites = getFavorites();
-
-  const exists = favorites.some(
-    (item) => item.id === property.id
-  );
+  const exists = favorites.some((item) => getItemId(item) === propertyId);
 
   if (exists) {
-    const updated = favorites.filter(
-      (item) => item.id !== property.id
-    );
-
-    localStorage.setItem(
-      key,
-      JSON.stringify(updated)
-    );
-
+    const updated = favorites.filter((item) => getItemId(item) !== propertyId);
+    localStorage.setItem(key, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent("favoritesUpdated"));
     return false;
   }
 
-  favorites.push(property);
+  favorites.push({
+    ...property,
+    id: propertyId,
+    _id: propertyId,
+    propertyId: propertyId,
+  });
 
-  localStorage.setItem(
-    key,
-    JSON.stringify(favorites)
-  );
-
+  localStorage.setItem(key, JSON.stringify(favorites));
+  window.dispatchEvent(new CustomEvent("favoritesUpdated"));
   return true;
 };

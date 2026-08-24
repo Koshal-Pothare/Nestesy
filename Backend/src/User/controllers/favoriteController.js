@@ -23,37 +23,52 @@ const addFavorite = async (req, res) => {
       });
     }
 
-    if (!propertyId || !title || !location) {
+    const safePropertyId = String(propertyId || req.body._id || req.body.id || "").trim();
+    const safeTitle = String(title || req.body.name || "Untitled Property").trim();
+    const safeLocation = String(
+      location ||
+      [req.body.locality, req.body.city, req.body.state].filter(Boolean).join(", ") ||
+      req.body.address ||
+      "Location not available"
+    ).trim();
+
+    if (!safePropertyId) {
       return res.status(400).json({
         success: false,
-        message: "Please provide all required fields",
+        message: "Property ID is required",
       });
     }
 
     const existingFavorite = await Favorite.findOne({
       tenant: tenantId,
-      propertyId: String(propertyId),
+      propertyId: safePropertyId,
     });
 
     if (existingFavorite) {
-      return res.status(409).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
         message: "Property already in favorites",
         favorite: existingFavorite,
       });
     }
 
+    const safeImages = Array.isArray(images)
+      ? images
+      : Array.isArray(req.body.allImages)
+      ? req.body.allImages
+      : [];
+
     const favorite = await Favorite.create({
       tenant: tenantId,
-      propertyId: String(propertyId),
-      title,
-      location,
-      price: Number(price) || 0,
-      bedrooms: Number(bedrooms) || 0,
-      bathrooms: Number(bathrooms) || 0,
-      area: Number(area) || 0,
-      images: Array.isArray(images) ? images : [],
-      description: description || "",
+      propertyId: safePropertyId,
+      title: safeTitle,
+      location: safeLocation,
+      price: Number(price ?? req.body.rent ?? 0) || 0,
+      bedrooms: Number(bedrooms ?? req.body.bhk ?? 0) || 0,
+      bathrooms: Number(bathrooms ?? 0) || 0,
+      area: Number(area ?? req.body.squareFeet ?? 0) || 0,
+      images: safeImages,
+      description: description || req.body.details || "",
     });
 
     return res.status(201).json({
@@ -65,8 +80,8 @@ const addFavorite = async (req, res) => {
     console.error("Error adding favorite:", error);
 
     if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
         message: "Property already in favorites",
       });
     }

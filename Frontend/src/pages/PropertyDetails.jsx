@@ -17,9 +17,17 @@ import {
   CheckCircle,
   XCircle,
   Key,
+  Heart,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import BookVisitModal from "../Ui/BookVisitModal";
+import { WishlistService } from "../services/UserServices";
+import {
+  addToFavorites,
+  removeFromFavorites,
+  isFavorite as isLocalFavorite,
+} from "../utils/favorite";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -153,6 +161,76 @@ const PropertyDetails = () => {
   const [openBookModal, setOpenBookModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [favorite, setFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setFavorite(isLocalFavorite(id));
+      return;
+    }
+    WishlistService.checkFavorite(id)
+      .then((res) => {
+        setFavorite(Boolean(res?.isFavorited || isLocalFavorite(id)));
+      })
+      .catch(() => {
+        setFavorite(isLocalFavorite(id));
+      });
+  }, [id]);
+
+  const handleFavoriteToggle = async () => {
+    if (!property || favoriteLoading) return;
+    const propId = String(property._id || property.id || id);
+    const token = localStorage.getItem("token");
+    const safeLocation =
+      property.location ||
+      [property.locality, property.city, property.state].filter(Boolean).join(", ") ||
+      property.address ||
+      "Location not available";
+
+    try {
+      setFavoriteLoading(true);
+      if (favorite) {
+        if (token) {
+          await WishlistService.removeFavorite(propId).catch(() => {});
+        }
+        removeFromFavorites(propId);
+        setFavorite(false);
+        toast.success("Removed from wishlist");
+      } else {
+        if (token) {
+          await WishlistService.addFavorite({
+            propertyId: propId,
+            title: property.title || "Untitled Property",
+            location: safeLocation,
+            price: Number(property.price || 0),
+            bedrooms: Number(property.bedrooms || 0),
+            bathrooms: Number(property.bathrooms || 0),
+            area: Number(property.area || 0),
+            images: property.images || [],
+            description: property.description || "",
+          }).catch(() => {});
+        }
+        addToFavorites({
+          ...property,
+          id: propId,
+          _id: propId,
+          propertyId: propId,
+          title: property.title || "Untitled Property",
+          location: safeLocation,
+        });
+        setFavorite(true);
+        toast.success("Added to wishlist");
+      }
+      window.dispatchEvent(new CustomEvent("favoritesUpdated"));
+    } catch (err) {
+      toast.error(err?.message || "Failed to update wishlist");
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadProperty();
@@ -458,15 +536,36 @@ const PropertyDetails = () => {
                   </div>
                 </div>
 
-                <div className="sm:text-right">
-                  <div className="flex items-baseline gap-1 sm:justify-end">
-                    <span className="text-2xl sm:text-3xl font-bold text-primary-600">
-                      ₹{Number(property.price || 0).toLocaleString()}
-                    </span>
-                    <span className="text-sm text-gray-500">/month</span>
+                <div className="sm:text-right flex flex-col sm:items-end gap-2">
+                  <div className="flex items-center gap-3 sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={handleFavoriteToggle}
+                      disabled={favoriteLoading}
+                      aria-label="Save to wishlist"
+                      className={`h-11 w-11 rounded-full flex items-center justify-center border transition-all duration-300 ${
+                        favorite
+                          ? "bg-red-50 border-red-200 text-red-500 hover:bg-red-100"
+                          : "bg-gray-50 border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50"
+                      }`}
+                    >
+                      <Heart
+                        size={22}
+                        className={`transition-transform duration-300 ${
+                          favorite ? "fill-red-500 text-red-500 scale-110" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl sm:text-3xl font-bold text-primary-600">
+                        ₹{Number(property.price || 0).toLocaleString()}
+                      </span>
+                      <span className="text-sm text-gray-500">/month</span>
+                    </div>
                   </div>
 
-                  <div className="mt-2 flex items-center gap-1 sm:justify-end">
+                  <div className="flex items-center gap-1 sm:justify-end">
                     <Star size={16} className="fill-amber-400 text-amber-400" />
                     <span className="font-semibold">{property.rating || 0}</span>
                     <span className="text-gray-500">({property.reviews || 0} reviews)</span>

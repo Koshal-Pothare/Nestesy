@@ -16,6 +16,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { WishlistService } from "../services/UserServices";
+import {
+  addToFavorites,
+  removeFromFavorites,
+  isFavorite as isLocalFavorite,
+} from "../utils/favorite";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80";
@@ -38,14 +43,13 @@ const PropertyCard = ({
 
   /*
    * Get the property ID safely.
-   * Backend MongoDB normally uses _id.
-   * Your frontend may already transform it into id.
    */
-  const propertyId = property?._id || property?.id;
+  const propertyId = String(
+    property?.propertyId || property?._id || property?.id || ""
+  );
 
   /*
-   * Check whether this property is already in the
-   * logged-in user's wishlist.
+   * Check whether this property is already in wishlist.
    */
   useEffect(() => {
     let mounted = true;
@@ -59,26 +63,21 @@ const PropertyCard = ({
 
       if (!token) {
         if (mounted) {
-          setFavorite(false);
+          setFavorite(isLocalFavorite(propertyId));
         }
         return;
       }
 
       try {
-        const response =
-          await WishlistService.checkFavorite(propertyId);
-
+        const response = await WishlistService.checkFavorite(propertyId);
         if (mounted) {
-          setFavorite(Boolean(response?.isFavorited));
+          setFavorite(
+            Boolean(response?.isFavorited || isLocalFavorite(propertyId))
+          );
         }
-      } catch (error) {
-        console.error(
-          "Failed to check wishlist status:",
-          error
-        );
-
+      } catch {
         if (mounted) {
-          setFavorite(false);
+          setFavorite(isLocalFavorite(propertyId));
         }
       }
     };
@@ -210,29 +209,29 @@ const PropertyCard = ({
       return;
     }
 
-    /*
-     * Check authentication.
-     *
-     * Your backend API uses the token for authenticated
-     * wishlist requests.
-     */
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      toast.info(
-        "Please login to add properties to your wishlist"
-      );
+    const safeLocation =
+      property?.location ||
+      [property?.locality, property?.city, property?.state]
+        .filter(Boolean)
+        .join(", ") ||
+      property?.address ||
+      "Location not available";
 
-      setTimeout(() => {
-        navigate(
-          `/login?redirect=${encodeURIComponent(
-            window.location.pathname
-          )}`
-        );
-      }, 800);
-
-      return;
-    }
+    const safeTitle = property?.title || property?.name || "Untitled Property";
+    const safePrice =
+      Number(property?.price ?? property?.rent ?? property?.monthlyRent ?? 0) ||
+      0;
+    const safeBedrooms =
+      Number(property?.bedrooms ?? property?.bhk ?? 0) || 0;
+    const safeBathrooms =
+      Number(property?.bathrooms ?? property?.bath ?? 0) || 0;
+    const safeArea =
+      Number(property?.area ?? property?.squareFeet ?? property?.size ?? 0) ||
+      0;
+    const safeImages =
+      property?.allImages || property?.images || property?.outerImages || [];
 
     try {
       setFavoriteLoading(true);
@@ -241,10 +240,16 @@ const PropertyCard = ({
        * REMOVE FROM WISHLIST
        */
       if (favorite) {
-        await WishlistService.removeFavorite(propertyId);
+        if (token) {
+          try {
+            await WishlistService.removeFavorite(propertyId);
+          } catch (err) {
+            console.error("API removeFavorite error:", err);
+          }
+        }
 
+        removeFromFavorites(propertyId);
         setFavorite(false);
-
         toast.success("Removed from wishlist");
       }
 
@@ -252,40 +257,48 @@ const PropertyCard = ({
        * ADD TO WISHLIST
        */
       else {
-        await WishlistService.addFavorite({
+        if (token) {
+          try {
+            await WishlistService.addFavorite({
+              propertyId: propertyId,
+              title: safeTitle,
+              location: safeLocation,
+              price: safePrice,
+              bedrooms: safeBedrooms,
+              bathrooms: safeBathrooms,
+              area: safeArea,
+              images: Array.isArray(safeImages) ? safeImages : [],
+              description: property?.description || property?.details || "",
+            });
+          } catch (err) {
+            console.error("API addFavorite error:", err);
+          }
+        }
+
+        addToFavorites({
+          ...property,
+          id: propertyId,
+          _id: propertyId,
           propertyId: propertyId,
-          title: property?.title || "",
-          location: property?.location || "",
-          price: Number(property?.price) || 0,
-          bedrooms:
-            Number(property?.bedrooms) ||
-            Number(property?.bhk) ||
-            0,
-          bathrooms:
-            Number(property?.bathrooms) || 0,
-          area: Number(property?.area) || 0,
-          images:
-            property?.allImages ||
-            property?.images ||
-            [],
+          title: safeTitle,
+          location: safeLocation,
+          price: safePrice,
+          bedrooms: safeBedrooms,
+          bathrooms: safeBathrooms,
+          area: safeArea,
+          images: safeImages,
         });
 
         setFavorite(true);
-
         toast.success("Added to wishlist");
       }
 
       /*
-       * Notify other components such as UserDashboard.
+       * Notify other components such as Wishlist & UserDashboard.
        */
-      window.dispatchEvent(
-        new CustomEvent("favoritesUpdated")
-      );
+      window.dispatchEvent(new CustomEvent("favoritesUpdated"));
     } catch (error) {
-      console.error(
-        "Wishlist update error:",
-        error
-      );
+      console.error("Wishlist update error:", error);
 
       const message =
         error?.response?.data?.message ||
