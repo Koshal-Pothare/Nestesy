@@ -165,7 +165,7 @@ const AdminDashboard = () => {
   const [liveStats, setLiveStats] = useState({ newUsers: 0, newListings: 0 });
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) { setLoading(false); return; }
 
     fetch('/api/admin/dashboard/stats', {

@@ -71,9 +71,8 @@ const AdminLogin = () => {
         return;
       }
 
-      // Store the real JWT returned by the server, plus session info
+      // Store admin JWT under dedicated key (never conflicts with tenant 'token')
       localStorage.setItem('adminToken', data.token);
-      localStorage.setItem('token', data.token);
       localStorage.setItem(
         'adminSession',
         JSON.stringify({

@@ -50,9 +50,9 @@ const AdminLayout = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
  
-  // Auth guard
+  // Auth guard - use dedicated adminToken only
   useEffect(() => {
-    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     const session = localStorage.getItem('adminSession');
     if (!token || !session) {
       navigate('/admin-login', { replace: true });
@@ -67,7 +67,6 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
-    localStorage.removeItem('token');
     localStorage.removeItem('adminSession');
     navigate('/admin-login');
   };

@@ -20,7 +20,7 @@ const BookingOverview = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) {
       setLoading(false);
       return;

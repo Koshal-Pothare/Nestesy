@@ -88,7 +88,7 @@ const ReviewManagement = () => {
   const [ratingFilter, setRatingFilter] = useState("all");
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     if (!token) { setLoading(false); return; }
 
     fetch('/api/admin/reviews', {

@@ -99,7 +99,7 @@ const InquiryManagement = () => {
 
   const fetchInquiries = async () => {
     setLoading(true);
-    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    const token = localStorage.getItem("adminToken");
     try {
       const res = await fetch("/api/admin/inquiries", {
         headers: { Authorization: `Bearer ${token}` },
@@ -195,7 +195,7 @@ const InquiryManagement = () => {
 
     if (!confirmed) return;
 
-    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    const token = localStorage.getItem("adminToken");
     try {
       await fetch(`/api/admin/inquiries/${id}`, {
         method: "DELETE",
@@ -217,7 +217,7 @@ const InquiryManagement = () => {
   // ---------------- UPDATE STATUS ----------------
 
   const handleStatusChange = async (id, status) => {
-    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    const token = localStorage.getItem("adminToken");
     try {
       await fetch(`/api/admin/inquiries/${id}/status`, {
         method: "PUT",
