@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Search,
   Star,
@@ -82,9 +82,40 @@ const mockReviews = [
 
 const ReviewManagement = () => {
   const [reviews, setReviews] = useState(mockReviews);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) { setLoading(false); return; }
+
+    fetch('/api/admin/reviews', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.reviews && data.reviews.length > 0) {
+          const mapped = data.reviews.map((r) => ({
+            id: String(r._id || r.id),
+            reviewer: r.tenant?.name || 'Anonymous',
+            type: 'Tenant',
+            property: r.property?.title || r.title || 'Property',
+            host: r.property?.location || 'N/A',
+            rating: r.rating || 0,
+            review: r.comment || r.description || '',
+            date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A',
+          }));
+          setReviews(mapped);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log('Reviews fetch error:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const filteredReviews = useMemo(() => {
     return reviews.filter((review) => {

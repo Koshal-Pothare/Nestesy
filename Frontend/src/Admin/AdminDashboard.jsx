@@ -18,12 +18,12 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
  
-const statsData = [
+const defaultStatsData = [
   {
     id: 1,
     title: "Total Properties",
-    value: "12,847",
-    
+    value: "0",
+    change: "...",
     icon: Building2,
     color: "text-green-600",
     bgColor: "bg-green-100",
@@ -32,8 +32,8 @@ const statsData = [
   {
     id: 2,
     title: "Total Users",
-    value: "8,234",
-   
+    value: "0",
+    change: "...",
     icon: Users,
     color: "text-blue-600",
     bgColor: "bg-blue-100",
@@ -41,23 +41,27 @@ const statsData = [
   },
   {
     id: 3,
-    title: "Total Host",
-    value: "521",
-    
+    title: "Active Listings",
+    value: "0",
+    change: "...",
     icon: Users,
     color: "text-purple-600",
     bgColor: "bg-purple-100",
     trend: "up"
   },
+  {
+    id: 4,
+    title: "Revenue",
+    value: "₹0",
+    change: "...",
+    icon: Building2,
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
+    trend: "up"
+  },
+];
 
-];
- 
-// Pie chart data
-const pieChartData = [
-  { label: "Total Listings", value: 12847, color: "#10b981" },
-  { label: "Total Hosts", value: 521, color: "#8b5cf6" },
-  { label: "Total Tenants", value: 8234, color: "#3b82f6" }
-];
+const STAT_ICONS = [Building2, Users, Users, Building2];
 
 const recentProperties = [
   {
@@ -146,17 +150,23 @@ const recentUsers = [
 ];
 
 const AdminDashboard = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [hoveredStat, setHoveredStat] = useState(null);
   const [hoveredPieSlice, setHoveredPieSlice] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [dashboardStats, setDashboardStats] = useState(statsData);
-  const [dashboardRecentProps, setDashboardRecentProps] = useState(recentProperties);
-  const [dashboardRecentUsers, setDashboardRecentUsers] = useState(recentUsers);
+  const [dashboardStats, setDashboardStats] = useState(defaultStatsData);
+  const [dashboardRecentProps, setDashboardRecentProps] = useState([]);
+  const [dashboardRecentUsers, setDashboardRecentUsers] = useState([]);
+  const [pieChartData, setPieChartData] = useState([
+    { label: "Total Listings", value: 0, color: "#10b981" },
+    { label: "Total Hosts", value: 0, color: "#8b5cf6" },
+    { label: "Total Tenants", value: 0, color: "#3b82f6" }
+  ]);
+  const [liveStats, setLiveStats] = useState({ newUsers: 0, newListings: 0 });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) { setLoading(false); return; }
 
     fetch('/api/admin/dashboard/stats', {
       headers: { Authorization: `Bearer ${token}` },
@@ -168,27 +178,44 @@ const AdminDashboard = () => {
             setDashboardStats(
               data.stats.map((s, idx) => ({
                 ...s,
-                icon: statsData[idx]?.icon || Building2,
+                icon: STAT_ICONS[idx] || Building2,
               }))
             );
           }
           if (data.recentProperties) setDashboardRecentProps(data.recentProperties);
           if (data.recentUsers) setDashboardRecentUsers(data.recentUsers);
+
+          if (data.counts) {
+            const { totalProperties, totalOwners, totalTenants } = data.counts;
+            setPieChartData([
+              { label: "Total Listings", value: totalProperties || 0, color: "#10b981" },
+              { label: "Total Hosts", value: totalOwners || 0, color: "#8b5cf6" },
+              { label: "Total Tenants", value: totalTenants || 0, color: "#3b82f6" },
+            ]);
+            setLiveStats({
+              newUsers: totalTenants || 0,
+              newListings: totalProperties || 0,
+            });
+          }
         }
+        setLoading(false);
       })
-      .catch((err) => console.log('Dashboard stats fetch fallback to default:', err));
+      .catch((err) => {
+        console.log('Dashboard stats fetch error:', err);
+        setLoading(false);
+      });
   }, []);
 
   // Calculate total for percentage
   const totalPieValue = useMemo(() => {
     return pieChartData.reduce((sum, item) => sum + item.value, 0);
-  }, []);
+  }, [pieChartData]);
 
   // Stats cards
   const statsCards = useMemo(() => 
     dashboardStats.map((stat, index) => (
       <motion.div
-        key={stat.id}
+        key={stat.id || index}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.1 }}
@@ -202,24 +229,26 @@ const AdminDashboard = () => {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-500 text-sm font-medium">{stat.title}</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-1">{stat.value}</h3>
+              <h3 className="text-3xl font-bold text-gray-800 mt-1">
+                {loading ? <span className="animate-pulse text-gray-300">—</span> : stat.value}
+              </h3>
               <div className="flex items-center gap-1 mt-2">
                 <span className={`text-xs font-semibold flex items-center gap-0.5 ${
                   stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
                 }`}>
                   {stat.trend === 'up' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                  {stat.change}
+                  {stat.change || '—'}
                 </span>
-                <span className="text-gray-400 text-xs">vs last month</span>
+                <span className="text-gray-400 text-xs">live data</span>
               </div>
             </div>
             <div className={`p-3 rounded-xl ${stat.bgColor} group-hover:scale-110 transition-transform duration-300`}>
-              <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              {stat.icon && <stat.icon className={`w-6 h-6 ${stat.color}`} />}
             </div>
           </div>
         </div>
       </motion.div>
-    )), []
+    )), [dashboardStats, loading]
   );
 
   // Pie Chart Component
@@ -419,10 +448,10 @@ const AdminDashboard = () => {
             <h3 className="text-lg font-bold text-gray-800 mb-4">Today's Stats</h3>
             <div className="space-y-4">
               {[
-                { icon: UserCheck, label: "New Users", value: "24", color: "green", bg: "bg-green-50" },
-                { icon: Building2, label: "New Listings", value: "12", color: "blue", bg: "bg-blue-50" },
-                { icon: MessageSquare, label: "Inquiries", value: "8", color: "purple", bg: "bg-purple-50" },
-                { icon: Calendar, label: "Bookings", value: "5", color: "orange", bg: "bg-orange-50" }
+                { icon: UserCheck, label: "Total Users", value: String(liveStats.newUsers), color: "green", bg: "bg-green-50" },
+                { icon: Building2, label: "Total Listings", value: String(liveStats.newListings), color: "blue", bg: "bg-blue-50" },
+                { icon: MessageSquare, label: "Reviews", value: String(dashboardStats[2]?.value || '0'), color: "purple", bg: "bg-purple-50" },
+                { icon: Calendar, label: "Bookings", value: String(dashboardStats[1]?.value || '0'), color: "orange", bg: "bg-orange-50" }
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -461,16 +490,27 @@ const AdminDashboard = () => {
               </button>
             </div>
             <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar pr-2">
-              {recentProperties.map((property, index) => (
+              {loading ? (
+                <div className="flex items-center justify-center py-10">
+                  <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
+                </div>
+              ) : dashboardRecentProps.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-8">No properties yet</p>
+              ) : dashboardRecentProps.map((property, index) => (
                 <motion.div
-                  key={property.id}
+                  key={property.id || index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden">
-                    <img src={property.image} alt={property.title} className="w-full h-full object-cover" />
+                    <img
+                      src={property.image || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=80&q=60'}
+                      alt={property.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=80&q=60'; }}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-800 truncate">{property.title}</p>
@@ -478,25 +518,16 @@ const AdminDashboard = () => {
                     <div className="flex items-center gap-2 mt-1">
                       <p className="text-sm font-bold text-green-600">{property.price}</p>
                       <span className="text-xs text-gray-400">•</span>
-                      <span className="text-xs text-gray-400">{property.date}</span>
+                      <span className="text-xs text-gray-400">
+                        {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN') : ''}
+                      </span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className={`text-xs px-2 py-1 rounded-full font-semibold flex items-center gap-1 ${getStatusColor(property.status)}`}>
-                      {getStatusIcon(property.status)}
+                    <span className={`text-xs px-2 py-1 rounded-full font-semibold flex items-center gap-1 ${getStatusColor(property.status || 'active')}`}>
+                      {getStatusIcon(property.status || 'active')}
                       {property.status}
                     </span>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-1 hover:bg-gray-200 rounded-lg transition-colors">
-                        <Eye className="w-3.5 h-3.5 text-gray-400" />
-                      </button>
-                      <button className="p-1 hover:bg-gray-200 rounded-lg transition-colors">
-                        <Edit className="w-3.5 h-3.5 text-gray-400" />
-                      </button>
-                      <button className="p-1 hover:bg-red-50 rounded-lg transition-colors">
-                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                      </button>
-                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -515,16 +546,22 @@ const AdminDashboard = () => {
               </button>
             </div>
             <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar pr-2">
-              {recentUsers.map((user, index) => (
+              {loading ? (
+                <div className="flex items-center justify-center py-10">
+                  <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                </div>
+              ) : dashboardRecentUsers.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-8">No users yet</p>
+              ) : dashboardRecentUsers.map((user, index) => (
                 <motion.div
-                  key={user.id}
+                  key={user.id || index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-xl transition-all group"
                 >
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-100 to-green-200 flex items-center justify-center text-green-700 font-semibold text-sm flex-shrink-0">
-                    {user.name.charAt(0)}
+                    {user.name ? user.name.charAt(0).toUpperCase() : '?'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-800">{user.name}</p>
@@ -532,19 +569,10 @@ const AdminDashboard = () => {
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs text-gray-500">{user.role}</span>
                       <span className="text-xs text-gray-300">•</span>
-                      <span className="text-xs text-gray-500">{user.joined}</span>
+                      <span className="text-xs text-gray-500">
+                        {user.joined ? new Date(user.joined).toLocaleDateString('en-IN') : ''}
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-1 hover:bg-gray-200 rounded-lg transition-colors">
-                      <Eye className="w-3.5 h-3.5 text-gray-400" />
-                    </button>
-                    <button className="p-1 hover:bg-gray-200 rounded-lg transition-colors">
-                      <Edit className="w-3.5 h-3.5 text-gray-400" />
-                    </button>
-                    <button className="p-1 hover:bg-red-50 rounded-lg transition-colors">
-                      <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                    </button>
                   </div>
                 </motion.div>
               ))}

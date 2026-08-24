@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Users,
   Search,
@@ -187,8 +187,48 @@ const initialTenants = [
 
 
 const TenantManagement = () => {
-  const [tenants, setTenants] = useState(initialTenants);
+  const [tenants, setTenants] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) { setLoading(false); return; }
+
+    fetch('/api/admin/tenants?limit=100', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.tenants && data.tenants.length > 0) {
+          // Map API response to match component expectations
+          const mapped = data.tenants.map((t) => ({
+            id: String(t._id || t.id),
+            name: t.name || 'Unknown',
+            email: t.email || '',
+            phone: t.phone || 'N/A',
+            address: t.address || t.location || 'N/A',
+            city: t.location || t.city || 'N/A',
+            state: t.state || '',
+            pincode: t.pincode || '',
+            joined: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-IN') : 'N/A',
+            status: t.isActive === false ? 'Inactive' : 'Active',
+            isActive: t.isActive,
+            bookingsCount: t.bookingsCount || 0,
+            favoritesCount: t.favoritesCount || 0,
+            visitHistory: [],
+          }));
+          setTenants(mapped);
+        } else {
+          setTenants(initialTenants);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log('Tenant fetch error, using mock data:', err);
+        setTenants(initialTenants);
+        setLoading(false);
+      });
+  }, []);
   const [search, setSearch] = useState("");
 
   const [selectedTenant, setSelectedTenant] = useState(null);
@@ -221,14 +261,14 @@ const TenantManagement = () => {
   const totalTenants = tenants.length;
 
   const totalVisits = tenants.reduce(
-    (total, tenant) => total + tenant.visitHistory.length,
+    (total, tenant) => total + (tenant.bookingsCount || tenant.visitHistory?.length || 0),
     0
   );
 
   const completedVisits = tenants.reduce(
     (total, tenant) =>
       total +
-      tenant.visitHistory.filter(
+      (tenant.visitHistory || []).filter(
         (visit) => visit.status === "Completed"
       ).length,
     0
@@ -237,7 +277,7 @@ const TenantManagement = () => {
   const pendingVisits = tenants.reduce(
     (total, tenant) =>
       total +
-      tenant.visitHistory.filter(
+      (tenant.visitHistory || []).filter(
         (visit) => visit.status === "Pending"
       ).length,
     0

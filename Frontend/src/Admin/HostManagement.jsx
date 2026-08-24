@@ -229,7 +229,7 @@ const HostManagement = () => {
               <div>
                 <p className="text-sm text-gray-500">Total Hosts</p>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {mockHosts.length}
+                  {hostsList.length}
                 </h2>
               </div>
             </div>
@@ -244,8 +244,8 @@ const HostManagement = () => {
               <div>
                 <p className="text-sm text-gray-500">Total Properties</p>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {mockHosts.reduce(
-                    (total, host) => total + host.properties.length,
+                  {hostsList.reduce(
+                    (total, host) => total + (host.properties?.length || host.propertiesCount || 0),
                     0
                   )}
                 </h2>
@@ -340,7 +340,7 @@ const HostManagement = () => {
 
                       <td className="px-6 py-5">
                         <span className="rounded-full bg-primary-50 px-3 py-1 text-sm font-semibold text-primary-600">
-                          {host.properties.length}
+                          {host.properties?.length ?? host.propertiesCount ?? 0}
                         </span>
                       </td>
 

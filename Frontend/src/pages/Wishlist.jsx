@@ -22,9 +22,22 @@ const Wishlist = () => {
   const [sortBy, setSortBy] = useState("newest")
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadFavorites();
-  }, []);
+  const normalizeFav = (fav) => ({
+    ...fav,
+    id: String(fav.propertyId || fav._id || fav.id || ''),
+    _id: String(fav.propertyId || fav._id || fav.id || ''),
+    propertyId: String(fav.propertyId || fav._id || fav.id || ''),
+    title: fav.title || 'Property',
+    location: fav.location || '',
+    price: Number(fav.price || fav.rent || 0),
+    bedrooms: Number(fav.bedrooms || fav.bhk || 0),
+    bathrooms: Number(fav.bathrooms || 0),
+    area: Number(fav.area || 0),
+    images: Array.isArray(fav.images) && fav.images.length > 0
+      ? fav.images
+      : (Array.isArray(fav.allImages) && fav.allImages.length > 0 ? fav.allImages : []),
+    status: fav.status || 'active',
+  });
 
   const loadFavorites = async () => {
     setLoading(true);
@@ -35,7 +48,7 @@ const Wishlist = () => {
         try {
           const data = await WishlistService.getFavorites();
           if (data && Array.isArray(data.favorites)) {
-            setFavorites(data.favorites);
+            setFavorites(data.favorites.map(normalizeFav));
             setLoading(false);
             return;
           }
@@ -45,15 +58,19 @@ const Wishlist = () => {
       }
 
       const favs = getFavorites();
-      setFavorites(favs || []);
+      setFavorites((favs || []).map(normalizeFav));
     } catch (error) {
       console.error('Error loading favorites:', error);
       const favs = getFavorites();
-      setFavorites(favs || []);
+      setFavorites((favs || []).map(normalizeFav));
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadFavorites();
+  }, []);
 
   // Listen for favorite updates
   useEffect(() => {
@@ -191,7 +208,7 @@ const Wishlist = () => {
                         <PropertyCard 
                           property={property} 
                           index={index} 
-                          key={property.id} 
+                          key={property.id || property._id || property.propertyId || index} 
                           variant="public"
                         />
                       ))}
