@@ -219,6 +219,11 @@ const PropertyCard = ({
     }
 
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.info("Please log in or sign up to save properties to your wishlist");
+      navigate("/login");
+      return;
+    }
 
     const safeLocation =
       property?.location ||

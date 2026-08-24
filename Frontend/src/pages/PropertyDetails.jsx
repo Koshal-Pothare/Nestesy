@@ -184,6 +184,11 @@ const PropertyDetails = () => {
     if (!property || favoriteLoading) return;
     const propId = String(property._id || property.id || id);
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.info("Please log in or sign up to save properties to your wishlist");
+      navigate("/login");
+      return;
+    }
     const safeLocation =
       property.location ||
       [property.locality, property.city, property.state].filter(Boolean).join(", ") ||
@@ -751,8 +756,16 @@ const PropertyDetails = () => {
               <div className="mt-6">
                 <button
                   type="button"
-                  onClick={() => setOpenBookModal(true)}
-                  className="w-full rounded-2xl bg-primary-600 py-3.5 font-semibold text-white hover:bg-primary-700 transition shadow-lg shadow-primary-600/20"
+                  onClick={() => {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                      toast.info("Please log in or sign up to book a property visit");
+                      navigate(`/login?redirect=/property/${property._id || property.id || id}`);
+                      return;
+                    }
+                    setOpenBookModal(true);
+                  }}
+                  className="w-full rounded-2xl bg-primary-600 py-3.5 font-semibold text-white hover:bg-primary-700 transition shadow-lg shadow-primary-600/20 cursor-pointer"
                 >
                   Book Visit
                 </button>

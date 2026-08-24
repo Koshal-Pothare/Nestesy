@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Star, ChevronDown, ChevronUp, ShieldCheck, Send, Home, MessageSquare, Award } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 // import review from '../assets/Faq/review.png';
 
 const FILTERS = [
@@ -136,10 +138,44 @@ function Stars({ rating, size = 14 }) {
 }
 
 export default function TestimonialsPage() {
+    const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState("all");
     const [expanded, setExpanded] = useState(false);
     const [hoverRating, setHoverRating] = useState(0);
     const [rating, setRating] = useState(0);
+    const [reviewerName, setReviewerName] = useState("");
+    const [feedback, setFeedback] = useState("");
+
+    const handleSubmitReview = (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.info("Please log in or sign up to submit a review");
+            navigate("/login");
+            return;
+        }
+
+        if (!reviewerName.trim()) {
+            toast.error("Please enter your name");
+            return;
+        }
+
+        if (rating === 0) {
+            toast.error("Please select a star rating");
+            return;
+        }
+
+        if (!feedback.trim()) {
+            toast.error("Please provide your feedback");
+            return;
+        }
+
+        toast.success("Thank you! Your review has been submitted for verification.");
+        setReviewerName("");
+        setRating(0);
+        setHoverRating(0);
+        setFeedback("");
+    };
 
     const filtered = REVIEWS.filter(
         (r) => activeFilter === "all" || r.tag === activeFilter
@@ -406,19 +442,19 @@ export default function TestimonialsPage() {
                             Share your experience staying or hosting with Nestesy.
                         </p>
 
-                        <div className="space-y-5">
+                        <form onSubmit={handleSubmitReview} className="space-y-5">
                             <div>
                                 <label className="text-xs font-semibold tracking-wide uppercase text-stone-500">
                                     Full Name <span className="text-emerald-700">*</span>
                                 </label>
                                 <input
                                     type="text"
+                                    value={reviewerName}
+                                    onChange={(e) => setReviewerName(e.target.value)}
                                     placeholder="Enter your name"
                                     className="w-full mt-2 border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-800 text-stone-800"
                                 />
                             </div>
-
-                           
 
                             <div>
                                 <label className="text-xs font-semibold tracking-wide uppercase text-stone-500">
@@ -452,12 +488,17 @@ export default function TestimonialsPage() {
                                 </label>
                                 <textarea
                                     rows={4}
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
                                     placeholder="Describe your stay, host communication, or overall experience…"
                                     className="w-full mt-2 border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-800 text-stone-800 resize-none"
                                 />
                             </div>
 
-                            <button className="w-full flex items-center justify-center gap-2 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-full transition-colors cursor-pointer">
+                            <button 
+                                type="submit"
+                                className="w-full flex items-center justify-center gap-2 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3.5 rounded-full transition-colors cursor-pointer"
+                            >
                                 <Send size={16} />
                                 Submit Review
                             </button>
@@ -466,7 +507,7 @@ export default function TestimonialsPage() {
                                 By submitting, you agree your feedback will be reviewed by our
                                 team before going live.
                             </p>
-                        </div>
+                        </form>
                     </motion.div>
                 </div>
             </section>

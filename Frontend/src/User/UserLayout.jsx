@@ -16,10 +16,20 @@ const UserLayout = () => {
 const navigate = useNavigate();
 const[userData,setUserData] = useState([]);
 
-useEffect(()=>{
-const user = JSON.parse(localStorage.getItem("nestesyLoggedInUser"));
-setUserData(user);
-},[])
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(
+      localStorage.getItem("nestesyLoggedInUser") ||
+      localStorage.getItem("nestesyUser") ||
+      "null"
+    );
+
+    if (!token && !user) {
+      navigate("/login", { replace: true });
+    } else {
+      setUserData(user || {});
+    }
+  }, [navigate]);
 
   const navLinks = [
     {
