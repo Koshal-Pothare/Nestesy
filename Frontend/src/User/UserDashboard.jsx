@@ -22,6 +22,10 @@ import {
   BookingService,
   AuthService,
 } from "../services/UserServices";
+import { getFavorites, removeFromFavorites } from "../utils/favorite";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -32,6 +36,59 @@ const UserDashboard = () => {
   const [activeBookings, setActiveBookings] = useState([]);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const normalizeFav = (fav) => ({
+    ...fav,
+    id: String(fav.propertyId || fav._id || fav.id || ""),
+    _id: String(fav.propertyId || fav._id || fav.id || ""),
+    propertyId: String(fav.propertyId || fav._id || fav.id || ""),
+    title: fav.title || fav.name || "Untitled Property",
+    location:
+      fav.location ||
+      [fav.locality, fav.city, fav.state].filter(Boolean).join(", ") ||
+      fav.address ||
+      "Location not available",
+    price: Number(fav.price || fav.rent || 0),
+    bedrooms: Number(fav.bedrooms || fav.bhk || 0),
+    bathrooms: Number(fav.bathrooms || 0),
+    area: Number(fav.area || fav.squareFeet || 0),
+    images:
+      Array.isArray(fav.images) && fav.images.length > 0
+        ? fav.images
+        : Array.isArray(fav.allImages) && fav.allImages.length > 0
+        ? fav.allImages
+        : [FALLBACK_IMAGE],
+    status: fav.status || "active",
+  });
+
+  const loadFavoritesOnly = async () => {
+    let favList = [];
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const favoriteResponse = await WishlistService.getFavorites();
+        const apiFavs =
+          favoriteResponse?.favorites ||
+          favoriteResponse?.data?.favorites ||
+          [];
+        if (Array.isArray(apiFavs) && apiFavs.length > 0) {
+          favList = apiFavs.map(normalizeFav);
+        }
+      } catch (favErr) {
+        console.log("API favorites fetch in UserDashboard fallback:", favErr);
+      }
+    }
+
+    if (favList.length === 0) {
+      const localFavs = getFavorites();
+      if (Array.isArray(localFavs) && localFavs.length > 0) {
+        favList = localFavs.map(normalizeFav);
+      }
+    }
+
+    setFavorite(favList);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -44,20 +101,7 @@ const UserDashboard = () => {
          * ==========================================
          * 1. GET LOGGED-IN TENANT
          * ==========================================
-         *
-         * Backend response:
-         *
-         * {
-         *   success: true,
-         *   message: "...",
-         *   tenant: {
-         *     id: "...",
-         *     name: "...",
-         *     email: "..."
-         *   }
-         * }
          */
-
         const userResponse = await AuthService.getMe();
 
         const freshUser =
@@ -83,22 +127,32 @@ const UserDashboard = () => {
 
         /*
          * ==========================================
-         * 2. GET FAVORITES
+         * 2. GET FAVORITES (API with localStorage fallback)
          * ==========================================
          */
+        let favList = [];
+        try {
+          const favoriteResponse = await WishlistService.getFavorites();
+          const apiFavs =
+            favoriteResponse?.favorites ||
+            favoriteResponse?.data?.favorites ||
+            [];
+          if (Array.isArray(apiFavs) && apiFavs.length > 0) {
+            favList = apiFavs.map(normalizeFav);
+          }
+        } catch (favErr) {
+          console.log("API favorites fetch in UserDashboard fallback:", favErr);
+        }
 
-        const favoriteResponse =
-          await WishlistService.getFavorites();
-
-        const favorites =
-          favoriteResponse?.favorites ||
-          favoriteResponse?.data?.favorites ||
-          [];
+        if (favList.length === 0) {
+          const localFavs = getFavorites();
+          if (Array.isArray(localFavs) && localFavs.length > 0) {
+            favList = localFavs.map(normalizeFav);
+          }
+        }
 
         if (mounted) {
-          setFavorite(
-            Array.isArray(favorites) ? favorites : []
-          );
+          setFavorite(favList);
         }
 
         /*
@@ -194,8 +248,17 @@ const UserDashboard = () => {
 
     loadDashboardData();
 
+    const handleFavoritesUpdate = () => {
+      loadFavoritesOnly();
+    };
+
+    window.addEventListener("storage", handleFavoritesUpdate);
+    window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
+
     return () => {
       mounted = false;
+      window.removeEventListener("storage", handleFavoritesUpdate);
+      window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
     };
   }, []);
 
@@ -635,101 +698,135 @@ const UserDashboard = () => {
         animate="show"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
       >
-        {favorite.slice(0, 3).map((property, index) => (
+        {favorite.slice(0, 3).map((property, index) => {
+          const propId = property.propertyId || property._id || property.id;
+          const propImage =
+            property.images?.[0] ||
+            property.image ||
+            FALLBACK_IMAGE;
 
-          <motion.div
-            key={property.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.35,
-              delay: index * 0.08,
-            }}
-            whileHover={{ y: -5 }}
-            className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
-          >
-
-            {/* Image */}
-            <div className="relative h-36 sm:h-32 lg:h-36 w-full overflow-hidden">
-              <img
-                src={property.images?.[0]}
-                alt={property.title}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-
-              {/* Gradient */}
-              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent" />
-
-              {/* Wishlist */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md"
-              >
-                <Heart
-                  size={15}
-                  className="fill-red-500 text-red-500"
-                />
-              </motion.button>
-            </div>
-
-            {/* Content */}
-            <div className="p-3 sm:p-3.5">
-
-              {/* Title */}
-              <h3 className="truncate text-sm font-bold text-gray-800">
-                {property.title}
-              </h3>
-
-              {/* Location */}
-              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
-                <MapPin
-                  size={13}
-                  className="shrink-0 text-primary-600"
+          return (
+            <motion.div
+              key={propId || `fav-${index}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.35,
+                delay: index * 0.08,
+              }}
+              whileHover={{ y: -5 }}
+              onClick={() => {
+                if (propId) navigate(`/property/${propId}`);
+              }}
+              className="group cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+            >
+              {/* Image */}
+              <div className="relative h-36 sm:h-32 lg:h-36 w-full overflow-hidden">
+                <img
+                  src={propImage}
+                  alt={property.title}
+                  onError={(e) => {
+                    if (e.currentTarget.src !== FALLBACK_IMAGE) {
+                      e.currentTarget.src = FALLBACK_IMAGE;
+                    }
+                  }}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
-                <span className="truncate">
-                  {property.location}
-                </span>
+                {/* Gradient */}
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent" />
+
+                {/* Wishlist */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (propId) {
+                      try {
+                        const token = localStorage.getItem("token");
+                        if (token) {
+                          await WishlistService.removeFavorite(propId);
+                        }
+                      } catch (err) {
+                        console.error("Remove favorite error:", err);
+                      }
+                      removeFromFavorites(propId);
+                      setFavorite((prev) =>
+                        prev.filter(
+                          (item) =>
+                            (item.propertyId || item._id || item.id) !== propId
+                        )
+                      );
+                      window.dispatchEvent(
+                        new CustomEvent("favoritesUpdated")
+                      );
+                      toast.success("Removed from wishlist");
+                    }
+                  }}
+                  className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md hover:bg-red-50"
+                  title="Remove from favorites"
+                >
+                  <Heart
+                    size={15}
+                    className="fill-red-500 text-red-500"
+                  />
+                </motion.button>
               </div>
 
-              {/* Property Info */}
-              <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[10px] text-gray-500">
-                <span>{property.bedrooms} Beds</span>
+              {/* Content */}
+              <div className="p-3 sm:p-3.5">
+                {/* Title */}
+                <h3 className="truncate text-sm font-bold text-gray-800 group-hover:text-primary-600 transition-colors">
+                  {property.title}
+                </h3>
 
-                <span className="text-gray-300">•</span>
+                {/* Location */}
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
+                  <MapPin
+                    size={13}
+                    className="shrink-0 text-primary-600"
+                  />
+                  <span className="truncate">
+                    {property.location}
+                  </span>
+                </div>
 
-                <span>{property.bathrooms} Bath</span>
+                {/* Property Info */}
+                <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[10px] text-gray-500">
+                  <span>{property.bedrooms || 0} Beds</span>
+                  <span className="text-gray-300">•</span>
+                  <span>{property.bathrooms || 0} Bath</span>
+                  <span className="text-gray-300">•</span>
+                  <span>{property.area || 0} sq.ft</span>
+                </div>
 
-                <span className="text-gray-300">•</span>
+                {/* Price */}
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-base font-bold text-primary-700">
+                    ₹{Number(property.price || 0).toLocaleString("en-IN")}
+                  </span>
+                  <span className="text-[9px] text-gray-400">
+                    / month
+                  </span>
+                </div>
 
-                <span>{property.area} sq.ft</span>
+                {/* Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (propId) navigate(`/property/${propId}`);
+                  }}
+                  className="mt-3 w-full rounded-xl border border-primary-600 py-2 text-xs font-semibold text-primary-600 transition-all duration-300 hover:bg-primary-600 hover:text-white"
+                >
+                  View Property
+                </motion.button>
               </div>
-
-              {/* Price */}
-              <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-base font-bold text-primary-700">
-                  ₹{property.price?.toLocaleString()}
-                </span>
-
-                <span className="text-[9px] text-gray-400">
-                  / month
-                </span>
-              </div>
-
-              {/* Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="mt-3 w-full rounded-xl border border-primary-600 py-2 text-xs font-semibold text-primary-600 transition-all duration-300 hover:bg-primary-600 hover:text-white"
-              >
-                View Property
-              </motion.button>
-
-            </div>
-          </motion.div>
-        ))}
-         
+            </motion.div>
+          );
+        })}
       </motion.div>
 
         <div className="w-full flex justify-center mt-10">

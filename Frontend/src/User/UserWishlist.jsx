@@ -11,6 +11,7 @@ import PropertyCard from "../Ui/PropertyCard";
 import Pagination from "../components/Pagination";
 import SortBy from "../Ui/SortBy";
 import { WishlistService } from "../services/UserServices";
+import { getFavorites } from "../utils/favorite";
 
 const UserWishlist = () => {
   const navigate = useNavigate();
@@ -20,36 +21,54 @@ const UserWishlist = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const normalizeFav = (fav) => ({
+    ...fav,
+    id: String(fav.propertyId || fav._id || fav.id || ""),
+    _id: String(fav.propertyId || fav._id || fav.id || ""),
+    propertyId: String(fav.propertyId || fav._id || fav.id || ""),
+    title: fav.title || fav.name || "Untitled Property",
+    location:
+      fav.location ||
+      [fav.locality, fav.city, fav.state].filter(Boolean).join(", ") ||
+      fav.address ||
+      "Location not available",
+    price: Number(fav.price || fav.rent || 0),
+    bedrooms: Number(fav.bedrooms || fav.bhk || 0),
+    bathrooms: Number(fav.bathrooms || 0),
+    area: Number(fav.area || fav.squareFeet || 0),
+    images:
+      Array.isArray(fav.images) && fav.images.length > 0
+        ? fav.images
+        : Array.isArray(fav.allImages) && fav.allImages.length > 0
+        ? fav.allImages
+        : [],
+    status: fav.status || "active",
+  });
+
   const fetchWishlist = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem("token");
 
-      const data = await WishlistService.getFavorites();
-
-      if (data?.success === false) {
-        throw new Error(data.message || "Failed to load wishlist");
+      if (token) {
+        try {
+          const data = await WishlistService.getFavorites();
+          if (data && Array.isArray(data.favorites)) {
+            setFavorites(data.favorites.map(normalizeFav));
+            setLoading(false);
+            return;
+          }
+        } catch (apiErr) {
+          console.log("API wishlist fetch error in UserWishlist, checking local:", apiErr);
+        }
       }
 
-      const favoriteList = Array.isArray(data?.favorites)
-        ? data.favorites
-        : [];
-
-      setFavorites(favoriteList);
+      const favs = getFavorites();
+      setFavorites((favs || []).map(normalizeFav));
     } catch (error) {
       console.error("Wishlist loading error:", error);
-
-      if (error.response?.status === 401) {
-        navigate("/login");
-        return;
-      }
-
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to load wishlist"
-      );
-
-      setFavorites([]);
+      const favs = getFavorites();
+      setFavorites((favs || []).map(normalizeFav));
     } finally {
       setLoading(false);
     }
@@ -57,6 +76,18 @@ const UserWishlist = () => {
 
   useEffect(() => {
     fetchWishlist();
+
+    const handleFavoritesUpdate = () => {
+      fetchWishlist();
+    };
+
+    window.addEventListener("storage", handleFavoritesUpdate);
+    window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
+
+    return () => {
+      window.removeEventListener("storage", handleFavoritesUpdate);
+      window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
+    };
   }, []);
 
   useEffect(() => {

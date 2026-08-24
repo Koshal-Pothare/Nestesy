@@ -528,17 +528,21 @@ const Home = () => {
     };
   }, []);
 
-  /* ----- PROPERTY CARDS (all approved owner-created properties) ----- */
+  /* ----- PROPERTY CARDS (featured 6 approved owner-created properties) ----- */
+
+  const featuredProperties = useMemo(() => {
+    return liveProperties.slice(0, 6);
+  }, [liveProperties]);
 
   const propertyCards = useMemo(() => {
-    return liveProperties.map((property, index) => (
+    return featuredProperties.map((property, index) => (
       <PropertyCard
         key={property._id || property.id || `property-${index}`}
         property={property}
         index={index}
       />
     ));
-  }, [liveProperties]);
+  }, [featuredProperties]);
 
   /* ----- CITY CARDS ----- */
 

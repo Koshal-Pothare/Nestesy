@@ -84,8 +84,17 @@ const PropertyCard = ({
 
     checkFavorite();
 
+    const handleUpdate = () => {
+      checkFavorite();
+    };
+
+    window.addEventListener("storage", handleUpdate);
+    window.addEventListener("favoritesUpdated", handleUpdate);
+
     return () => {
       mounted = false;
+      window.removeEventListener("storage", handleUpdate);
+      window.removeEventListener("favoritesUpdated", handleUpdate);
     };
   }, [propertyId, isPublicCard]);
 
