@@ -43,22 +43,31 @@ const Wishlist = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      let loadedFavorites = [];
 
       if (token) {
         try {
           const data = await WishlistService.getFavorites();
-          if (data && Array.isArray(data.favorites)) {
-            setFavorites(data.favorites.map(normalizeFav));
-            setLoading(false);
-            return;
+          const apiFavs =
+            data?.favorites ||
+            data?.data?.favorites ||
+            [];
+          if (Array.isArray(apiFavs) && apiFavs.length > 0) {
+            loadedFavorites = apiFavs.map(normalizeFav);
           }
         } catch (apiErr) {
           console.log("API wishlist fetch error, trying local:", apiErr);
         }
       }
 
-      const favs = getFavorites();
-      setFavorites((favs || []).map(normalizeFav));
+      if (loadedFavorites.length === 0) {
+        const favs = getFavorites();
+        if (Array.isArray(favs) && favs.length > 0) {
+          loadedFavorites = favs.map(normalizeFav);
+        }
+      }
+
+      setFavorites(loadedFavorites);
     } catch (error) {
       console.error('Error loading favorites:', error);
       const favs = getFavorites();

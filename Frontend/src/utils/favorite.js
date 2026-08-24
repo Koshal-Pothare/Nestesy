@@ -24,7 +24,29 @@ export const getFavorites = () => {
   const key = getFavoriteKey();
   try {
     const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
+    let favs = data ? JSON.parse(data) : [];
+
+    // If empty, check fallback keys
+    if (!Array.isArray(favs) || favs.length === 0) {
+      const fallbackKeys = ["favorites_guest", "favorites", "wishlist"];
+      for (const fKey of fallbackKeys) {
+        if (fKey !== key) {
+          const raw = localStorage.getItem(fKey);
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                favs = parsed;
+                // Auto-sync into user key
+                localStorage.setItem(key, JSON.stringify(favs));
+                break;
+              }
+            } catch {}
+          }
+        }
+      }
+    }
+    return Array.isArray(favs) ? favs : [];
   } catch {
     return [];
   }
@@ -47,6 +69,7 @@ export const addToFavorites = (property) => {
     });
 
     localStorage.setItem(key, JSON.stringify(favorites));
+    localStorage.setItem("favorites", JSON.stringify(favorites));
 
     window.dispatchEvent(new CustomEvent("favoritesUpdated"));
   }
@@ -62,6 +85,7 @@ export const removeFromFavorites = (id) => {
   const favorites = getFavorites().filter((item) => getItemId(item) !== targetId);
 
   localStorage.setItem(key, JSON.stringify(favorites));
+  localStorage.setItem("favorites", JSON.stringify(favorites));
 
   window.dispatchEvent(new CustomEvent("favoritesUpdated"));
 };
@@ -84,6 +108,7 @@ export const toggleFavorite = (property) => {
   if (exists) {
     const updated = favorites.filter((item) => getItemId(item) !== propertyId);
     localStorage.setItem(key, JSON.stringify(updated));
+    localStorage.setItem("favorites", JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent("favoritesUpdated"));
     return false;
   }
@@ -96,6 +121,7 @@ export const toggleFavorite = (property) => {
   });
 
   localStorage.setItem(key, JSON.stringify(favorites));
+  localStorage.setItem("favorites", JSON.stringify(favorites));
   window.dispatchEvent(new CustomEvent("favoritesUpdated"));
   return true;
 };
