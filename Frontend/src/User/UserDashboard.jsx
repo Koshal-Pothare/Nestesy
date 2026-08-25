@@ -281,7 +281,7 @@ const UserDashboard = () => {
       title: "Terms & Conditions",
       desc: "Review Nestesy terms and conditions",
       icon: FileText,
-      path: "/terms",
+      path: "/terms-conditions",
     },
     {
       id: 3,

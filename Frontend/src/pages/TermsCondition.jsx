@@ -19,6 +19,7 @@ import {
 
 import { termsData } from "../Data/Data";
 import termsHero from "../assets/terms-hero.png";
+import {useNavigate} from 'react-router-dom'
 
 
 // ==========================================================
@@ -243,6 +244,8 @@ const TermsSections = ({
 // ==========================================================
 
 const ImportantNote = () => {
+
+  const navigate = useNavigate();
   return (
     <div className="mt-6 flex flex-col gap-5 rounded-xl bg-[#f2faef] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
@@ -278,9 +281,9 @@ const ImportantNote = () => {
       {/* Button */}
       <button
         type="button"
-        onClick={() => {
-          window.location.href = "/";
-        }}
+        onClick={() => navigate("/")
+       
+        }
         className="inline-flex shrink-0 items-center justify-center gap-3 rounded-lg bg-[#155638] px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#10462d] hover:shadow-lg"
       >
 

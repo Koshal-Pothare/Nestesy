@@ -50,6 +50,7 @@ const BookVisitModal = ({ property, open, onClose }) => {
         images: property.images,
         visitDate: selectedDate,
         visitTime: property.visitTime || "10:00 AM - 6:00 PM",
+        
       });
 
       // 3. Show success message and redirect to upcoming visits

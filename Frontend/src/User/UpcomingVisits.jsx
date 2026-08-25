@@ -27,6 +27,7 @@ const UpcomingVisits = () => {
       try {
         const data = await BookingService.getUpcomingVisits();
         setVisits(data.bookings || []);
+        console.log(data);
       } catch (error) {
         toast.error("Failed to load upcoming visits");
       } finally {
@@ -178,7 +179,7 @@ const UpcomingVisits = () => {
                       Scheduled Visit
                     </p>
                     <h3 className="mt-2 text-xl font-bold text-white sm:text-2xl">
-                      Your visit is confirmed
+                      Your visit is <span className="uppercase tracking-wider">{visits[0].status}</span>
                     </h3>
                     <div className="mt-6 grid grid-cols-2 gap-3">
                       <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
@@ -265,7 +266,7 @@ const UpcomingVisits = () => {
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                         <div className="absolute bottom-2 left-2 rounded-full bg-white/95 px-2 py-1 text-[8px] font-bold text-primary-700 shadow-sm">
-                          Upcoming
+                         {visits[0].status}
                         </div>
                       </div>
 
