@@ -8,7 +8,6 @@ const SortBy = ({sortBy,setSortBy}) => {
 const [isSortOpen, setIsSortOpen] = useState(false);
 
 const sortOptions = [
-  { value: "newest", label: "Newest First" },
   { value: "priceLow", label: " Low to High" },
   { value: "priceHigh", label: " High to Low" },
 
@@ -22,13 +21,13 @@ const sortOptions = [
 <div className="relative w-72">
   <button
     onClick={() => setIsSortOpen(!isSortOpen)}
-    className="w-full bg-primary-600 text-white border-2 border-primary-500 rounded-2xl px-5 py-3 flex items-center justify-around shadow-lg hover:border-primary-600 transition"
+    className="w-full bg-primary-600 text-white border-2 border-primary-500 rounded-2xl  py-2 md:px-5 md:py-3 flex items-center justify-around shadow-lg hover:border-primary-600 transition"
   >
     <div className="text-left">
-      <p className="text-lg  font-medium">Sort By</p>
+      <p className="text-sm md:text-lg  font-medium">Sort By</p>
 </div>
 <div className="flex items-center gap-2">
-      <p className="font-semibold">
+      <p className="text-sm md:text-base font-semibold">
         {sortOptions.find((item) => item.value === sortBy)?.label}
       </p>
     
@@ -37,7 +36,7 @@ const sortOptions = [
       animate={{ rotate: isSortOpen ? 180 : 0 }}
       transition={{ duration: 0.2 }}
     >
-      <ChevronDown className="" />
+      <ChevronDown className="" size={15}/>
     </motion.div>
     </div>
   </button>

@@ -211,7 +211,7 @@ const Navbar = () => {
                         {userDisplayName}
                       </h3>
                       <span className="text-xs text-primary-600 font-semibold">
-                        {isHost ? "Host Account" : "User Account"}
+                        {isHost ? "Host Account" : "Tenant Account"}
                       </span>
                     </div>
 

@@ -277,12 +277,12 @@ const AdminPropertyVerification = () => {
                         <Building className="w-12 h-12 text-gray-300" />
                       </div>
                     )}
-                    <div className="absolute top-3 left-3">
+                    {/* <div className="absolute top-3 left-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${statusBadge.bg} ${statusBadge.text}`}>
                         {statusBadge.icon}
                         {statusBadge.label}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* Property Info */}
@@ -425,13 +425,13 @@ const AdminPropertyVerification = () => {
                     <p className="text-sm text-gray-500">Price</p>
                     <p className="font-semibold text-green-600">₹{(selectedProperty.price !== undefined ? selectedProperty.price : selectedProperty.rent || 0).toLocaleString()}/mo</p>
                   </div>
-                  <div>
+                  {/* <div>
                     <p className="text-sm text-gray-500">Status</p>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusBadge(selectedProperty).bg} ${getStatusBadge(selectedProperty).text} inline-flex`}>
                       {getStatusBadge(selectedProperty).icon}
                       {getStatusBadge(selectedProperty).label}
                     </span>
-                  </div>
+                  </div> */}
                   <div>
                     <p className="text-sm text-gray-500">BHK</p>
                     <p className="font-semibold">{selectedProperty.bedrooms} BHK</p>

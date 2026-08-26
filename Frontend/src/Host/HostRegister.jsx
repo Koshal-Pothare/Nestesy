@@ -96,7 +96,7 @@ const HostRegister = () => {
 
       setTimeout(() => {
         if (data?.token) {
-          navigate("/host", { replace: true });
+          // navigate("/host", { replace: true });
         } else {
           navigate("/become-a-host", { replace: true });
         }

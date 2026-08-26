@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DesktopHero from "../assets/Explore/DesktopHero2.png";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ExploreSkeleton from "../components/ExploreSkeleton";
 
 import {
@@ -12,6 +12,8 @@ import {
   Building2,
   Wallet2,
   Home,
+  Search,
+  X,
 } from "lucide-react";
 
 import ExploreSidebar from "../components/ExploreSidebar";
@@ -148,7 +150,7 @@ const Explore = () => {
      PAGE / PROPERTY STATE
   ========================================================= */
   const [rotate, setRotate] = useState(0);
-  const [sortBy, setSortBy] = useState("newest");
+  const [sortBy, setSortBy] = useState("priceLow");
 
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [allProperties, setAllProperties] = useState([]);
@@ -156,6 +158,26 @@ const Explore = () => {
   const [propertyLoading, setPropertyLoading] = useState(false);
   const [propertyError, setPropertyError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  
+
+const searchPlaceholders = [
+  "Search by city or locality",
+  "Search 1 BHK flat",
+  "Search luxury apartment",
+  "Search by property",
+  "Search by title or location",
+];
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setPlaceholderIndex((prev) => 
+      (prev + 1) % searchPlaceholders.length
+    );
+  }, 2500);
+
+  return () => clearInterval(interval);
+}, []);
 
   /* =========================================================
      FETCH PROPERTIES FROM PUBLIC API
@@ -276,9 +298,13 @@ const Explore = () => {
     let result = [...allProperties];
 
     if (filter.location.trim()) {
-      const q = filter.location.trim().toLowerCase();
+      const q = filter.location.trim().toLowerCase(); 
       result = result.filter((p) =>
-        String(p.location || "").toLowerCase().includes(q)
+        String(p.location || "").toLowerCase().includes(q) ||
+      String(p.city || "").toLowerCase().includes(q) ||
+      String(p.locality || "").toLowerCase().includes(q) ||
+      String(p.state || "").toLowerCase().includes(q) ||
+      String(p.title || "").toLowerCase().includes(q)
       );
     }
 
@@ -329,6 +355,8 @@ const Explore = () => {
     scrollToProperty();
   };
 
+
+
   /* =========================================================
      HANDLE AMENITY FILTER
   ========================================================= */
@@ -343,6 +371,64 @@ const Explore = () => {
       };
     });
   };
+
+  // mobie search functionality
+
+const handleMobileSearch = () => {
+  const query = filter.location.trim().toLowerCase();
+
+  // Empty search
+  if (!query) {
+    setFilteredProperties(allProperties);
+    setCurrentPage(1);
+    return;
+  }
+
+
+  const searchWords = query
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const result = allProperties.filter((property) => {
+    const searchableText = [
+      property.title,
+      property.location,
+      property.locality,
+      property.city,
+      property.state,
+      property.propertyType,
+      property.type,
+      property.bhk ? `${property.bhk} bhk` : "",
+      property.bedrooms ? `${property.bedrooms} bhk` : "",
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    // Remove spaces/hyphens for BHK matching
+    const normalizedText = searchableText.replace(/[\s-]+/g, "");
+
+    return searchWords.every((word) => {
+      const normalizedWord = word.replace(/[\s-]+/g, "");
+
+      return (
+        searchableText.includes(word) ||
+        normalizedText.includes(normalizedWord)
+      );
+    });
+  });
+
+  setFilteredProperties(result);
+  setCurrentPage(1);
+
+  // Scroll to properties
+  setTimeout(() => {
+    document.getElementById("properties")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 100);
+};
 
   /* =========================================================
      SORTING LOGIC
@@ -556,18 +642,103 @@ const Explore = () => {
         </motion.div>
       </div>
 
-      {/* PROPERTY SECTION */}
-      <div className="py-20 w-full p-10">
-        {propertyLoading ? (
-          <ExploreSkeleton />
-        ) : (
-          <>
-            <div className="p-5">
-              <h2 className="font-semibold text-4xl">Explore Homes</h2>
+<div className=" p-5 md:mt-15 md:ml-10">
+              <h2 className="font-semibold text-2xl md:text-4xl text-primary-700 font-serif">Explore Homes</h2>
               <p className="mt-2 font-semibold text-gray-700">
                 Find your perfect place from {allProperties.length} verified properties
               </p>
             </div>
+
+      {/* mobile search bar */}
+
+           <div className="px-4 py-5 md:hidden">
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.2 }}
+    className="rounded-2xl border border-gray-200 bg-white p-3 shadow-lg"
+  >
+    <div className="flex items-center gap-2">
+
+      {/* Search Input */}
+      <div className="relative flex-1">
+        <MapPin
+          size={20}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-600"
+        />
+
+        <input
+          type="text"
+          name="location"
+          value={filter.location}
+          onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleMobileSearch();
+            }
+          }}
+        
+          autoComplete="off"
+          className="w-full rounded-xl bg-gray-50 py-3 pl-10 pr-9 text-sm text-gray-700 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary-100"
+        />
+
+          {!filter.location && (
+    <div className="pointer-events-none absolute left-10 right-9 top-0 bottom-0 flex items-center overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={placeholderIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9 }}
+          className="absolute text-sm text-gray-400"
+        >
+          {searchPlaceholders[placeholderIndex]}
+        </motion.span>
+      </AnimatePresence>
+    </div>
+  )}
+
+
+        {/* Clear Search */}
+        {filter.location && (
+          <button
+            type="button"
+            onClick={() =>
+              setFilter((prev) => ({
+                ...prev,
+                location: "",
+              }))
+            }
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600"
+          >
+            <X size={17} />
+          </button>
+        )}
+      </div>
+
+      {/* Search Button */}
+      <button
+        type="button"
+        onClick={handleMobileSearch}
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white shadow-md transition hover:bg-primary-700 active:scale-95"
+        aria-label="Search properties"
+      >
+        <Search size={20} />
+      </button>
+
+    </div>
+  </motion.div>
+</div>
+
+
+      {/* PROPERTY SECTION */}
+      <div className=" py-5 md:py-10 w-full p-10">
+        {propertyLoading ? (
+          <ExploreSkeleton />
+        ) : (
+          <>
+            
 
             <div
               className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start"
@@ -646,47 +817,48 @@ const Explore = () => {
       </div>
 
       {/* CTA SECTION */}
-      <motion.div
-        initial={{ opacity: 0, y: 60 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-        viewport={{ once: true }}
-        className="w-full px-6 py-20"
-      >
-        <div
-          style={{ backgroundImage: `url(${CTA})` }}
-          className="relative overflow-hidden bg-cover bg-center max-w-7xl mx-auto h-[400px] rounded-[32px] px-8 py-10 md:px-12 md:py-12"
-        >
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-start gap-10">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left py-10">
-              <motion.div
-                whileHover={{ rotate: 8, scale: 1.08 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-500 shadow-lg"
-              >
-                <Home size={42} className="text-white" />
-              </motion.div>
+      <motion.div 
+      initial={{ opacity: 0, y: 60 }}
+       whileInView={{ opacity: 1, y: 0 }} 
+       transition={{ duration: 0.7 }} 
+       viewport={{ once: true }} 
+       className="w-full px-3 py-8 sm:px-6 sm:py-12 lg:py-16">
+  <div style={{ backgroundImage: `url(${CTA})` }}
+   className="relative mx-auto flex min-h-[430px] w-[90%] max-w-7xl items-center overflow-hidden rounded-[28px] bg-cover bg-center px-5 py-8 sm:min-h-[420px] sm:w-full sm:rounded-[32px] sm:px-8 sm:py-10 md:px-12 md:py-12 lg:min-h-[400px]">
+    <div 
+    className="relative z-10 flex w-full items-center justify-center lg:justify-start">
+      <div 
+      className="flex w-full flex-col items-center gap-5 text-center sm:gap-6 lg:flex-row lg:items-start lg:text-left">
+        
+        <motion.div
+         whileHover={{ rotate: 8, scale: 1.08 }}
+          transition={{ type: "spring", stiffness: 300 }}
+           className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-500 shadow-lg sm:h-20 sm:w-20">
+          <Home size={32} className="text-white sm:h-[42px] sm:w-[42px]" />
+        </motion.div>
 
-              <div>
-                <h2 className="text-3xl md:text-4xl font-serif font-semibold text-white">
-                  You've Saved the Best. Now Choose One.
-                </h2>
-                <p className="mt-3 text-primary-100 text-base md:text-lg max-w-xl leading-7">
-                  Explore your wishlist and schedule a visit for the properties that caught your eye.
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => navigate("/wishlist")}
-                  className="bg-transparent backdrop-blur-xl mt-10 text-white border border-white/20 px-10 py-4 rounded-2xl font-semibold text-lg shadow-xl transition-colors hover:bg-primary-50 hover:text-primary-700"
-                >
-                  Explore Wishlist
-                </motion.button>
-              </div>
-            </div>
-          </div>
+        <div className="w-full max-w-2xl">
+          <h2 className="text-2xl font-serif font-semibold leading-tight text-white sm:text-3xl md:text-4xl">
+            You've Saved the Best. Now Choose One.
+          </h2>
+
+          <p className="mt-3 text-sm leading-6 text-primary-100 sm:text-base md:text-lg md:leading-7">
+            Explore your wishlist and schedule a visit for the properties that caught your eye.
+          </p>
+
+          <motion.button 
+          whileHover={{ scale: 1.05, y: -2 }} 
+          whileTap={{ scale: 0.96 }} 
+          onClick={() => navigate("/wishlist")} 
+          className="mt-6 rounded-2xl border border-white/20 bg-transparent px-7 py-3 text-sm font-semibold text-white shadow-xl backdrop-blur-xl transition-colors hover:bg-primary-50 hover:text-primary-700 sm:mt-8 sm:px-10 sm:py-4 sm:text-lg">
+            Explore Wishlist
+          </motion.button>
         </div>
-      </motion.div>
+
+      </div>
+    </div>
+  </div>
+</motion.div>
     </section>
   );
 };

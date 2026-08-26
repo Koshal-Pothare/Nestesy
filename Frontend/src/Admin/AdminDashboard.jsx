@@ -31,7 +31,7 @@ const defaultStatsData = [
   },
   {
     id: 2,
-    title: "Total Users",
+    title: "Total Host",
     value: "0",
     change: "...",
     icon: Users,
@@ -41,7 +41,7 @@ const defaultStatsData = [
   },
   {
     id: 3,
-    title: "Active Listings",
+    title: "Total Tenants",
     value: "0",
     change: "...",
     icon: Users,
@@ -51,7 +51,7 @@ const defaultStatsData = [
   },
   {
     id: 4,
-    title: "Revenue",
+    title: "Total Visits",
     value: "₹0",
     change: "...",
     icon: Building2,
@@ -182,6 +182,7 @@ const AdminDashboard = () => {
               }))
             );
           }
+          console.log(dashboardStats)
           if (data.recentProperties) setDashboardRecentProps(data.recentProperties);
           if (data.recentUsers) setDashboardRecentUsers(data.recentUsers);
 
@@ -378,7 +379,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {statsCards}
         </div>
 

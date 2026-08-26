@@ -27,6 +27,7 @@ import {
   Shield,
   CreditCard,
   Building2,
+  House,
 } from "lucide-react";
 
 import {
@@ -590,7 +591,7 @@ const Home = () => {
   return (
     <>
       {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+      <section className="relative overflow-hidden min-h-screen flex items-center">
         <div
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${Hero})` }}
@@ -679,7 +680,8 @@ const Home = () => {
 
             <motion.div
               className="mt-8 flex flex-wrap gap-6 sm:gap-10"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.2 }}
             >
               <div ref={counter1.ref} className="flex items-center gap-2">
@@ -699,12 +701,41 @@ const Home = () => {
                 <span className="text-gray-100 text-sm font-semibold">Rating</span>
               </div>
             </motion.div>
+            
           </div>
+    <motion.div
+  initial={{ opacity: 0, y: 50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
+  className="mt-5 md:mt-10 flex flex-col md:flex-row w-full md:max-w-xl items-center gap-3 md:gap-10"
+>
+  <motion.button
+    whileHover={{ scale: 1.04, y: -2 }}
+    whileTap={{ scale: 0.97 }}
+    onClick={() => navigate("/explore")}
+    className="w-full bg-primary-600 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg whitespace-nowrap transition-all duration-300 hover:bg-green-800"
+  >
+    Explore Properties
+  </motion.button>
+
+  <motion.button
+    whileHover={{ scale: 1.04, y: -2 }}
+    whileTap={{ scale: 0.97 }}
+    onClick={() => navigate("/become-a-host")}
+    className="w-full bg-white/10 backdrop-blur-sm border border-white text-white font-semibold py-3.5 px-8 rounded-2xl shadow-lg whitespace-nowrap transition-all duration-300 hover:bg-white hover:text-primary-700 flex items-center justify-center gap-2"
+  >
+    <House size={20} />
+    Become Host
+  </motion.button>
+</motion.div>
         </div>
+        
       </section>
 
+    
+
       {/* ============ SEARCH FORM ============ */}
-      <div className="relative z-20 -mt-24 px-4 sm:px-6 lg:px-8">
+      {/* <div className=" hidden md:flex relative z-20 -mt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <motion.form
             onSubmit={handleSearch}
@@ -759,7 +790,7 @@ const Home = () => {
             </div>
           </motion.form>
         </div>
-      </div>
+      </div> */}
 
       {/* ============ POPULAR CITIES ============ */}
       <section className="relative z-10 -mt-18 bg-white rounded-t-[70px] pt-24 pb-16 overflow-hidden">
