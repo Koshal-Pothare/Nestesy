@@ -17,6 +17,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import { BookingService } from "../services/UserServices";
 
+const getHostDisplayName = (host) => {
+  if (!host) return "Verified Host";
+  const str = String(host).trim();
+  if (/^[0-9a-fA-F]{24}$/.test(str)) {
+    return "Verified Host";
+  }
+  return str;
+};
+
 const UpcomingVisits = () => {
   const navigate = useNavigate();
   const [visits, setVisits] = useState([]);
@@ -27,7 +36,6 @@ const UpcomingVisits = () => {
       try {
         const data = await BookingService.getUpcomingVisits();
         setVisits(data.bookings || []);
-        console.log(data);
       } catch (error) {
         toast.error("Failed to load upcoming visits");
       } finally {
@@ -205,7 +213,7 @@ const UpcomingVisits = () => {
                         <div>
                           <p className="text-[10px] uppercase tracking-wide text-white/50">Host</p>
                           <p className="text-sm font-semibold text-white">
-                            {visits[0].host || "Host"}
+                            {getHostDisplayName(visits[0].host)}
                           </p>
                         </div>
                       </div>

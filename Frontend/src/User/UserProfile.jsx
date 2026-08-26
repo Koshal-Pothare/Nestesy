@@ -23,6 +23,7 @@ import {
   WishlistService,
   BookingService,
 } from "../services/UserServices";
+import { getFavorites } from "../utils/favorite";
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -93,14 +94,20 @@ const UserProfile = () => {
         });
 
         /* ---------------- FAVORITES ---------------- */
-
-        setFavoriteCount(
-          Number(
-            favoritesResponse?.count ??
-              favoritesResponse?.data?.count ??
-              0
-          )
+        let favCount = Number(
+          favoritesResponse?.count ??
+            favoritesResponse?.data?.count ??
+            0
         );
+
+        if (favCount === 0) {
+          const localFavs = getFavorites();
+          if (Array.isArray(localFavs) && localFavs.length > 0) {
+            favCount = localFavs.length;
+          }
+        }
+
+        setFavoriteCount(favCount);
 
         /* ---------------- UPCOMING VISITS ---------------- */
 
@@ -182,10 +189,13 @@ const UserProfile = () => {
     try {
       setSaving(true);
 
+      const locationVal = (formData.location || "").trim();
+
       const response = await AuthService.updateProfile({
         name: formData.username.trim(),
         phone: formData.phone.trim(),
-        city: formData.location.trim(),
+        city: locationVal,
+        location: locationVal,
       });
 
       const updatedUser =
@@ -205,10 +215,15 @@ const UserProfile = () => {
         email: updatedUser.email || "",
         phone: updatedUser.phone || "",
         location:
-          updatedUser.city ||
           updatedUser.location ||
+          updatedUser.city ||
           "",
       });
+
+      // Save to localStorage so full app stays in sync
+      localStorage.setItem("nestesyLoggedInUser", JSON.stringify(updatedUser));
+      localStorage.setItem("nestesyUser", JSON.stringify(updatedUser));
+      window.dispatchEvent(new CustomEvent("authStateChanged"));
 
       setEditMode(false);
 

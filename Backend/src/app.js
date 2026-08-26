@@ -34,13 +34,19 @@ const tenantFavoriteRoutes = require("./User/routes/tenantFavoriteRoutes");
 const tenantBookingRoutes = require("./User/routes/tenantBookingRoutes");
 const tenantReviewRoutes = require("./User/routes/reviewRoutes");
 const tenantProfileRoutes = require("./User/routes/tenantProfileRoutes");
-
 const publicPropertyRoutes = require("./public/routes/publicPropertyRoutes");
+
+const passport = require("passport");
+const configurePassport = require("./config/passport");
 
 const app = express();
 
 // DATABASE
 connectDB();
+
+// PASSPORT AUTH
+configurePassport();
+app.use(passport.initialize());
 
 // CORS
 app.use(

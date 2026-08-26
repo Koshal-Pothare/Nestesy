@@ -53,6 +53,10 @@ const Login = () => {
     }));
   };
 
+  const handleGoogleAuth = () => {
+    window.location.href = "http://localhost:5000/api/tenant/auth/google";
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -405,8 +409,14 @@ const Login = () => {
 
                 <button
                   type="button"
-                  className="text-center w-full mt-5 md:mt-10 border-3 border-primary-700 py-3 md:py-4 rounded-2xl"
+                  onClick={handleGoogleAuth}
+                  className="flex items-center justify-center gap-3 text-center w-full mt-5 md:mt-10 border-2 border-gray-200 hover:border-primary-600 hover:bg-gray-50 py-3 md:py-3.5 rounded-2xl font-semibold text-gray-700 transition cursor-pointer shadow-sm"
                 >
+                  <img
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    alt="Google"
+                    className="w-5 h-5"
+                  />
                   Continue with Google
                 </button>
               </form>
@@ -591,8 +601,14 @@ const Login = () => {
 
                 <button
                   type="button"
-                  className="text-center w-full mt-3 border-3 border-primary-700 py-3 md:py-4 rounded-2xl"
+                  onClick={handleGoogleAuth}
+                  className="flex items-center justify-center gap-3 text-center w-full mt-3 border-2 border-gray-200 hover:border-primary-600 hover:bg-gray-50 py-3 md:py-3.5 rounded-2xl font-semibold text-gray-700 transition cursor-pointer shadow-sm"
                 >
+                  <img
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    alt="Google"
+                    className="w-5 h-5"
+                  />
                   Continue with Google
                 </button>
               </form>

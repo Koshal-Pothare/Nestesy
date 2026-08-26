@@ -1,5 +1,47 @@
 const Booking = require("../models/Booking");
-const Property = require("../../owner/models/Property"); // Make sure this path points to your Property model
+const Property = require("../../owner/models/Property");
+const Owner = require("../../owner/models/Owner");
+
+const enrichBookingWithHost = async (booking) => {
+  const b = booking.toObject ? booking.toObject() : { ...booking };
+  
+  // If host is empty or looks like a 24-char ObjectId string
+  if (!b.host || /^[0-9a-fA-F]{24}$/.test(String(b.host).trim())) {
+    let owner = null;
+    if (b.host && /^[0-9a-fA-F]{24}$/.test(String(b.host).trim())) {
+      owner = await Owner.findById(b.host).select("name phone").lean();
+    }
+    if (!owner && b.propertyId) {
+      const prop = await Property.findById(b.propertyId)
+        .populate("owner", "name phone")
+        .populate("ownerId", "name phone")
+        .lean();
+      if (prop) {
+        b.host =
+          prop.verification?.ownerName ||
+          prop.owner?.name ||
+          prop.ownerId?.name ||
+          prop.ownerName ||
+          "Nestesy Host";
+        b.hostPhone =
+          prop.verification?.ownerPhone ||
+          prop.owner?.phone ||
+          prop.ownerId?.phone ||
+          b.hostPhone ||
+          "";
+      }
+    } else if (owner) {
+      b.host = owner.name || "Nestesy Host";
+      b.hostPhone = owner.phone || b.hostPhone || "";
+    }
+  }
+
+  if (!b.host || /^[0-9a-fA-F]{24}$/.test(String(b.host).trim())) {
+    b.host = "Nestesy Host";
+  }
+
+  return b;
+};
 
 // Create a new booking
 const createBooking = async (req, res) => {
@@ -13,7 +55,7 @@ const createBooking = async (req, res) => {
       bathrooms,
       area,
       images,
-      host,       // Frontend might send this, but we'll fetch it just in case
+      host,
       hostPhone,
       visitDate,
       visitTime,
@@ -45,18 +87,36 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // 🔴 NEW: Fetch the Property to automatically get the Host (Owner) ID
     let finalHost = host;
     let finalHostPhone = hostPhone;
 
-    // If the frontend didn't send the host ID, find it from the Property document
-    if (!finalHost && propertyId) {
-      const property = await Property.findById(propertyId);
+    // Fetch the Property to get the real Host Name (not raw ID)
+    if (propertyId) {
+      const property = await Property.findById(propertyId)
+        .populate("owner", "name phone")
+        .populate("ownerId", "name phone")
+        .lean();
+
       if (property) {
-        // Cast owner ObjectId to String because your Booking schema expects a String for 'host'
-        finalHost = String(property.owner);
-        finalHostPhone = property.hostPhone || property.phone || "";
+        finalHost =
+          property.verification?.ownerName ||
+          property.owner?.name ||
+          property.ownerId?.name ||
+          property.ownerName ||
+          host ||
+          "Nestesy Host";
+        finalHostPhone =
+          property.verification?.ownerPhone ||
+          property.owner?.phone ||
+          property.ownerId?.phone ||
+          property.hostPhone ||
+          hostPhone ||
+          "";
       }
+    }
+
+    if (!finalHost || /^[0-9a-fA-F]{24}$/.test(String(finalHost).trim())) {
+      finalHost = "Nestesy Host";
     }
 
     const booking = await Booking.create({
@@ -69,8 +129,8 @@ const createBooking = async (req, res) => {
       bathrooms,
       area,
       images,
-      host: finalHost,           // ✅ Now the Host ID is saved!
-      hostPhone: finalHostPhone, 
+      host: finalHost,
+      hostPhone: finalHostPhone,
       visitDate,
       visitTime,
       notes,
@@ -102,9 +162,11 @@ const getBookings = async (req, res) => {
       query.status = status;
     }
 
-    const bookings = await Booking.find(query)
+    const rawBookings = await Booking.find(query)
       .populate("tenant", "name email phone")
       .sort({ bookedAt: -1, createdAt: -1 });
+
+    const bookings = await Promise.all(rawBookings.map(enrichBookingWithHost));
 
     return res.status(200).json({
       success: true,
@@ -124,12 +186,14 @@ const getUpcomingVisits = async (req, res) => {
   try {
     const tenantId = req.user._id;
 
-    const bookings = await Booking.find({
+    const rawBookings = await Booking.find({
       tenant: tenantId,
       status: { $nin: ["cancelled", "rejected", "completed"] },
     })
       .populate("tenant", "name email phone")
       .sort({ visitDate: 1, visitTime: 1 });
+
+    const bookings = await Promise.all(rawBookings.map(enrichBookingWithHost));
 
     return res.status(200).json({
       success: true,

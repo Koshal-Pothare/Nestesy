@@ -311,11 +311,12 @@ const getMe = async (req, res) => {
           username: tenant.username,
           email: tenant.email,
           phone: tenant.phone || "",
-          city: tenant.city || "",
+          city: tenant.city || tenant.location || "",
+          location: tenant.location || tenant.city || "",
           profileImage:
-            tenant.profileImage || null,
-          role: tenant.role,
-          isActive: tenant.isActive,
+            tenant.profilePicture || tenant.profileImage || tenant.avatar || null,
+          role: tenant.role || "tenant",
+          isActive: tenant.isActive !== false,
           createdAt: tenant.createdAt,
         },
       }
@@ -352,6 +353,7 @@ const updateProfile = async (req, res) => {
       name,
       phone,
       city,
+      location,
       profileImage,
     } = req.body;
 
@@ -375,15 +377,27 @@ const updateProfile = async (req, res) => {
       tenant.phone = phone.trim();
     }
 
-    if (city !== undefined) {
-      tenant.city = city.trim();
+    const locVal = city !== undefined ? city : location;
+    if (locVal !== undefined) {
+      tenant.city = String(locVal).trim();
+      tenant.location = String(locVal).trim();
     }
 
     if (profileImage !== undefined) {
       tenant.profileImage = profileImage;
+      tenant.profilePicture = profileImage;
     }
 
     await tenant.save();
+
+    // Also sync with TenantProfile model if it exists
+    try {
+      await TenantProfile.findOneAndUpdate(
+        { tenantId: tenant._id },
+        { preferredCity: tenant.city || tenant.location || "" },
+        { upsert: false }
+      );
+    } catch {}
 
     return success(
       res,
@@ -396,11 +410,12 @@ const updateProfile = async (req, res) => {
           username: tenant.username,
           email: tenant.email,
           phone: tenant.phone || "",
-          city: tenant.city || "",
+          city: tenant.city || tenant.location || "",
+          location: tenant.location || tenant.city || "",
           profileImage:
-            tenant.profileImage || null,
-          role: tenant.role,
-          isActive: tenant.isActive,
+            tenant.profilePicture || tenant.profileImage || null,
+          role: tenant.role || "tenant",
+          isActive: tenant.isActive !== false,
           createdAt: tenant.createdAt,
         },
       }
@@ -419,9 +434,55 @@ const updateProfile = async (req, res) => {
   }
 };
 
+/**
+ * Handle successful Google OAuth authentication
+ */
+const googleAuthCallback = async (req, res) => {
+  try {
+    const frontendUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const tenant = req.user;
+
+    if (!tenant) {
+      return res.redirect(`${frontendUrl}/login?error=auth_failed`);
+    }
+
+    const token = generateToken(tenant._id, "tenant");
+    const userPayload = {
+      id: tenant._id,
+      _id: tenant._id,
+      name: tenant.name,
+      username: tenant.username,
+      email: tenant.email,
+      phone: tenant.phone || "",
+      profilePicture: tenant.profilePicture || tenant.avatar || "",
+      avatar: tenant.avatar || tenant.profilePicture || "",
+      role: "tenant",
+    };
+
+    const encodedUser = encodeURIComponent(JSON.stringify(userPayload));
+    return res.redirect(
+      `${frontendUrl}/auth/google/success?token=${token}&user=${encodedUser}`
+    );
+  } catch (err) {
+    console.error("Google Auth Callback Error:", err);
+    const frontendUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    return res.redirect(`${frontendUrl}/login?error=server_error`);
+  }
+};
+
+/**
+ * Handle Google OAuth failure
+ */
+const googleAuthFailure = (req, res) => {
+  const frontendUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  return res.redirect(`${frontendUrl}/login?error=google_cancelled`);
+};
+
 module.exports = {
   registerTenant,
   loginTenant,
   getMe,
   updateProfile,
+  googleAuthCallback,
+  googleAuthFailure,
 };

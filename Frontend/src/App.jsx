@@ -20,6 +20,7 @@ import TermsConditions from "./pages/TermsCondition";
 
 import Login from "./auth/Login";
 import ForgotPassword from "./auth/ForgotPassword";
+import GoogleAuthSuccess from "./auth/GoogleAuthSuccess";
 import AdminRegister from "./auth/AdminRegister";
 import AdminLogin from "./auth/AdminLogin";
 
@@ -84,6 +85,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/become-a-host" element={<BecomeHost />} />
         <Route path="/explore" element={<Explore />} />

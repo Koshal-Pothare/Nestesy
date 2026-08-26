@@ -28,9 +28,25 @@ const tenantSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "Please provide a password"],
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
+      required: function () {
+        return this.authProvider !== "google";
+      },
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    avatar: {
+      type: String,
+      default: "",
     },
     phone: {
       type: String,
@@ -39,6 +55,12 @@ const tenantSchema = new mongoose.Schema(
     location: {
       type: String,
       trim: true,
+      default: "",
+    },
+    city: {
+      type: String,
+      trim: true,
+      default: "",
     },
     profilePicture: {
       type: String,
@@ -56,8 +78,8 @@ const tenantSchema = new mongoose.Schema(
 
 // 🔴 FIXED: Removed `next`. Modern Mongoose handles async natively.
 tenantSchema.pre("save", async function () {
-  // Only hash the password if it has been modified or is new
-  if (!this.isModified("password")) {
+  // Only hash the password if it exists and has been modified or is new
+  if (!this.password || !this.isModified("password")) {
     return;
   }
 
