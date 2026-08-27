@@ -17,6 +17,7 @@ import {
   Download, 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { API_BASE } from '../Apitemp';
  
 const defaultStatsData = [
   {
@@ -168,7 +169,7 @@ const AdminDashboard = () => {
     const token = localStorage.getItem('adminToken');
     if (!token) { setLoading(false); return; }
 
-    fetch('/api/admin/dashboard/stats', {
+    fetch(`${API_BASE}/admin/dashboard/stats`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
