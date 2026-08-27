@@ -506,7 +506,7 @@ const PropertyDetails = () => {
 
       {/* MAIN CONTENT */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8 mt-15">
           <div className="min-w-0 lg:mt-20">
             {/* Title section */}
             <motion.section
