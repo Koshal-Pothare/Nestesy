@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {Eye,EyeOff} from 'lucide-react'
-import { API } from '../services/api';
+import { api } from '../services/api';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ const AdminLogin = () => {
     setLoginError('');
 
     try {
-      const res = await fetch(`${API}/admin/auth/login`, {
+      const res = await fetch(`${api}/admin/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
