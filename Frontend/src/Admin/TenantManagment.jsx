@@ -20,7 +20,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { API_BASE } from '../Apitemp';
-import {AdminSkeleton}  from '../components/AdminSkeleton'
+import AdminSkeleton  from '../components/AdminSkeleton'
 
 
 

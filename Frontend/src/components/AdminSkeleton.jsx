@@ -1,3 +1,5 @@
+import React from 'react'
+
 const AdminSkeleton = () => {
   return (
     <div className="animate-pulse">
@@ -104,3 +106,5 @@ const AdminSkeleton = () => {
     </div>
   );
 };
+
+export default AdminSkeleton
