@@ -12,7 +12,7 @@ import {
   privacyPolicyHeroData,
   privacyPolicyData,
   privacyPolicyCTAData,
-} from "../data/data";
+} from "../Data/Data";
 
 import privacyBg from "../assets/privacy-bg.jpg";
 import { useNavigate } from "react-router-dom";
