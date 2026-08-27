@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowLeft, Mail, Phone, MapPin, Building2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_BASE } from '../Apitemp';
 
 const HostDetails = () => {
   const navigate = useNavigate();

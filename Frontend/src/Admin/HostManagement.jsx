@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search, Eye, Users, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from '../Apitemp';
 
 const mockHosts = [
   {
@@ -165,7 +166,7 @@ const HostManagement = () => {
       return;
     }
 
-    fetch('/api/admin/owners?limit=100', {
+    fetch(`${API_BASE}/admin/owners?limit=100`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

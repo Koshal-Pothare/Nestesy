@@ -5,6 +5,7 @@ import {
   FileText, AlertCircle, RefreshCw, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE } from '../Apitemp';
 
 const AdminPropertyVerification = () => {
   const [properties, setProperties] = useState([]);
@@ -33,7 +34,7 @@ const AdminPropertyVerification = () => {
 
     if (token) {
       try {
-        const res = await fetch('/api/admin/properties?limit=100', {
+        const res = await fetch(`${API_BASE}/admin/properties?limit=100`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();

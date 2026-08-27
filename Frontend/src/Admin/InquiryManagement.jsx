@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE } from '../Apitemp';
 
 const mockInquiries = [
   {
@@ -101,7 +102,7 @@ const InquiryManagement = () => {
     setLoading(true);
     const token = localStorage.getItem("adminToken");
     try {
-      const res = await fetch("/api/admin/inquiries", {
+      const res = await fetch(`${API_BASE}/admin/inquiries`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

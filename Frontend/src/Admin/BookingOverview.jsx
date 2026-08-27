@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { API_BASE } from '../Apitemp';
 
 const BookingOverview = () => {
   const [search, setSearch] = useState("");
@@ -26,7 +27,7 @@ const BookingOverview = () => {
       return;
     }
 
-    fetch('/api/admin/bookings?limit=100', {
+    fetch(`${API_BASE}/admin/bookings?limit=100`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

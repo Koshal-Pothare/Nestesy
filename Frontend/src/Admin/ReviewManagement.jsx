@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
+import { API_BASE } from '../Apitemp';
 
 const mockReviews = [
   {
@@ -91,7 +92,7 @@ const ReviewManagement = () => {
     const token = localStorage.getItem('adminToken');
     if (!token) { setLoading(false); return; }
 
-    fetch('/api/admin/reviews', {
+    fetch(`${API_BASE}/admin/reviews`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

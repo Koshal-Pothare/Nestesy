@@ -19,6 +19,7 @@ import {
   History,
   CalendarCheck,
 } from "lucide-react";
+import { API_BASE } from '../Apitemp';
 
 
 
@@ -194,7 +195,7 @@ const TenantManagement = () => {
     const token = localStorage.getItem('adminToken');
     if (!token) { setLoading(false); return; }
 
-    fetch('/api/admin/tenants?limit=100', {
+    fetch(`${API_BASE}/admin/tenants?limit=100`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
