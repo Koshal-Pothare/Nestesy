@@ -44,7 +44,9 @@ const UserLayout = () => {
   ];
 
   const handleLogout = () => {
+     localStorage.removeItem("token");
     localStorage.removeItem("nestesyLoggedInUser");
+    localStorage.removeItem("nestesyUser");
     setIsSidebarOpen(false);
     navigate("/");
   };
