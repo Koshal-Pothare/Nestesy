@@ -28,7 +28,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 
-const API_URL = "http://localhost:5000/api/owners/properties";
+const API_URL = `${import.meta.env.VITE_API_URL}/owners/properties`;
 
 const AVAILABLE_AMENITIES = [
   "Parking", "Pool", "Gym", "Garden", "Security", "Lift",

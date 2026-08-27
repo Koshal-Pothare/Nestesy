@@ -54,7 +54,7 @@ const Login = () => {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = "http://localhost:5000/api/tenant/auth/google";
+    window.location.href = `${import.meta.env.VITE_API_URL}/tenant/auth/google`;
   };
 
   const handleLogin = async (e) => {

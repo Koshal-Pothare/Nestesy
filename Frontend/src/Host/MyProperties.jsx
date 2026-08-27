@@ -36,7 +36,7 @@ import { useNavigate } from "react-router-dom";
 import PropertyCard from "../Ui/PropertyCard";
 
 const API_URL =
-  "http://localhost:5000/api/owners/properties";
+  `${import.meta.env.VITE_API_URL}/owners/properties`;
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80";

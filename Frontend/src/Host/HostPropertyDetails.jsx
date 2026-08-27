@@ -24,8 +24,8 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-const API_URL = "http://localhost:5000/api/owners/properties";
-const VISITS_API_URL = "http://localhost:5000/api/owners/visits";
+const API_URL = `${import.meta.env.VITE_API_URL}/owners/properties`;
+const VISITS_API_URL = `${import.meta.env.VITE_API_URL}/owners/visits`;
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80";
