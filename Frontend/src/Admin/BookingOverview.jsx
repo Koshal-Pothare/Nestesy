@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { API_BASE } from '../Apitemp';
+import AdminSkeleton  from '../components/AdminSkeleton'
 
 const BookingOverview = () => {
   const [search, setSearch] = useState("");
@@ -238,6 +239,10 @@ const BookingOverview = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
 
+{loading ? (
+        <AdminSkeleton />
+      ) : (
+        <>
         {/* Header */}
         <div className="mb-7">
          
@@ -647,7 +652,7 @@ const BookingOverview = () => {
           )}
 
         </div>
-
+</>)}
       </div>
     </div>
   );

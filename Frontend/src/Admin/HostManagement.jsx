@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, Eye, Users, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from '../Apitemp';
+import AdminSkeleton  from '../components/AdminSkeleton'
 
 const mockHosts = [
   {
@@ -213,6 +214,10 @@ const HostManagement = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
 
+{loading ? (
+        <AdminSkeleton />
+      ) : (
+        <>
         {/* Header */}
         <div className="mb-6">
           
@@ -430,7 +435,7 @@ const HostManagement = () => {
           )}
 
         </div>
-
+</>)}
       </div>
     </div>
   );

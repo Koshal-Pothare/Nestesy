@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import { API_BASE } from '../Apitemp';
+import AdminSkeleton  from '../components/AdminSkeleton'
 
 const mockReviews = [
   {
@@ -213,6 +214,10 @@ const ReviewManagement = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
 
+{loading ? (
+        <AdminSkeleton />
+      ) : (
+        <>
         {/* Header */}
         <div className="mb-7">
          
@@ -551,6 +556,8 @@ const ReviewManagement = () => {
             </div>
           )}
         </div>
+        </>
+      )}
       </div>
     </div>
   );
