@@ -366,6 +366,10 @@ const TenantManagement = () => {
 
       <div className="mx-auto max-w-[1500px]">
 
+ {loading ? (
+        <TenantSkeleton />
+      ) : (
+        <>
         {/* PAGE HEADER */}
 
         <div className="mb-8">
@@ -633,10 +637,14 @@ const TenantManagement = () => {
           </div>
 
         </div>
-
+</>
+      )}
       </div>
+      
+      
 
     </div>
+    
   );
 };
 
