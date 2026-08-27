@@ -27,8 +27,8 @@ const HostVisitManagement = () => {
       try {
         setLoading(true);
 
-        const response = await api.get("/owners/visits");
-
+        const response = await api.get("/owner/visits");
+       console.log(response);
         setVisits(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Fetch owner visits error:", error);
