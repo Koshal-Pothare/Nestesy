@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {Eye,EyeOff} from 'lucide-react'
-import { API_BASE } from '../../Api';
+import { API_BASE } from '../services/api';
 
 const AdminRegister = () => {
   const navigate = useNavigate();
