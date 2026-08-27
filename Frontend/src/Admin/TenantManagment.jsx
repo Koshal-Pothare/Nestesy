@@ -20,6 +20,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { API_BASE } from '../Apitemp';
+import AdminSkeleton  from '../components/AdminSkeleton'
 
 
 
@@ -367,7 +368,7 @@ const TenantManagement = () => {
       <div className="mx-auto max-w-[1500px]">
 
  {loading ? (
-        <TenantSkeleton />
+        <AdminSkeleton />
       ) : (
         <>
         {/* PAGE HEADER */}
