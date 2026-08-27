@@ -98,7 +98,7 @@ const Hero = () => {
           >
             Find Your
             <br />
-            <span className="text-primary-300">Perfect Home</span>
+            <span className="text-primary-400">Perfect Home</span>
           </motion.h1>
 
           <motion.p

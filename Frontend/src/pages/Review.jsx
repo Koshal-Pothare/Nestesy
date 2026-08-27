@@ -196,7 +196,7 @@ export default function TestimonialsPage() {
                     style={{ backgroundImage: "url(./review.jpeg)" }}
                 >
                     {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/20 to-black/50" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/50 to-black/50" />
 
                     {/* Content */}
                     <div className="relative max-w-5xl mx-auto px-6 text-center">
@@ -208,7 +208,7 @@ export default function TestimonialsPage() {
                             transition={{ duration: 0.6, ease: "easeOut" }}
                             className="font-serif font-extrabold text-4xl md:text-5xl text-white mb-3"
                         >
-                            Guest <span className="text-emerald-700">Reviews</span>
+                            Guest <span className="text-green-500">Reviews</span>
                         </motion.h1>
 
                        
@@ -238,7 +238,7 @@ export default function TestimonialsPage() {
                         >
                             {/* Happy Guests */}
                             <div>
-                                <p className="font-bold text-3xl md:text-4xl text-emerald-700">
+                                <p className="font-bold text-3xl md:text-4xl text-green-500">
                                     10K+
                                 </p>
 
@@ -252,7 +252,7 @@ export default function TestimonialsPage() {
 
                           
                             <div>
-                                <p className="font-bold text-3xl md:text-4xl text-emerald-700">
+                                <p className="font-bold text-3xl md:text-4xl text-green-500">
                                     2,500+
                                 </p>
 
@@ -266,7 +266,7 @@ export default function TestimonialsPage() {
 
                             {/* Average Rating */}
                             <div>
-                                <p className="font-bold text-3xl md:text-4xl text-emerald-700 whitespace-nowrap">
+                                <p className="font-bold text-3xl md:text-4xl text-green-500 whitespace-nowrap">
                                     4.8
                                 </p>
 
@@ -288,7 +288,7 @@ export default function TestimonialsPage() {
                     transition={{ duration: 0.5 }}
                     className="font-serif font-extrabold text-3xl md:text-4xl text-stone-900 mb-3"
                 >
-                    What They <span className="text-emerald-700">Say</span>
+                    What They <span className="text-primary-500">Say</span>
                 </motion.h2>
                 <motion.p
                     initial={{ opacity: 0, y: 24 }}
