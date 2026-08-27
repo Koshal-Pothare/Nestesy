@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import api from "../services/api";
+import { getOwnerVisits } from "../services/ownerService";
 
 const HostVisitManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,8 +28,8 @@ const HostVisitManagement = () => {
       try {
         setLoading(true);
 
-        const response = await api.get("/owner/visits");
-       console.log(response);
+        const response = await getOwnerVisits();
+       console.log(response.data);
         setVisits(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Fetch owner visits error:", error);
