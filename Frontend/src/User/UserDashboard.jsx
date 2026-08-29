@@ -23,6 +23,7 @@ import {
   AuthService,
 } from "../services/UserServices";
 import { getFavorites, removeFromFavorites } from "../utils/favorite";
+import { getVisit } from "../utils/bookVisit";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80";
@@ -33,7 +34,7 @@ const UserDashboard = () => {
   const [favorite, setFavorite] = useState([]);
   const [visits, setVisits] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [activeBookings, setActiveBookings] = useState([]);
+  const [completedVisits, setCompletedVisits] = useState([]);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -201,29 +202,39 @@ const UserDashboard = () => {
 
         /*
          * ==========================================
-         * 5. ACTIVE BOOKINGS
+         * 5. COMPLETED VISITS
          * ==========================================
          */
 
-        const active =
-          Array.isArray(allBookings)
-            ? allBookings.filter((booking) => {
-                const status = String(
-                  booking?.status || ""
-                ).toLowerCase();
+        const completedFromApi = Array.isArray(allBookings)
+          ? allBookings.filter(
+              (b) => String(b?.status || "").toLowerCase() === "completed"
+            )
+          : [];
 
-                return [
-                  "active",
-                  "confirmed",
-                  "approved",
-                  "upcoming",
-                  "pending",
-                ].includes(status);
-              })
-            : [];
+        const localVisits = getVisit();
+        const localCompleted = Array.isArray(localVisits)
+          ? localVisits.filter(
+              (v) => String(v?.status || "").toLowerCase() === "completed"
+            )
+          : [];
+
+        const completedMap = new Map();
+        completedFromApi.forEach((b) => {
+          const id = String(b._id || b.id || "");
+          if (id) completedMap.set(id, b);
+        });
+        localCompleted.forEach((v) => {
+          const id = String(v.id || v._id || "");
+          if (id && !completedMap.has(id)) {
+            completedMap.set(id, v);
+          }
+        });
+
+        const finalCompleted = Array.from(completedMap.values());
 
         if (mounted) {
-          setActiveBookings(active);
+          setCompletedVisits(finalCompleted);
         }
       } catch (error) {
         console.error(
@@ -327,13 +338,13 @@ const UserDashboard = () => {
       subtitleColor: "text-gray-500",
     },
     {
-      title: "Active Bookings",
-      value: activeBookings.length,
-      subtitle: "Currently Active",
-      icon: Star,
-      iconBg: "bg-amber-100",
-      iconColor: "text-amber-400",
-      subtitleColor: "text-amber-400",
+      title: "Completed Visits",
+      value: completedVisits.length,
+      subtitle: "Successfully visited",
+      icon: CheckCircle2,
+      iconBg: "bg-green-100",
+      iconColor: "text-green-600",
+      subtitleColor: "text-green-600",
     },
   ];
 
@@ -559,36 +570,37 @@ const UserDashboard = () => {
         onClick={()=>navigate("/user/booking-history")}
         className="text-primary-500 text-sm font-semibold mr-5 cursor-pointer">View all</button>
         </div>
-             {activeBookings.length === 0 ? (
+             {completedVisits.length === 0 ? (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     className="flex min-h-[150px] flex-col items-center justify-center rounded-2xl bg-gray-50 px-4 text-center"
   >
-    <CalendarDays size={32} className="text-gray-300" />
+    <CheckCircle2 size={32} className="text-gray-300" />
     <p className="mt-2 text-sm font-semibold text-gray-500">
-      No Active Booking
+      No Completed Visits
     </p>
     <p className="mt-1 text-xs text-gray-400">
-      Your active booking property visits will appear here.
+      Your completed property visit history will appear here.
     </p>
   </motion.div>
 ) : (
   <div className="mt-4 space-y-3">
-    {activeBookings.slice(0, 2).map((booking, index) => (
+    {completedVisits.slice(0, 2).map((booking, index) => (
        <motion.div
-      key={booking.id}
+      key={booking.id || booking._id}
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
       whileHover={{ y: -2 }}
-      className="group w-full rounded-2xl border border-gray-100 bg-gray-50/70 p-3 transition-all duration-300 hover:bg-white hover:shadow-md"
+      className="group w-full rounded-2xl border border-gray-100 bg-gray-50/70 p-3 transition-all duration-300 hover:bg-white hover:shadow-md cursor-pointer"
+      onClick={() => navigate(`/property/${booking.propertyId || booking._id || booking.id}`)}
     >
       <div className="flex items-center gap-3 sm:gap-4">
         {/* Image */}
         <div className="h-20 w-20 sm:h-25 sm:w-30 shrink-0 overflow-hidden rounded-xl">
           <img
-            src={booking.images?.[0]}
+            src={booking.images?.[0] || booking.image || FALLBACK_IMAGE}
             alt={booking.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -596,14 +608,14 @@ const UserDashboard = () => {
 
         {/* Property Details */}
         <div className="min-w-0 flex-1">
-          <div className="flex justify-between">
-          <h2 className="truncate text-sm sm:text-base font-semibold text-gray-800">
-            {booking.title}
-          </h2>
-            <div className="  flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-primary-700 shadow-sm backdrop-blur-sm sm:text-[12px]">
-                    <span className="h-2 w-2 rounded-full bg-primary-500" />
-                    Upcoming
-                  </div>
+          <div className="flex justify-between items-center gap-2">
+            <h2 className="truncate text-sm sm:text-base font-semibold text-gray-800">
+              {booking.title}
+            </h2>
+            <div className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 shadow-sm border border-green-200 shrink-0">
+              <CheckCircle2 size={11} />
+              Completed
+            </div>
           </div>
 
           <p className="mt-1 truncate text-xs sm:text-sm text-gray-500">
@@ -612,8 +624,8 @@ const UserDashboard = () => {
 
           {/* Date & Time */}
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs">
-            <span className="rounded-lg bg-primary-50 px-2 py-1 font-medium text-primary-700">
-              {booking.visitDate}
+            <span className="rounded-lg bg-green-50 px-2 py-1 font-medium text-green-700">
+              Visited: {booking.visitDate}
             </span>
 
             <span className="rounded-lg bg-gray-100 px-2 py-1 font-medium text-gray-600">
