@@ -29,8 +29,15 @@ const HostVisitManagement = () => {
         setLoading(true);
 
         const response = await getOwnerVisits();
-       console.log(response.data);
-        setVisits(Array.isArray(response.data) ? response.data : []);
+        const raw = response.data;
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.visits)
+          ? raw.visits
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : [];
+        setVisits(list);
       } catch (error) {
         console.error("Fetch owner visits error:", error);
 

@@ -9,130 +9,97 @@ import {
   Bath,
   Ruler,
   Search,
-  Filter,
   CheckCircle2,
-  XCircle,
-  AlertCircle,
   ArrowRight,
+  User,
+  Star,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BookingService } from "../services/UserServices";
 import { getVisit } from "../utils/bookVisit";
 
 const BookingHistory = () => {
   const navigate = useNavigate();
 
   const [history, setHistory] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Get user's visits
-  useEffect(() => {
-    const loadHistory = () => {
-      const data = getVisit();
-      setHistory(data);
-    };
+  const fetchCompletedVisits = async () => {
+    try {
+      setLoading(true);
+      const res = await BookingService.getBookings("completed").catch((err) => {
+        console.warn("API load bookings error:", err);
+        return { bookings: [] };
+      });
 
-    loadHistory();
+      const apiBookings = Array.isArray(res?.bookings)
+        ? res.bookings
+        : Array.isArray(res?.data?.bookings)
+        ? res.data.bookings
+        : [];
 
-    window.addEventListener("storage", loadHistory);
+      // Also check local storage visits for any completed items
+      const localVisits = getVisit();
+      const localCompleted = Array.isArray(localVisits)
+        ? localVisits.filter(
+            (v) => String(v.status || "").toLowerCase() === "completed"
+          )
+        : [];
 
-    return () => {
-      window.removeEventListener("storage", loadHistory);
-    };
-  }, []);
+      // Merge unique by ID/title+date
+      const mergedMap = new Map();
 
-  // Reload when user comes back to this page/tab
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        setHistory(getVisit());
-      }
-    };
+      apiBookings.forEach((b) => {
+        const id = b._id || b.id;
+        if (id) mergedMap.set(String(id), b);
+      });
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
+      localCompleted.forEach((v) => {
+        const id = v.id || v._id;
+        if (id && !mergedMap.has(String(id))) {
+          mergedMap.set(String(id), v);
+        }
+      });
 
-    return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
+      const finalCompleted = Array.from(mergedMap.values()).filter(
+        (item) => String(item.status || "").toLowerCase() === "completed"
       );
-    };
+
+      setHistory(finalCompleted);
+    } catch (error) {
+      console.error("Failed to load completed visits history:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompletedVisits();
   }, []);
 
-  // Status style
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case "pending":
-        return "bg-amber-50 text-amber-600 border-amber-200";
-
-      case "approved":
-        return "bg-blue-50 text-blue-600 border-blue-200";
-
-      case "completed":
-        return "bg-green-50 text-green-600 border-green-200";
-
-      case "rejected":
-        return "bg-red-50 text-red-500 border-red-200";
-
-      default:
-        return "bg-gray-50 text-gray-500 border-gray-200";
-    }
-  };
-
-  // Status icon
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "pending":
-        return <AlertCircle size={14} />;
-
-      case "approved":
-        return <CheckCircle2 size={14} />;
-
-      case "completed":
-        return <CheckCircle2 size={14} />;
-
-      case "rejected":
-        return <XCircle size={14} />;
-
-      default:
-        return <AlertCircle size={14} />;
-    }
-  };
-
-  // Format status
-  const formatStatus = (status) => {
-    if (!status) return "Pending";
-
-    return (
-      status.charAt(0).toUpperCase() +
-      status.slice(1)
-    );
-  };
-
-  // Filter bookings
+  // Filter completed visits by search term
   const filteredHistory = useMemo(() => {
     const search = searchTerm.toLowerCase().trim();
 
     return history.filter((booking) => {
-      const matchesSearch =
-        booking.title?.toLowerCase().includes(search) ||
-        booking.location?.toLowerCase().includes(search);
+      if (!search) return true;
+      const title = String(booking.title || "").toLowerCase();
+      const location = String(booking.location || "").toLowerCase();
+      const host = String(booking.host || "").toLowerCase();
 
-      const matchesStatus =
-        statusFilter === "all" ||
-        booking.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
+      return (
+        title.includes(search) ||
+        location.includes(search) ||
+        host.includes(search)
+      );
     });
-  }, [history, searchTerm, statusFilter]);
+  }, [history, searchTerm]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
-
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -141,465 +108,257 @@ const BookingHistory = () => {
           className="mb-8"
         >
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-
             <div>
               <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
-                  <History size={21} />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-700">
+                  <CheckCircle2 size={21} />
                 </div>
 
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600">
-                  Your Activity
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-green-700">
+                  Completed Visits
                 </span>
               </div>
 
               <h1 className="text-2xl font-serif font-bold text-gray-900 sm:text-3xl lg:text-4xl">
-                Booking History
+                Completed Visits History
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">
-                View all your property visit bookings and track
-                their current status.
+                View all your completed property visits and track past viewings.
               </p>
             </div>
 
-            {/* Total */}
+            {/* Total Completed */}
             <div className="flex w-fit items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-600">
-                <History size={20} />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-700">
+                <CalendarCheck size={20} />
               </div>
 
               <div>
-                <p className="text-xs text-gray-400">
-                  Total Bookings
-                </p>
+                <p className="text-xs text-gray-400">Completed Visits</p>
 
                 <p className="text-lg font-bold text-gray-800">
                   {history.length}{" "}
                   <span className="text-sm font-medium text-gray-400">
-                    Booking{history.length !== 1 ? "s" : ""}
+                    Visit{history.length !== 1 ? "s" : ""}
                   </span>
                 </p>
               </div>
             </div>
-
           </div>
         </motion.div>
 
-        {/* Search + Filter */}
-        {history.length > 0 && (
-          <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+        {/* Search Bar */}
+        <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row items-center">
+            {/* Search */}
+            <div className="relative flex-1 w-full">
+              <Search
+                size={19}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-
-              {/* Search */}
-              <div className="relative flex-1">
-
-                <Search
-                  size={19}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-
-                <input
-                  type="text"
-                  placeholder="Search property or location..."
-                  value={searchTerm}
-                  onChange={(e) =>
-                    setSearchTerm(e.target.value)
-                  }
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-700 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
-                />
-
-              </div>
-
-              {/* Status Filter */}
-              <div className="relative sm:w-52">
-
-                <Filter
-                  size={17}
-                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-
-                <select
-                  value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value)
-                  }
-                  className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-9 text-sm font-medium text-gray-700 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
-                >
-                  <option value="all">
-                    All Status
-                  </option>
-
-                  <option value="pending">
-                    Pending
-                  </option>
-
-                  <option value="approved">
-                    Approved
-                  </option>
-
-                  <option value="completed">
-                    Completed
-                  </option>
-
-                  <option value="rejected">
-                    Rejected
-                  </option>
-                </select>
-
-                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  ▼
-                </span>
-
-              </div>
-
+              <input
+                type="text"
+                placeholder="Search completed property or location..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-700 outline-none transition focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-100"
+              />
             </div>
-          </div>
-        )}
 
-        {/* Empty State */}
-        {history.length === 0 ? (
+            <button
+              onClick={fetchCompletedVisits}
+              title="Refresh Visits"
+              className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition cursor-pointer shrink-0"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-green-600" : ""}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Content State */}
+        {loading ? (
+          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white p-12 text-center">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-green-200 border-t-green-600 mb-4" />
+            <p className="text-sm font-medium text-gray-500">
+              Loading completed visits...
+            </p>
+          </div>
+        ) : history.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="flex min-h-[500px] flex-col items-center justify-center rounded-3xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm"
+            className="flex min-h-[450px] flex-col items-center justify-center rounded-3xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm"
           >
-
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-400">
-              <History size={38} />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
+              <CheckCircle2 size={38} />
             </div>
 
             <h2 className="mt-6 text-xl font-bold text-gray-800 sm:text-2xl">
-              No Booking History
+              No Completed Visits Yet
             </h2>
 
             <p className="mt-2 max-w-md text-sm leading-6 text-gray-500 sm:text-base">
-              Your property visit bookings will appear here
-              after you book a visit.
+              Once you complete a scheduled visit with a host, it will appear here in your visit history.
             </p>
 
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate("/explore")}
-              className="mt-6 flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-600/20 transition hover:bg-primary-700"
+              className="mt-6 flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700 cursor-pointer"
             >
               Explore Properties
               <ArrowRight size={17} />
             </motion.button>
-
           </motion.div>
         ) : filteredHistory.length === 0 ? (
-
-          /* No Search Result */
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex min-h-[350px] flex-col items-center justify-center rounded-3xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm"
+            className="flex min-h-[300px] flex-col items-center justify-center rounded-3xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm"
           >
-
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
               <Search size={28} />
             </div>
 
             <h2 className="mt-5 text-xl font-bold text-gray-800">
-              No bookings found
+              No completed visits match your search
             </h2>
 
             <p className="mt-2 text-sm text-gray-500">
-              Try changing your search or status filter.
+              Try changing your search query.
             </p>
-
           </motion.div>
-
         ) : (
-
-          /* Booking List */
+          /* Completed Visits List */
           <div className="space-y-5">
-
             <AnimatePresence mode="popLayout">
-
               {filteredHistory.map((booking, index) => (
-
                 <motion.div
-                  key={`${booking.id}-${booking.visitDate}`}
-                  initial={{
-                    opacity: 0,
-                    y: 25,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    y: -20,
-                  }}
-                  transition={{
-                    duration: 0.4,
-                    delay: index * 0.05,
-                  }}
-                  className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
+                  key={`${booking.id || booking._id}-${booking.visitDate}`}
+                  initial={{ opacity: 0, y: 25 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
-
                   <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
-
                     {/* Property Image */}
-                    <div className="relative h-52 overflow-hidden sm:h-60 lg:h-full lg:min-h-[300px]">
-
+                    <div className="relative h-52 overflow-hidden sm:h-60 lg:h-full lg:min-h-[260px] bg-gray-100">
                       <img
-                        src={booking.images?.[0]}
+                        src={
+                          booking.images?.[0] ||
+                          booking.image ||
+                          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800"
+                        }
                         alt={booking.title}
                         className="h-full w-full object-cover"
                       />
 
                       {/* Status */}
-                      <div
-                        className={`absolute left-4 top-4 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold shadow-sm backdrop-blur ${getStatusStyle(
-                          booking.status
-                        )}`}
-                      >
-                        {getStatusIcon(booking.status)}
-
-                        {formatStatus(
-                          booking.status
-                        )}
+                      <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-green-200 bg-green-500 text-white px-3 py-1 text-xs font-bold shadow-md">
+                        <CheckCircle2 size={14} />
+                        Completed
                       </div>
-
                     </div>
 
                     {/* Content */}
-                    <div className="p-5 sm:p-6 lg:p-7">
+                    <div className="p-5 sm:p-6 lg:p-7 flex flex-col justify-between">
+                      <div>
+                        {/* Property Header */}
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
+                              {booking.title}
+                            </h2>
 
-                      {/* Property Header */}
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-
-                        <div>
-
-                          <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                            {booking.title}
-                          </h2>
-
-                          <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
-
-                            <MapPin
-                              size={16}
-                              className="shrink-0 text-primary-600"
-                            />
-
-                            <span>
-                              {booking.location}
-                            </span>
-
+                            <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
+                              <MapPin size={16} className="shrink-0 text-green-600" />
+                              <span>{booking.location}</span>
+                            </div>
                           </div>
 
+                          {booking.price ? (
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-xl font-bold text-green-700">
+                                ₹{Number(booking.price).toLocaleString("en-IN")}
+                              </span>
+                              <span className="text-xs text-gray-400">/month</span>
+                            </div>
+                          ) : null}
                         </div>
 
-                        <div className="flex items-baseline gap-1">
-
-                          <span className="text-xl font-bold text-primary-700">
-                            ₹
-                            {booking.price?.toLocaleString()}
+                        {/* Specs */}
+                        <div className="mt-4 grid grid-cols-3 gap-3 py-3 border-y border-gray-100 text-xs text-gray-600">
+                          <span className="flex items-center gap-1.5">
+                            <BedDouble size={16} className="text-green-600" />
+                            {booking.bedrooms || 0} BHK
                           </span>
-
-                          <span className="text-xs text-gray-400">
-                            /month
+                          <span className="flex items-center gap-1.5">
+                            <Bath size={16} className="text-green-600" />
+                            {booking.bathrooms || 0} Baths
                           </span>
-
+                          <span className="flex items-center gap-1.5">
+                            <Ruler size={16} className="text-green-600" />
+                            {booking.area || 0} sq.ft
+                          </span>
                         </div>
 
-                      </div>
-
-                      {/* Property Details */}
-                      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-
-                        {/* Bedrooms */}
-                        <div className="rounded-2xl bg-gray-50 p-3">
-
-                          <BedDouble
-                            size={18}
-                            className="text-primary-600"
-                          />
-
-                          <p className="mt-2 text-xs text-gray-400">
-                            Bedrooms
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                            {booking.bedrooms ?? "N/A"}
-                          </p>
-
-                        </div>
-
-                        {/* Bathrooms */}
-                        <div className="rounded-2xl bg-gray-50 p-3">
-
-                          <Bath
-                            size={18}
-                            className="text-primary-600"
-                          />
-
-                          <p className="mt-2 text-xs text-gray-400">
-                            Bathrooms
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                            {booking.bathrooms ?? "N/A"}
-                          </p>
-
-                        </div>
-
-                        {/* Area */}
-                        <div className="rounded-2xl bg-gray-50 p-3">
-
-                          <Ruler
-                            size={18}
-                            className="text-primary-600"
-                          />
-
-                          <p className="mt-2 text-xs text-gray-400">
-                            Area
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold text-gray-800">
-                            {booking.area
-                              ? `${booking.area} sq.ft`
-                              : "N/A"}
-                          </p>
-
-                        </div>
-
-                        {/* Booking Date */}
-                        <div className="rounded-2xl bg-gray-50 p-3">
-
-                          <CalendarCheck
-                            size={18}
-                            className="text-primary-600"
-                          />
-
-                          <p className="mt-2 text-xs text-gray-400">
-                            Booked On
-                          </p>
-
-                          <p className="mt-0.5 truncate text-sm font-semibold text-gray-800">
-                            {booking.bookedAt
-                              ? new Date(
-                                  booking.bookedAt
-                                ).toLocaleDateString(
-                                  "en-IN"
-                                )
-                              : "N/A"}
-                          </p>
-
-                        </div>
-
-                      </div>
-
-                      {/* Visit Information */}
-                      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-
-                        {/* Visit Date */}
-                        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-
-                          <div className="flex items-center gap-2">
-
-                            <CalendarCheck
-                              size={17}
-                              className="text-primary-600"
-                            />
-
-                            <p className="text-xs font-medium text-gray-400">
-                              Visit Date
-                            </p>
-
+                        {/* Visit Date + Host Info */}
+                        <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-600">
+                          <div className="flex items-center gap-1.5 bg-green-50 text-green-800 px-3 py-1.5 rounded-xl font-semibold">
+                            <CalendarCheck size={14} />
+                            <span>Visited on: {booking.visitDate}</span>
                           </div>
 
-                          <p className="mt-2 text-sm font-bold text-gray-800">
-                            {booking.visitDate ||
-                              "Not available"}
-                          </p>
-
-                        </div>
-
-                        {/* Visit Time */}
-                        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-
-                          <div className="flex items-center gap-2">
-
-                            <Clock
-                              size={17}
-                              className="text-primary-600"
-                            />
-
-                            <p className="text-xs font-medium text-gray-400">
-                              Visit Time
-                            </p>
-
+                          <div className="flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-xl font-medium">
+                            <Clock size={14} />
+                            <span>{booking.visitTime}</span>
                           </div>
 
-                          <p className="mt-2 text-sm font-bold text-gray-800">
-                            {booking.visitTime ||
-                              "Not available"}
-                          </p>
-
+                          {booking.host && (
+                            <div className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-xl font-medium">
+                              <User size={14} />
+                              <span>
+                                Host: {/^[0-9a-fA-F]{24}$/.test(booking.host) ? "Verified Host" : booking.host}
+                              </span>
+                            </div>
+                          )}
                         </div>
-
                       </div>
 
-                      {/* Status */}
-                      <div className="mt-5 flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-
-                        <div>
-
-                          <p className="text-xs text-gray-400">
-                            Booking Status
-                          </p>
-
-                          <div className="mt-1 flex items-center gap-2">
-
-                            {getStatusIcon(
-                              booking.status
-                            )}
-
-                            <span className="text-sm font-semibold text-gray-700">
-                              {formatStatus(
-                                booking.status
-                              )}
-                            </span>
-
-                          </div>
-
-                        </div>
-
-                        {/* Read-only Property Button */}
+                      {/* Actions */}
+                      <div className="mt-6 flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-gray-100">
                         <button
                           onClick={() =>
-                            navigate(
-                              `/property/${booking.id}`
-                            )
+                            navigate(`/property/${booking.propertyId || booking._id || booking.id}`)
                           }
-                          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 sm:w-auto"
+                          className="flex items-center gap-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2.5 text-xs font-semibold transition cursor-pointer"
                         >
                           View Property
-                          <ArrowRight size={15} />
+                          <ArrowRight size={14} />
                         </button>
 
+                        <button
+                          onClick={() =>
+                            navigate(`/review?propertyId=${booking.propertyId || booking._id || booking.id}`)
+                          }
+                          className="flex items-center gap-1.5 rounded-xl bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 text-xs font-semibold shadow-md shadow-green-600/20 transition cursor-pointer"
+                        >
+                          <Star size={14} />
+                          Write a Review
+                        </button>
                       </div>
-
                     </div>
                   </div>
-
                 </motion.div>
-
               ))}
-
             </AnimatePresence>
-
           </div>
         )}
-
       </div>
     </div>
   );
