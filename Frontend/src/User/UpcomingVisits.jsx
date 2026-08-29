@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BookingService } from "../services/UserServices";
+import UpcomingVisitSkeleton from "./UpcomingVisitSkeleton";
 
 const getHostDisplayName = (host) => {
   if (!host) return "Verified Host";
@@ -58,9 +59,7 @@ const UpcomingVisits = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
-      </div>
+     <UpcomingVisitSkeleton />
     );
   }
 

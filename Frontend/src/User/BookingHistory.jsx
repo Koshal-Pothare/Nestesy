@@ -18,6 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { BookingService } from "../services/UserServices";
 import { getVisit } from "../utils/bookVisit";
+import HistorySkeleton from "./HistorySkeleton";
 
 const BookingHistory = () => {
   const navigate = useNavigate();
@@ -179,12 +180,7 @@ const BookingHistory = () => {
 
         {/* Content State */}
         {loading ? (
-          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white p-12 text-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-green-200 border-t-green-600 mb-4" />
-            <p className="text-sm font-medium text-gray-500">
-              Loading completed visits...
-            </p>
-          </div>
+         <HistorySkeleton />
         ) : history.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
