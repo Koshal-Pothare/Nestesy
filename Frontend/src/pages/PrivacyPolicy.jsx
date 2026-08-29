@@ -14,7 +14,7 @@ import {
   privacyPolicyCTAData,
 } from "../Data/Data";
 
-import privacyBg from "../assets/privacy-bg.jpg";
+import privacyBg from "../assets/privacy-bg.png";
 import { useNavigate } from "react-router-dom";
 
 // Hero Section

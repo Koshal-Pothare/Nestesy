@@ -4,7 +4,7 @@ import ContactForm from "../components/ContactForm";
 
 import { motion } from "framer-motion";
 import { FaPhoneAlt, FaHeadset, FaArrowRight, FaEnvelope, FaMapMarkerAlt, FaDirections, FaClock } from "react-icons/fa";
-import heroImage from "../assets/contact-hero.jpg";
+import heroImage from "../assets/contact-hero.png";
 
 const Contact = () => {
 

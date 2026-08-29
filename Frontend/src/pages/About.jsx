@@ -39,7 +39,7 @@ import {
 import sofaImage from "../assets/About/mission-vision.png";
 import cityImage from "../assets/About/mission-city.png";
 
-import heroBg from "../assets/About/about-hero-bg.jpeg";
+import heroBg from "../assets/About/about-hero-bg.jpg";
 import ctaHomeImg from "../assets/About/cta-home.png";
 
 
