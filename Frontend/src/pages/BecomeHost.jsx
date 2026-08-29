@@ -144,9 +144,13 @@ const BecomeHost = () => {
   </motion.div>
 
   {/* HOST IMAGE */}
-  <div className="hidden xl:block absolute bottom-0 right-[8%] z-10 h-[90%]">
+  <motion.div
+  initial={{ opacity: 0, y: 100 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 2.9, delay:0.5, ease: [0.22, 1, 0.36, 1] }}
+  className="hidden xl:block absolute bottom-0 right-[8%] z-10 h-[90%]">
     <img src={Host} alt="Host" className="h-full w-auto object-contain object-bottom" />
-  </div>
+  </motion.div>
 </div>
         {/* BENEFITS */}
         <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 py-20">
